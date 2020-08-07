@@ -1,0 +1,21 @@
+git:
+  depth: 1
+addons:
+  apt:
+    packages:
+      - docker-ce
+      - curl
+services:
+    - docker
+
+os: linux
+
+language:
+  - cpp
+
+branches:
+  only:
+      - develop
+
+script:
+  - docker run --rm -u root -v $PWD:/OpenRSR-OF7 foamscience/bionic-openfoam7 /bin/bash -c "/OpenRSR-OF7/scripts/docker_build.sh"
