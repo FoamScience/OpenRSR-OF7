@@ -1,32 +1,36 @@
-# Prerequisites
-*.d
+# LS junk/cache
+**/.vscode/**
+**/compile_commands.json    
+**/.ccls-cache/**
+**/.clangd    
+**@*    
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
+# Precompiled headers
+**.dep    
+**/lnInclude/**    
 
-# Precompiled Headers
-*.gch
-*.pch
+# Compiled objects
+**linux64**    
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
+# Code coverage and meta info
+**.info    
+**.gcno    
+**.gcda    
+**/coverage-output/**    
+.codacy-coverage/    
 
-# Fortran module files
-*.mod
-*.smod
+# Test Binaries
+*Test    
+*TestDriver
 
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
+# Documentation
+**/html/**    
+**/xml/**    
+**/latex/**    
+**/api/**    
+**/build/**    
+**/_build/**    
+**.plist    
 
-# Executables
-*.exe
-*.out
-*.app
+# Temporary Files
+**.tmp    
