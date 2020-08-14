@@ -1,0 +1,8 @@
+EXE_INC = \
+    -I$(LIB_SRC)/OpenFOAM/lnInclude \
+    -I../../../src/rsr/lnInclude
+
+
+LIB_LIBS = \
+    -L$(FOAM_USER_LIBBIN) \
+    -lRSR

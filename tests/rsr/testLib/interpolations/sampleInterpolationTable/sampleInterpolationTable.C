@@ -23,12 +23,12 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "linearInterpolationTable.H"
+#include "sampleInterpolationTable.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 template<class Type>
-Foam::linearInterpolationTable<Type>::linearInterpolationTable
+Foam::sampleInterpolationTable<Type>::sampleInterpolationTable
 (
     const List<Tuple2<scalar, List<Type>>>& values,
 	const bool isPeriodic
@@ -39,10 +39,7 @@ Foam::linearInterpolationTable<Type>::linearInterpolationTable
 }
 
 template<class Type>
-Foam::linearInterpolationTable<Type>::linearInterpolationTable
-(
-    const dictionary& dict
-)
+Foam::sampleInterpolationTable<Type>::sampleInterpolationTable(const dictionary& dict)
 :
     basicInterpolationTable<Type>(dict)
 {
@@ -50,9 +47,9 @@ Foam::linearInterpolationTable<Type>::linearInterpolationTable
 
 
 template<class Type>
-Foam::linearInterpolationTable<Type>::linearInterpolationTable
+Foam::sampleInterpolationTable<Type>::sampleInterpolationTable
 (
-     const linearInterpolationTable& interpTable
+     const sampleInterpolationTable& interpTable
 )
 :
     basicInterpolationTable<Type>(interpTable)
@@ -62,60 +59,7 @@ Foam::linearInterpolationTable<Type>::linearInterpolationTable
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
 template<class Type>
-Foam::linearInterpolationTable<Type>::~linearInterpolationTable()
+Foam::sampleInterpolationTable<Type>::~sampleInterpolationTable()
 {}
-
-// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
-
-template<class Type>
-Foam::List<Type> Foam::linearInterpolationTable<Type>::interpolate
-(
-    const scalar& time
-) const
-{
-    // Always return the single value if data size == 1
-	if (this->values_.size() <= 1)
-	{
-		return this->values_[0].second();
-	}
-	
-    // Correct scalar value if periodicity is enabled
-	scalar pTime = this->projectTime(time);
-
-    // Find index to next (or lookup) element in values list
-	int nextElement = this->lookup(pTime);
-
-    // Extract upstream element
-	const Tuple2<scalar, List<Type>>& us = this->values_[nextElement];
-	if(us.first() == pTime)
-	{
-		return us.second();
-	}
-
-    // Extract downstream element
-	const Tuple2<scalar, List<Type>>& ds = this->values_[nextElement-1];
-
-	if (ds.second().size() != us.second().size())
-	{
-		FatalErrorInFunction
-			<< "Elements " << nextElement-1 << " and "
-            << nextElement << "of time series "
-			<< " have different sizes ... Can't interpolate."
-			<< exit(FatalError);
-	}
-
-    // Weight value
-	scalar w  = (pTime-ds.first())/(us.first()-ds.first());
-
-    // Return weighted Tuple2
-	List<Type> result(us.second().size());
-	forAll(result, i)
-	{
-		result[i] = (1-w)*ds.second()[i] + w*us.second()[i];
-	}
-
-	return result;
-}
-
 
 // ************************************************************************* //

@@ -1,0 +1,12 @@
+EXE_INC = \
+    -I$(LIB_SRC)/OpenFOAM/lnInclude \
+	-I../catch2 \
+	-I../../src/rsr/lnInclude \
+    -ItestLib/lnInclude
+    
+EXE_LIBS = \
+    -lOpenFOAM \
+	-L$(FOAM_USR_LIBBIN) \
+    -lRSR \
+    -LtestLib \
+    -lTestRSR

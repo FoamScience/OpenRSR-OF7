@@ -9,8 +9,10 @@
 **.dep    
 **/lnInclude/**    
 
-# Compiled objects
+# Compiled objects and Test Binaries
 **linux64**    
+**.so
+**Test
 
 # Code coverage and meta info
 **.info    

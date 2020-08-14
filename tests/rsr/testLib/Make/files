@@ -1,0 +1,3 @@
+interpolations/sampleInterpolationTable/sampleInterpolationTables.C
+
+LIB = libTestRSR

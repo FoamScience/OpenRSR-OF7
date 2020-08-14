@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# Run from this directory
+cd ${0%/*} || exit 1
+
+# Compile the "testing" library
+wmake libso testLib
+
+# Compile and run the test
+wmake && ./rsrTestDriver

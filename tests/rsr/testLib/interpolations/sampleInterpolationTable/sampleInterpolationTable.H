@@ -22,18 +22,18 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::linearInterpolationTable
+    Foam::sampleInterpolationTable
 
 Description
-    Time series with linear interpolation.
+
 
 SourceFiles
-    linearInterpolationTable.C
+    sampleInterpolationTable.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef linearInterpolationTable_H
-#define linearInterpolationTable_H
+#ifndef sampleInterpolationTable_H
+#define sampleInterpolationTable_H
 
 #include "basicInterpolationTable.H"
 #include "tableReader.H"
@@ -44,46 +44,53 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                   Class linearInterpolationTable Declaration
+                   Class sampleInterpolationTable Declaration
 \*---------------------------------------------------------------------------*/
 
 template<class Type>
-class linearInterpolationTable
+class sampleInterpolationTable
 :
     public basicInterpolationTable<Type>
 {
 public:
 
     //- Runtime type information
-    TypeName("linear");
+    TypeName("sampleInterpolationTable");
 
 
     // Constructors
 
         //- Disallow null constructor
-        linearInterpolationTable() = delete;
+        sampleInterpolationTable() = delete;
 
         //- Construct from components
-        linearInterpolationTable
+        explicit sampleInterpolationTable
         (
             const List<Tuple2<scalar, List<Type>>>& values,
-			const bool isPeriodic
+			const bool isPeriodic = false
         );
 
         //- Construct by reading the fileName from dictionary
         //  and read the table from that file.
-        explicit linearInterpolationTable(const dictionary& dict);
+        explicit sampleInterpolationTable(const dictionary& dict);
 
         //- Construct copy
-        linearInterpolationTable(const linearInterpolationTable& interpTable);
+        sampleInterpolationTable(const sampleInterpolationTable& interpTable);
 
 	// Destructor
-	virtual ~linearInterpolationTable();
+	virtual ~sampleInterpolationTable();
 
     // Member Functions
 
 		//- The actual interpolation operation
-		virtual List<Type> interpolate(const scalar& time) const;
+		virtual List<Type> interpolate(const scalar& time) const
+        {
+            return
+            {
+                Type(this->projectTime(time)),
+                Type(this->lookup(time))
+            };
+        }
 };
 
 
@@ -94,7 +101,7 @@ public:
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #ifdef NoRepository
-    #include "linearInterpolationTable.C"
+    #include "sampleInterpolationTable.C"
 #endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
