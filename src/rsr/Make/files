@@ -1,4 +1,5 @@
 interpolations/basicInterpolationTable/basicInterpolationTables.C
 interpolations/linearInterpolationTable/linearInterpolationTables.C
+interpolations/steppedInterpolationTable/steppedInterpolationTables.C
 
 LIB = $(FOAM_USER_LIBBIN)/libRSR

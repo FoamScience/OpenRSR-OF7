@@ -1,6 +1,7 @@
 
 interpolations/basicInterpolationTableTest.C
 interpolations/linearScalarInterpolationTableTest.C
+interpolations/steppedScalarInterpolationTableTest.C
 
 rsrTestDriver.C
 
