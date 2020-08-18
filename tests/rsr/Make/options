@@ -6,7 +6,6 @@ EXE_INC = \
     
 EXE_LIBS = \
     -lOpenFOAM \
-	-L$(FOAM_USR_LIBBIN) \
+	-L$(FOAM_USER_LIBBIN) \
     -lRSR \
-    -LtestLib \
-    -lTestRSR
+    ./testLib/libTestRSR.so

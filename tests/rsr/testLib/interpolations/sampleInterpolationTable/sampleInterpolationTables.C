@@ -31,7 +31,7 @@ License
 
 namespace Foam
 {
-    makeInterpolationTables(sampleInterpolationTable);
+    makeInterpolationTables(sampleInterpolationTable, interpolationTables);
 }
 
 // ************************************************************************* //

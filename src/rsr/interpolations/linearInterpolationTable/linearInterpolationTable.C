@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     | Website:  https://openfoam.org
-    \\  /    A nd           | Copyright (C) 2011-2019 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2018 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -24,11 +24,13 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "linearInterpolationTable.H"
+#include "fileOperation.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 template<class Type>
-Foam::linearInterpolationTable<Type>::linearInterpolationTable
+Foam::interpolationTables::linearInterpolationTable<Type>::
+linearInterpolationTable
 (
     const List<Tuple2<scalar, List<Type>>>& values,
 	const bool isPeriodic
@@ -38,39 +40,33 @@ Foam::linearInterpolationTable<Type>::linearInterpolationTable
 {
 }
 
+
 template<class Type>
-Foam::linearInterpolationTable<Type>::linearInterpolationTable
+Foam::interpolationTables::linearInterpolationTable<Type>::
+linearInterpolationTable
 (
     const dictionary& dict
 )
 :
     basicInterpolationTable<Type>(dict)
-{
-}
+{}
 
-
-template<class Type>
-Foam::linearInterpolationTable<Type>::linearInterpolationTable
-(
-     const linearInterpolationTable& interpTable
-)
-:
-    basicInterpolationTable<Type>(interpTable)
-{
-}
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
 template<class Type>
-Foam::linearInterpolationTable<Type>::~linearInterpolationTable()
+Foam::interpolationTables::linearInterpolationTable<Type>::
+~linearInterpolationTable()
 {}
+
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 template<class Type>
-Foam::List<Type> Foam::linearInterpolationTable<Type>::interpolate
+Foam::List<Type> 
+Foam::interpolationTables::linearInterpolationTable<Type>::interpolate
 (
-    const scalar& time
+    const Foam::scalar& time
 ) const
 {
     // Always return the single value if data size == 1
@@ -80,7 +76,7 @@ Foam::List<Type> Foam::linearInterpolationTable<Type>::interpolate
 	}
 	
     // Correct scalar value if periodicity is enabled
-	scalar pTime = this->projectTime(time);
+    Foam::scalar pTime = this->projectTime(time);
 
     // Find index to next (or lookup) element in values list
 	int nextElement = this->lookup(pTime);
@@ -107,7 +103,7 @@ Foam::List<Type> Foam::linearInterpolationTable<Type>::interpolate
     // Weight value
 	scalar w  = (pTime-ds.first())/(us.first()-ds.first());
 
-    // Return weighted Tuple2
+    // Return weighted list
 	List<Type> result(us.second().size());
 	forAll(result, i)
 	{
@@ -116,6 +112,5 @@ Foam::List<Type> Foam::linearInterpolationTable<Type>::interpolate
 
 	return result;
 }
-
 
 // ************************************************************************* //

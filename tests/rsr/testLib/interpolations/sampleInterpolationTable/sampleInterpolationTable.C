@@ -28,7 +28,8 @@ License
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 template<class Type>
-Foam::sampleInterpolationTable<Type>::sampleInterpolationTable
+Foam::interpolationTables::sampleInterpolationTable<Type>::
+sampleInterpolationTable
 (
     const List<Tuple2<scalar, List<Type>>>& values,
 	const bool isPeriodic
@@ -39,27 +40,35 @@ Foam::sampleInterpolationTable<Type>::sampleInterpolationTable
 }
 
 template<class Type>
-Foam::sampleInterpolationTable<Type>::sampleInterpolationTable(const dictionary& dict)
-:
-    basicInterpolationTable<Type>(dict)
-{
-}
-
-
-template<class Type>
-Foam::sampleInterpolationTable<Type>::sampleInterpolationTable
+Foam::interpolationTables::sampleInterpolationTable<Type>::
+sampleInterpolationTable
 (
-     const sampleInterpolationTable& interpTable
+    const dictionary& dict
 )
 :
-    basicInterpolationTable<Type>(interpTable)
+    basicInterpolationTable<Type>(dict)
 {
 }
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
 template<class Type>
-Foam::sampleInterpolationTable<Type>::~sampleInterpolationTable()
-{}
+Foam::interpolationTables::sampleInterpolationTable<Type>::
+~sampleInterpolationTable() {}
+
+
+template<>
+Foam::List<Foam::scalar>
+Foam::interpolationTables::sampleInterpolationTable<Foam::scalar>::interpolate
+(
+    const scalar& time
+) const
+{                
+    return
+    {
+        this->projectTime(time),
+        static_cast<scalar>(this->lookup(time))
+    };
+}
 
 // ************************************************************************* //

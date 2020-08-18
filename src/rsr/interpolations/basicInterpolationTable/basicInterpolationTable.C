@@ -25,18 +25,18 @@ License
 
 #include "basicInterpolationTable.H"
 
-// * * * * * * * * * * * * Static Member Functions * * * * * * * * * * * * * //
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 template<class Type>
 Foam::autoPtr<Foam::basicInterpolationTable<Type>>
 Foam::basicInterpolationTable<Type>::New
 (
-    const dictionary& dict
+    const dictionary& spec
 )
 {
-    const word interpolationType = dict.lookupOrDefault<word>
+    const word interpolationType = spec.lookupOrDefault<word>
     (
-        "interpolationTableType",
+        "interpolationType",
         "linear"
     );
 
@@ -46,13 +46,14 @@ Foam::basicInterpolationTable<Type>::New
     if (cstrIter == dictionaryConstructorTablePtr_->end())
     {
         FatalErrorInFunction
-            << "Unknown interpolation table type " << interpolationType
-            << nl << nl << "Valid interpolation table types: " << nl
+            << "Unknown interpolation type " << interpolationType
+            << nl << nl
+            << "Valid interpolation types : " << nl
             << dictionaryConstructorTablePtr_->sortedToc()
             << exit(FatalError);
     }
 
-    return autoPtr<basicInterpolationTable<Type>>(cstrIter()(dict));
+    return autoPtr<basicInterpolationTable<Type>>(cstrIter()(spec));
 }
 
 // * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * * //
@@ -63,9 +64,7 @@ void Foam::basicInterpolationTable<Type>::readTable()
     // Preserve the original (unexpanded) fileName to avoid absolute paths
     // appearing in Error reports
     fileName fName = fileName_;
-
     fName.expand();
-
     // Read data from file
     reader_()(fName, values_);
 
@@ -75,7 +74,6 @@ void Foam::basicInterpolationTable<Type>::readTable()
             << "Table read from " << fName << " is empty" << nl
             << exit(FatalError);
     }
-
     // Check values monotonicity
     checkMonotonicity();
 }
@@ -100,6 +98,7 @@ Foam::scalar Foam::basicInterpolationTable<Type>::projectTime
 	}
 	return time;
 }
+
 
 template<class Type>
 int Foam::basicInterpolationTable<Type>::lookup
@@ -149,13 +148,17 @@ Foam::basicInterpolationTable<Type>::basicInterpolationTable
 	checkMonotonicity();
 }
 
+
 template<class Type>
-Foam::basicInterpolationTable<Type>::basicInterpolationTable(const dictionary& dict)
+Foam::basicInterpolationTable<Type>::basicInterpolationTable
+(
+    const dictionary& dict
+)
 :
     fileName_(dict.lookup("file")),
     reader_(tableReader<List<Type>>::New(dict)),
     values_(),
-	isPeriodic_(dict.lookup("periodic")),
+	isPeriodic_(dict.lookupOrDefault<bool>("periodic", false)),
 	startTime_(0),
 	endTime_(0)
 {
@@ -164,24 +167,11 @@ Foam::basicInterpolationTable<Type>::basicInterpolationTable(const dictionary& d
     endTime_ = values_[values_.size()-1].first();
 }
 
+// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
 template<class Type>
-Foam::basicInterpolationTable<Type>::basicInterpolationTable
-(
-     const basicInterpolationTable& interpTable
-)
-:
-    fileName_(interpTable.fileName_),
-    reader_(interpTable.reader_),
-    values_(interpTable.values_),
-	isPeriodic_(interpTable.isPeriodic_),
-	startTime_(interpTable.startTime_),
-	endTime_(interpTable.endTime_)
-{
-	checkMonotonicity();
-}
-
-
+Foam::basicInterpolationTable<Type>::~basicInterpolationTable()
+{}
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
@@ -191,7 +181,10 @@ void Foam::basicInterpolationTable<Type>::checkMonotonicity() const
 	auto it = std::adjacent_find(
 		values_.begin(),
 		values_.end(),
-		[]( const Tuple2<scalar, List<Type>>& e1, const Tuple2<scalar, List<Type>>& e2) { 
+		[] (
+            const Tuple2<scalar, List<Type>>& e1, 
+            const Tuple2<scalar, List<Type>>& e2
+        ) { 
 			return e1.first() > e2.first();
 		}
 	);

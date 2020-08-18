@@ -32,25 +32,16 @@ Description
     If \c isPeriodic is enabled, the final time value is treated as 
 	being equivalent to start time for the following periods.
 
-    Interpolate "linearly" from a csv file:
+    Interpolate "linearly":
     \verbatim
-        interpolationType linear;
-        readerType      csv;
+        interpolationType linear; // Default
+        readerType      openFoam; // Default, only option for now  
         file            "$FOAM_CASE/constant/krVsSat.csv";
-        hasHeaderLine   true;   // skip first line
-        timeColumn      0;      // time is in column 0
-        valueColumns    (1);    // value starts in column 1
+        periodic        false;
     \endverbatim
 
     Supported file readers:
         - OpenFOAM (default)
-        - csv
-
-Note
-    - Empty TimeSeries results in a FatalError
-
-SeeAlso
-    tableReader.H
 
 SourceFiles
     basicInterpolationTable.C
@@ -60,12 +51,12 @@ SourceFiles
 #ifndef basicInterpolationTable_H
 #define basicInterpolationTable_H
 
+#include "fileName.H"
 #include "List.H"
 #include "Tuple2.H"
-
 #include "dictionary.H"
-#include "tableReader.H"
-#include "scalarList.H"
+#include "tableReaders.H"
+#include "fieldTypes.H"
 #include "autoPtr.H"
 #include "runTimeSelectionTables.H"
 
@@ -75,7 +66,7 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                   Class basicInterpolationTable Declaration
+                         Class basicInterpolationTable Declaration
 \*---------------------------------------------------------------------------*/
 
 template<class Type>
@@ -85,13 +76,13 @@ protected:
 
     // Protected Data
 
-        //- File name
+        //- (Unexpanded copy of) File name
         fileName fileName_;
 
-        //- values reader
+        //- Values reader
         autoPtr<tableReader<List<Type>>> reader_;
 
-        //- Series values as a List
+        //- Values as a List
         List<Tuple2<scalar, List<Type>>> values_;
 
 		//- Treat table as periodic?
@@ -117,8 +108,9 @@ public:
     //- Runtime type information
     TypeName("basicInterpolationTable");
 
-    //- Declare runtime constructor selection table
-    declareRunTimeNewSelectionTable(
+    // Declare run-time constructor selection table
+    declareRunTimeSelectionTable
+    (
         autoPtr,
         basicInterpolationTable,
         dictionary,
@@ -128,30 +120,30 @@ public:
 
     // Constructors
 
-        //- Disallow null constructor
-        basicInterpolationTable() = delete;
+        //- Null constructor
+        basicInterpolationTable() = default;
 
-        //- Construct from components
-        explicit basicInterpolationTable
+        // Construct from components
+        basicInterpolationTable
         (
             const List<Tuple2<scalar, List<Type>>>& values,
-			const bool isPeriodic = false
+            const bool isPeriodic
         );
 
-        //- Construct by reading the fileName from dictionary
-        //  and read the table from that file.
-        explicit basicInterpolationTable(const dictionary& dict);
+        //- Construct from dictionary
+        basicInterpolationTable(const dictionary& dict);
 
-        //- Construct copy
-        basicInterpolationTable(const basicInterpolationTable& interpTable);
+        //- Construct and return a clone
+        virtual autoPtr<basicInterpolationTable<Type>> clone() const = 0;
 
     // Selectors
 
-        //- Return a reference to selected table
-        static autoPtr<basicInterpolationTable> New(const dictionary& dict);
+        //- Return a reference to the selected basicInterpolationTable
+        static autoPtr<basicInterpolationTable> New(const dictionary& spec);
 
-	// Destructor
-	virtual ~basicInterpolationTable(){};
+
+    //- Destructor
+    virtual ~basicInterpolationTable();
 
     // Member Functions
 
@@ -162,12 +154,16 @@ public:
         //- Write to output stream
         void write(Ostream& os) const;
 
+        //- Cosnt-access to underlying values list
+        const List<Tuple2<scalar, List<Type>>> values() const {
+            return values_;
+        }
+
         //- Return time left until next value in list
         scalar deltaT(const scalar& time) const;
 
 		//- The actual interpolation operation
 		virtual List<Type> interpolate(const scalar& time) const = 0;
-
 
     // Member Operators
 

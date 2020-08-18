@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     | Website:  https://openfoam.org
-    \\  /    A nd           | Copyright (C) 2011-2019 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2018 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -21,28 +21,57 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
-Description
-    Interpolation table types   
-
-Note
-
-SourceFiles
-    basicInterpolationTables.C
-
 \*---------------------------------------------------------------------------*/
 
-#include "tableReaders.H"
-#include "basicInterpolationTables.H"
+#include "scalarList.H"
+#include "vectorList.H"
+#include "sphericalTensorList.H"
+#include "symmTensorList.H"
+#include "tensorList.H"
 
-namespace Foam {
+#include "basicInterpolationTables.H"
+#include "tableReaders.H"
+#include "openFoamTableReader.H"
+#include "addToRunTimeSelectionTable.H"
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+namespace Foam
+{
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
+#define defineTableReaderType(dataType)                                        \
+    defineNamedTemplateTypeNameAndDebug(tableReader<dataType >, 0);            \
+    defineTemplatedRunTimeSelectionTable(tableReader, dictionary, dataType);
+
+#define makeListTableReaders(typeTableReader)                                  \
+                                                                               \
+    makeTableReaderType(typeTableReader, scalarList);                          \
+    makeTableReaderType(typeTableReader, vectorList);                          \
+    makeTableReaderType(typeTableReader, sphericalTensorList);                 \
+    makeTableReaderType(typeTableReader, symmTensorList);                      \
+    makeTableReaderType(typeTableReader, tensorList)
 #define defineInterpolationTableType(dataType)                                 \
     defineNamedTemplateTypeNameAndDebug(basicInterpolationTable<dataType >, 0);\
-    defineTemplatedRunTimeSelectionTable(basicInterpolationTable, dictionary, dataType);
+    defineTemplatedRunTimeSelectionTable                                       \
+    (                                                                          \
+        basicInterpolationTable,                                               \
+        dictionary,                                                            \
+        dataType                                                               \
+    );
 
+// Define Base Table Readers for list types
+defineTableReaderType(scalarList);
+defineTableReaderType(vectorList);
+defineTableReaderType(sphericalTensorList);
+defineTableReaderType(symmTensorList);
+defineTableReaderType(tensorList);
 
+// Declare OpenFOAM readers for list tables
+makeListTableReaders(openFoamTableReader);
+
+// Define Base Interpolation Tables for primitive types
 defineInterpolationTableType(scalar);
 defineInterpolationTableType(vector);
 defineInterpolationTableType(sphericalTensor);
@@ -50,4 +79,8 @@ defineInterpolationTableType(symmTensor);
 defineInterpolationTableType(tensor);
 
 
-}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+} // End namespace Foam
+
+// ************************************************************************* //

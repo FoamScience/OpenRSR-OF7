@@ -36,11 +36,12 @@ SourceFiles
 #define sampleInterpolationTable_H
 
 #include "basicInterpolationTable.H"
-#include "tableReader.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
+{
+namespace interpolationTables
 {
 
 /*---------------------------------------------------------------------------*\
@@ -74,8 +75,17 @@ public:
         //  and read the table from that file.
         explicit sampleInterpolationTable(const dictionary& dict);
 
-        //- Construct copy
-        sampleInterpolationTable(const sampleInterpolationTable& interpTable);
+        //- Construct and return a copy
+        virtual autoPtr<basicInterpolationTable<Type>> clone() const
+        {
+            return autoPtr<basicInterpolationTable<Type>>
+            (
+                new sampleInterpolationTable<Type>
+                (
+                    *this
+                )
+            );
+        }
 
 	// Destructor
 	virtual ~sampleInterpolationTable();
@@ -85,16 +95,14 @@ public:
 		//- The actual interpolation operation
 		virtual List<Type> interpolate(const scalar& time) const
         {
-            return
-            {
-                Type(this->projectTime(time)),
-                Type(this->lookup(time))
-            };
+            return {};
         }
 };
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+} // End namespace interpolationTables
 
 } // End namespace Foam
 

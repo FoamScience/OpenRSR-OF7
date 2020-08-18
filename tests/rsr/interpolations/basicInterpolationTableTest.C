@@ -1,10 +1,13 @@
 
 #include "catch.H"
+#include "error.H"
 #include "scalarList.H"
 #include "dictionary.H"
+#include "basicInterpolationTable.H"
 #include "sampleInterpolationTable.H"
 
 using namespace Foam;
+using namespace interpolationTables;
 
 SCENARIO("Generic Interpolation Construction from list of values")
 {
@@ -115,11 +118,9 @@ SCENARIO("Generic Interpolation Construction from a dictionary")
         // Setup required/sane entries for a canonical dictionary
         dictionary dict;
         dict.add<word>("interpolationType", "sampleInterpolationTable");
-        dict.add<bool>("isPeriodic", false);
-        dict.add<word>("file", "testData/testData.csv");
-        dict.add<bool>("hasHeaderLine", true);
-        dict.add<label>("timeColumn", 0);
-        dict.add<label>("valueColumns", 1);
+        dict.add<word>("readerType", "openFoam"); // Default
+        dict.add<bool>("periodic", false);
+        dict.add<fileName>("file", "testData/testData.dat");
 
         WHEN("Dictionary requests non-existent interpolation type")
         {
@@ -127,7 +128,7 @@ SCENARIO("Generic Interpolation Construction from a dictionary")
             newDict.set("interpolationType", word("banana"));
             THEN("Interpolation table construction must fail")
             {
-				REQUIRE_THROWS(basicInterpolationTable<scalar>::New(dict));
+				REQUIRE_THROWS(basicInterpolationTable<scalar>::New(newDict));
             }
         }
     }

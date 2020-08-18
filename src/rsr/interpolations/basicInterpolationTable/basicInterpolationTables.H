@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     | Website:  https://openfoam.org
-    \\  /    A nd           | Copyright (C) 2011-2019 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2018 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -21,9 +21,6 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
-Description
-    Macros for making RunTime-selectable interpolaion tables
-
 SourceFiles
     basicInterpolationTables.C
 
@@ -37,36 +34,45 @@ SourceFiles
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+// Only used internally
 #define makeTypeInterpolationTablesTypeName(typeInterpolationTable, dataType)  \
                                                                                \
     defineNamedTemplateTypeNameAndDebug(typeInterpolationTable<dataType>, 0)
 
-
+// Sometimes used externally
 #define makeInterpolationTablesTypeName(typeInterpolationTable)                \
                                                                                \
-    makeTypeInterpolationTableTypeName(typeInterpolationTable, scalar);         \
-    makeTypeInterpolationTableTypeName(typeInterpolationTable, vector);         \
-    makeTypeInterpolationTableTypeName(typeInterpolationTable, sphericalTensor);\
-    makeTypeInterpolationTableTypeName(typeInterpolationTable, symmTensor);     \
-    makeTypeInterpolationTableTypeName(typeInterpolationTable, tensor)    
+    makeTypeInterpolationTablesTypeName(typeInterpolationTable, scalar);       \
+    makeTypeInterpolationTablesTypeName(typeInterpolationTable, vector);       \
+    makeTypeInterpolationTablesTypeName                                        \
+    (                                                                          \
+        typeInterpolationTable, sphericalTensor                                \
+    );                                                                         \
+    makeTypeInterpolationTablesTypeName(typeInterpolationTable, symmTensor);   \
+    makeTypeInterpolationTablesTypeName(typeInterpolationTable, tensor)
 
-#define makeInterpolationTableType(typeInterpolationTable, dataType)           \
+// Define type info for single dataType template instantiation (eg, vector)
+#define makeInterpolationTableType(typeInterpolationTable, dataType, ns)       \
                                                                                \
-    defineNamedTemplateTypeNameAndDebug(typeInterpolationTable<dataType>, 0);  \
+    defineNamedTemplateTypeNameAndDebug                                        \
+    (                                                                          \
+        ns::typeInterpolationTable<dataType>, 0                                \
+    );                                                                         \
+    namespace ns {                                                             \
     addTemplatedToRunTimeSelectionTable                                        \
     (                                                                          \
         basicInterpolationTable, typeInterpolationTable, dataType, dictionary  \
-    );
+    );                                                                         \
+    }
 
 // Define type info for scalar, vector etc. instantiations
-#define makeInterpolationTables(typeInterpolationTable)                        \
+#define makeInterpolationTables(typeInterpolationTable, ns)                    \
                                                                                \
-    makeInterpolationTableType(typeInterpolationTable, scalar);                \
-    makeInterpolationTableType(typeInterpolationTable, vector);                \
-    makeInterpolationTableType(typeInterpolationTable, sphericalTensor);       \
-    makeInterpolationTableType(typeInterpolationTable, symmTensor);            \
-    makeInterpolationTableType(typeInterpolationTable, tensor)
-
+    makeInterpolationTableType(typeInterpolationTable, scalar, ns);            \
+    makeInterpolationTableType(typeInterpolationTable, vector, ns);            \
+    makeInterpolationTableType(typeInterpolationTable, sphericalTensor, ns);   \
+    makeInterpolationTableType(typeInterpolationTable, symmTensor, ns);        \
+    makeInterpolationTableType(typeInterpolationTable, tensor, ns)
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

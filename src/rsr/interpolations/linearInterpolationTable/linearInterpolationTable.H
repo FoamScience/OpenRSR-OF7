@@ -42,9 +42,11 @@ SourceFiles
 
 namespace Foam
 {
+namespace interpolationTables
+{
 
 /*---------------------------------------------------------------------------*\
-                   Class linearInterpolationTable Declaration
+                     Class linearInterpolationTable Declaration
 \*---------------------------------------------------------------------------*/
 
 template<class Type>
@@ -52,16 +54,13 @@ class linearInterpolationTable
 :
     public basicInterpolationTable<Type>
 {
+
 public:
 
     //- Runtime type information
     TypeName("linear");
 
-
     // Constructors
-
-        //- Disallow null constructor
-        linearInterpolationTable() = delete;
 
         //- Construct from components
         linearInterpolationTable
@@ -70,15 +69,23 @@ public:
 			const bool isPeriodic
         );
 
-        //- Construct by reading the fileName from dictionary
-        //  and read the table from that file.
-        explicit linearInterpolationTable(const dictionary& dict);
+        //- Construct from dictionary
+        linearInterpolationTable(const dictionary& dict);
 
-        //- Construct copy
-        linearInterpolationTable(const linearInterpolationTable& interpTable);
+        //- Construct and return a copy
+        virtual autoPtr<basicInterpolationTable<Type>> clone() const
+        {
+            return autoPtr<basicInterpolationTable<Type>>
+            (
+                new linearInterpolationTable<Type>
+                (
+                    *this
+                )
+            );
+        }
 
-	// Destructor
-	virtual ~linearInterpolationTable();
+    //- Destructor
+    virtual ~linearInterpolationTable();
 
     // Member Functions
 
@@ -89,6 +96,8 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+} // End namespace interpolationTables
+
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -96,6 +105,7 @@ public:
 #ifdef NoRepository
     #include "linearInterpolationTable.C"
 #endif
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
