@@ -12,7 +12,7 @@ check_errs()
 }
 
 
-libs="\
+libs="rsr\
     "
 root=$PWD
 

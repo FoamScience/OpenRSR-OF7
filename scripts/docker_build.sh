@@ -4,14 +4,14 @@
 
 # First parameter to this script should point to the base docker image
 base_image=$1
-if [-z $base_image ]; then
+if [ -z $base_image ]; then
     base_image="foamscience/bionic-openfoam7"
 fi
 
 # Second parameter should point to the path of openFOAM's bashrc inside
 # the image
 bashrc_path=$2
-if [-z $bashrc_path ]; then
+if [ -z $bashrc_path ]; then
     bashrc_path="/opt/openfoam7/etc/bashrc"
 fi
 

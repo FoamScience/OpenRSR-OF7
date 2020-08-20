@@ -1,6 +1,6 @@
 #!/bin/sh
 
-libs=""
+libs="rsr"
 root=$PWD
 
 # Clean libraries
