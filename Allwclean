@@ -1,0 +1,12 @@
+#!/bin/sh
+
+libs="rsr"
+root=$PWD
+
+# Clean libraries
+for lib in $libs; do
+    wclean $root/src/$lib
+done
+
+# Clean all solvers
+#wclean all solvers
