@@ -2,4 +2,8 @@ interpolations/basicInterpolationTable/basicInterpolationTables.C
 interpolations/linearInterpolationTable/linearInterpolationTables.C
 interpolations/steppedInterpolationTable/steppedInterpolationTables.C
 
+FVFModels/FVFModel/FVFModels.C
+FVFModels/incompressible/incompressible.C
+FVFModels/tabularFVFvsPressure/tabularFVFvsPressure.C
+
 LIB = $(FOAM_USER_LIBBIN)/libRSR

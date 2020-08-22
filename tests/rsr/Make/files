@@ -1,4 +1,8 @@
 
+FVFModels/FVFModelTest.C
+FVFModels/tabularFVFvsPressureTest.C
+FVFModels/incompressibleFVFModelTest.C
+
 interpolations/basicInterpolationTableTest.C
 interpolations/linearScalarInterpolationTableTest.C
 interpolations/steppedScalarInterpolationTableTest.C

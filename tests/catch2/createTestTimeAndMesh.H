@@ -2,7 +2,7 @@
 Foam::Time runTime
 (
     Foam::Time::controlDictName,
-    ".",
+    "./testData",
     "",
     "system",
     "constant",
