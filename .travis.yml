@@ -16,6 +16,14 @@ language:
 branches:
   only:
       - develop
+      - static_checker
+      - hotfix
 
-script:
-  - docker run --rm -u root -v $PWD:/OpenRSR-OF7 foamscience/bionic-openfoam7 /bin/bash -c "/OpenRSR-OF7/scripts/docker_build.sh"
+jobs:
+  include:
+    - name: Library Tests
+      script:
+        - docker run --rm -u root -v $PWD:/OpenRSR-OF7 foamscience/bionic-openfoam7 /bin/bash -c /OpenRSR-OF7/scripts/docker_build.sh
+    - name: Send Static Analysis to heroku app
+      script:
+        - docker run --rm -u root -v $PWD:/OpenRSR-OF7 foamscience/openrsr-code-checker /bin/bash -l -c "cd /OpenRSR-OF7; ./scripts/static_analyze.sh $TRAVIS_BRANCH $TRAVIS_COMMIT"
