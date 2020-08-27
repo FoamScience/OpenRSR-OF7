@@ -21,11 +21,17 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
+Description
+    Uniformity Types for scalar values
+    
+    - Compressiblity: Compressible, Incompressible
+
 \*---------------------------------------------------------------------------*/
 
-#ifndef FVFModelTypes_H
-#define FVFModelTypes_H
+#ifndef UniformityTypes_H
+#define UniformityTypes_H
 
+#include "UniformDimensionedField.H"
 #include "volFields.H"
 #include "fvMesh.H"
 #include "calculatedFvPatchFields.H"
@@ -36,13 +42,18 @@ License
 namespace Foam
 {
 
-// Compressible Type
-using Compressible   = volScalarField;
+//- Compressible Scalar Type
+using Compressible = volScalarField;
 
-// Incompressible Type
-class Incompressible
+//- Incompressible Scalar Type
+template<class cmptType> class UniformVolumeField;
+using Incompressible = UniformVolumeField<scalar>;
+
+//- Incompressible Type
+template<class cmptType>
+class UniformVolumeField
 :
-    public uniformDimensionedScalarField
+    public UniformDimensionedField<cmptType>
 {
 
 public :
@@ -50,24 +61,50 @@ public :
     // Constructors
 
         //- Construct from Compressible Components
-        Incompressible
+        UniformVolumeField
         (
             const IOobject& io,
             const fvMesh& mesh,
-            const dimensioned<scalar>& dt,
-            const word& patchFieldType = fvPatchField<scalar>::calculatedType()
+            const dimensioned<cmptType>& dt,
+            const word& patchFieldType = fvPatchField<cmptType>::calculatedType()
         )
-        : uniformDimensionedScalarField(io, dt)
+        : UniformDimensionedField<cmptType>(io, dt)
         {}
 
-    //-Destructor
-    virtual ~Incompressible(){}
+        //- Construct from copy
+        UniformVolumeField(const UniformVolumeField& incomp)
+        :
+            UniformDimensionedField<cmptType>(incomp)
+        {
+        }
+
+        //- Construct from Istream
+        UniformVolumeField(const IOobject& io)
+        :
+            UniformDimensionedField<cmptType>(io)
+        {
+        }
+
+        //- Move constructor
+        UniformVolumeField(const UniformVolumeField&&) = delete;
+
+    //- Destructor
+    virtual ~UniformVolumeField(){}
+
+    //- Member operators
+
+        //- Disallow default bitwise assignment
+        UniformVolumeField<cmptType>& operator=(const UniformVolumeField& other)
+        {
+            *this = UniformDimensionedField<cmptType>::operator=(other);
+            return *this;
+        }
+
+        //- Move operator
+        UniformVolumeField<cmptType>&
+        operator=(UniformVolumeField&&) noexcept = delete;
 };
 
-// Aliases for FVFModel categories
-template<class CompressibilityType> class FVFModel;
-using compressibleFVFModel   = FVFModel<Compressible>;
-using incompressibleFVFModel = FVFModel<Incompressible>;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

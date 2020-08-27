@@ -65,6 +65,27 @@ Foam::FVFModels::tabularFVFvsPressure::tabularFVFvsPressure
 }
 
 
+Foam::FVFModels::tabularFVFvsPressure::tabularFVFvsPressure
+(
+    const tabularFVFvsPressure& fvfModel
+)
+    :
+    FVFModel(fvfModel),
+    pName_(fvfModel.pName_),
+    p_(fvfModel.p_),
+    rFVFseries_
+    (
+        basicInterpolationTable<scalar>::New
+        (
+            fvfModel.phaseDict_.subDict("FVFData")
+        )
+    )
+{
+}
+
+
+// * * * * * * * * * * * * Public Member Functions  * * * * * * * * * * * * * //
+
 void Foam::FVFModels::tabularFVFvsPressure::correct()
 {
     // Read In FVF data

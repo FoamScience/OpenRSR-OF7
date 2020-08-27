@@ -101,4 +101,18 @@ Foam::FVFModel<CompressibilityType>::FVFModel
     )
 {}
 
+
+template<class CompressibilityType>
+Foam::FVFModel<CompressibilityType>::FVFModel
+(
+    const FVFModel& fvfModel
+)
+    :
+    name_(fvfModel.name_),
+    phaseDict_(fvfModel.phaseDict_),
+    mesh_(fvfModel.mesh_),
+    rFVF_(fvfModel.rFVF_),
+    drFVFdP_(fvfModel.drFVFdP_)
+{}
+
 // ************************************************************************* //

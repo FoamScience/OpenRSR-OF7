@@ -70,7 +70,7 @@ class tabularFVFvsPressure
 public:
 
     //- Runtime type information
-    TypeName("tabularFVFvsPressure");
+    ClassName("tabularFVFvsPressure");
 
     // Constructors
 
@@ -82,6 +82,10 @@ public:
             const fvMesh& mesh
         );
 
+        //- Construct from copy
+        tabularFVFvsPressure(const tabularFVFvsPressure&);
+
+
     // Destructor
     virtual ~tabularFVFvsPressure() {}
 
@@ -90,6 +94,10 @@ public:
         //- Correct the FVF
         virtual void correct() override;
 
+    // Member Operators
+
+        //- Disallow default bitwise assignment
+        tabularFVFvsPressure& operator=(const tabularFVFvsPressure&) = delete;
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

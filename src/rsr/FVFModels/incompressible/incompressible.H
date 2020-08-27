@@ -58,7 +58,7 @@ class incompressible
 public:
 
     //- Runtime type information
-    TypeName("incompressible");
+    ClassName("incompressible");
 
     // Constructors
 
@@ -70,6 +70,9 @@ public:
             const fvMesh& mesh
         );
 
+        //- Construct from copy
+        incompressible(const incompressible&);
+
     // Destructor
     virtual ~incompressible() {}
 
@@ -78,6 +81,10 @@ public:
         //- Correct the FVF
         virtual void correct() override;
 
+    // Member Operators
+
+        //- Disallow default bitwise assignment
+        incompressible& operator=(const incompressible&) = delete;
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

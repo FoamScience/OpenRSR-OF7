@@ -52,6 +52,17 @@ Foam::FVFModels::incompressible::incompressible
 {
 }
 
+
+Foam::FVFModels::incompressible::incompressible
+(
+    const incompressible& fvfModel
+)
+    :
+    FVFModel(fvfModel)
+{
+}
+
+
 // * * * * * * * * * * * * Public Member Functions  * * * * * * * * * * * * * //
 
 void Foam::FVFModels::incompressible::correct()

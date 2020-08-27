@@ -41,13 +41,19 @@ SourceFiles
 #ifndef FVFModel_H
 #define FVFModel_H
 
-#include "FVFModelTypes.H"
+#include "UniformityTypes.H"
 #include "zeroGradientFvPatchFields.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
+
+// Aliases for FVFModel categories
+template<class CompressibilityType> class FVFModel;
+using compressibleFVFModel   = FVFModel<Compressible>;
+using incompressibleFVFModel = FVFModel<Incompressible>;
+
 
 /*---------------------------------------------------------------------------*\
                            Class FVFModel Declaration
@@ -118,9 +124,8 @@ public:
             const fvMesh& mesh
         );
 
-        //- Disallow copy construct
-        FVFModel(const FVFModel&) = delete;
-
+        //- Construct from copy
+        FVFModel(const FVFModel&);
 
     //- Destructor
     virtual ~FVFModel() {}
@@ -151,7 +156,7 @@ public:
     // Member Operators
 
         //- Disallow default bitwise assignment
-        void operator=(const FVFModel&) = delete;
+        FVFModel& operator=(const FVFModel&) = delete;
 };
 
 
