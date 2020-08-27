@@ -72,6 +72,9 @@ public:
         //- Construct from dictionary
         steppedInterpolationTable(const dictionary& dict);
 
+        //- Construct copy
+        steppedInterpolationTable(const steppedInterpolationTable& interpTable);
+
         //- Construct and return a copy
         virtual autoPtr<basicInterpolationTable<Type>> clone() const
         {
@@ -91,6 +94,11 @@ public:
 
 		//- The actual interpolation operation
 		virtual List<Type> interpolate(const scalar& time) const;
+
+    // Member Operators
+        
+        //- Disallow default bitwise assignment
+        steppedInterpolationTable& operator=(const steppedInterpolationTable&);
 };
 
 

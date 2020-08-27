@@ -24,6 +24,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "basicInterpolationTable.H"
+#include "fileName.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -167,6 +168,22 @@ Foam::basicInterpolationTable<Type>::basicInterpolationTable
     endTime_ = values_[values_.size()-1].first();
 }
 
+
+template<class Type>
+Foam::basicInterpolationTable<Type>::basicInterpolationTable
+(
+    const basicInterpolationTable& interpTable
+)
+:
+    fileName_(interpTable.fileName_),
+    reader_(interpTable.reader_->clone()),
+    values_(interpTable.values_),
+    isPeriodic_(interpTable.isPeriodic_),
+    startTime_(interpTable.startTime_),
+    endTime_(interpTable.endTime_)
+{
+}
+
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
 template<class Type>
@@ -225,7 +242,8 @@ Foam::scalar Foam::basicInterpolationTable<Type>::deltaT
 // * * * * * * * * * * * * * * * Member Operators  * * * * * * * * * * * * * //
 
 template<class Type>
-void Foam::basicInterpolationTable<Type>::operator=
+Foam::basicInterpolationTable<Type>&
+Foam::basicInterpolationTable<Type>::operator=
 (
     const basicInterpolationTable& interpTable
 )
