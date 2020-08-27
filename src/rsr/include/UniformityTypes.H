@@ -21,10 +21,14 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
+Class
+    UniformDimensionedField    
+
 Description
-    Uniformity Types for scalar values
+    Uniformity Types for scalar values with identical construction interface
     
     - Compressiblity: Compressible, Incompressible
+    - Viscosity: UniformMu, ChangingMu
 
 \*---------------------------------------------------------------------------*/
 
@@ -36,18 +40,24 @@ Description
 #include "fvMesh.H"
 #include "calculatedFvPatchFields.H"
 #include "uniformDimensionedFields.H"
+#include "volFieldsFwd.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
 
+template<class cmptType> class UniformVolumeField;
+
 //- Compressible Scalar Type
 using Compressible = volScalarField;
-
 //- Incompressible Scalar Type
-template<class cmptType> class UniformVolumeField;
 using Incompressible = UniformVolumeField<scalar>;
+
+//- Constant Viscosity Type
+using UniformMu = UniformVolumeField<scalar>;
+//- Space-and-time Dependent Viscosity Type
+using ChangingMu = volScalarField;
 
 //- Incompressible Type
 template<class cmptType>

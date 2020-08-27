@@ -35,12 +35,16 @@ SourceFiles
 #ifndef phase_H
 #define phase_H
 
+#include "error.H"
+#include "surfaceFieldsFwd.H"
 #include "volFields.H"
 #include "regIOobject.H"
 #include "fvcFlux.H"
 #include "FVFModel.H"
 #include "fvcSurfaceIntegrate.H"
 #include "fvcReconstruct.H"
+#include "UniformityTypes.H"
+#include "volFieldsFwd.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -56,6 +60,13 @@ class phase
 :
     public regIOobject
 {
+public:
+
+    // Public Data Members
+
+        //- Allow phase to be in a mixture
+        enum class mixtureType { singlePhase, multiPhase };
+
 protected:
 
     // Protected Data
@@ -72,32 +83,20 @@ protected:
         //- Phase velocity
         volVectorField U_;
 
-        //- Phase flux
-        autoPtr<surfaceScalarField> phiPtr_;
-
         //- Phase saturation in a mixture
-        volScalarField alpha_;
+        autoPtr<volScalarField> alphaPtr_;
 
         //- Phase density
         CompressibilityType rho_;
+
+        //- Phase flux
+        autoPtr<surfaceScalarField> phiPtr_;
 
         //- Phase viscosity
         ViscosityType mu_;
 
         //- FVF Model
-        autoPtr<FVFModel> BModel_;
-
-    // Protected Member Functions
-
-        //- Read the table of data from file into list
-        void readTable();
-
-		//- Project time value if isPeriodic_ is enabled
-		scalar projectTime(scalar time) const;
-
-		//- Get Index of the 1st value 
-        //  whose time is greater or equal to requested time
-		int lookup(const scalar& time) const;
+        autoPtr<FVFModel<CompressibilityType>> BModel_;
 
 public:
 
@@ -110,32 +109,39 @@ public:
         autoPtr,
         phase,
         dictionary,
-        (const dictionary& dict),
-        (dict)
+        (
+            const word& name,
+            const fvMesh& mesh,
+            const dictionary& dict,
+            const mixtureType& mT
+        ),
+        (name, mesh, dict, mT)
     );
 
     // Constructors
 
-        //- Null constructor
-        phase() = default;
-
         // Construct from components
         phase
         (
-            const List<Tuple2<scalar, List<Type>>>& values,
-            const bool isPeriodic
+            const word& name,
+            const fvMesh& mesh,
+            const dictionary& dict,
+            const mixtureType& mT = mixtureType::multiPhase
         );
 
-        //- Construct from dictionary
-        phase(const dictionary& dict);
-
-        //- Construct and return a clone
-        virtual autoPtr<phase<Type>> clone() const = 0;
+        // Construct from copy
+        phase (const phase&);
 
     // Selectors
 
         //- Return a reference to the selected phase
-        static autoPtr<phase> New(const dictionary& spec);
+        static autoPtr<phase> New
+        (
+            const word& name,
+            const fvMesh& mesh,
+            const dictionary& dict,
+            const mixtureType& mT = mixtureType::multiPhase
+        );
 
 
     //- Destructor
@@ -143,31 +149,87 @@ public:
 
     // Member Functions
 
-        //- Check that values are monotonically increasing
-        //  else, FatalError-out
-        void checkMonotonicity() const;
-
-        //- Write to output stream
-        void write(Ostream& os) const;
-
-        //- Cosnt-access to underlying values list
-        const List<Tuple2<scalar, List<Type>>> values() const {
-            return values_;
+        //- Return phase name
+        const word& name() const {
+            return name_;
         }
 
-        //- Return time left until next value in list
-        scalar deltaT(const scalar& time) const;
+        //- Return phase dictionary
+        const dictionary& dict() const {
+            return phaseDict_;
+        }
 
-		//- The actual interpolation operation
-		virtual List<Type> interpolate(const scalar& time) const = 0;
+        //- Return const-access to phase mesh
+        const fvMesh& mesh() const {
+            return mesh_;
+        }
+
+        //- Return ref to velocity field (e.g. for boundary manipulation)
+        volVectorField& U() {
+            return U_;
+        }
+
+        //- Return const-ref to velocity field
+        const volVectorField& U() const {
+            return U_;
+        }
+        
+        //- Return ref to saturation field (e.g. for boundary manipulation)
+        volScalarField& alpha() {
+            if (alphaPtr_.empty())
+            {
+                FatalErrorInFunction
+                    << "Trying to access non-existent alpha field for phase "
+                    << name_ << ". Is this a single phase simulation?" << endl
+                    << exit(FatalError);
+            }
+            return alphaPtr_();
+        }
+
+        //- Return const-ref to velocity field
+        const volScalarField& alpha() const {
+            if (alphaPtr_.empty())
+            {
+                FatalErrorInFunction
+                    << "Trying to access non-existent alpha field for phase "
+                    << name_ << ". Is this a single phase simulation?" << endl
+                    << exit(FatalError);
+            }
+            return alphaPtr_();
+        }
+        
+        //- Return ref to phase flux
+        surfaceScalarField& phi()
+        {
+            return phiPtr_();
+        }
+
+        //- Return cosnt-access to phase flux
+        const surfaceScalarField& phi() const
+        {
+            return phiPtr_();
+        }
+
+        //- Return const-access to FVF Model
+        const FVFModel<CompressibilityType>& BModel()
+        {
+            return BModel();
+        }
+
+        //- Write phase data to Ostream
+        virtual bool writeData(Ostream&) const override
+        {
+            NotImplemented;
+            return false;
+        }
+
+        //- Correct phase fields
+        virtual void correct() = 0;
 
     // Member Operators
 
         //- Disallow default bitwise assignment
-        void operator=(const phase&);
-
-        //- Return an element from values as const
-        const Tuple2<scalar, List<Type>>& operator[](const label) const;
+        phase& operator=(const phase&) = delete;
 };
 
 

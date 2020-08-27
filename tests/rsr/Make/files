@@ -1,3 +1,4 @@
+phaseModels/phaseTest.C
 
 FVFModels/FVFModelTest.C
 FVFModels/tabularFVFvsPressureTest.C

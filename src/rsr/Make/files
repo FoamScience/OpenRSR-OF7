@@ -6,4 +6,6 @@ FVFModels/FVFModel/FVFModels.C
 FVFModels/incompressible/incompressible.C
 FVFModels/tabularFVFvsPressure/tabularFVFvsPressure.C
 
+phaseModels/phase/phases.C
+
 LIB = $(FOAM_USER_LIBBIN)/libRSR
