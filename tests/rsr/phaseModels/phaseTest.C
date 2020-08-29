@@ -1,7 +1,11 @@
+#include "UniformityTypes.H"
+#include "autoPtr.H"
 #include "catch.H"
 #include "fvCFD.H"
 #include "error.H"
+#include "phase.H"
 #include "samplePhase.H"
+#include "IncompressiblePhase.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -19,6 +23,7 @@ SCENARIO("Phase Object creation", "[Virtual]")
         dictionary transportProperties;
         dictionary waterDict;
         waterDict.add<word>("FVFModel", "incompressible");
+        waterDict.add<scalar>("rhoSc", 1.0);
         transportProperties.add(phaseName, waterDict);
 
         WHEN("Constructing phase in a singlePhase setup")
@@ -29,7 +34,7 @@ SCENARIO("Phase Object creation", "[Virtual]")
                 phaseName,
                 mesh,
                 transportProperties,
-                samplePhase::mixtureType::singlePhase
+                mixtureType::singlePhase
             );
 
             THEN("Requesting a ref to alpha field errors out")
@@ -45,7 +50,7 @@ SCENARIO("Phase Object creation", "[Virtual]")
                 phaseName,
                 mesh,
                 transportProperties,
-                samplePhase::mixtureType::multiPhase
+                mixtureType::multiPhase
             );
 
             THEN("Requesting a ref to alpha field errors out")

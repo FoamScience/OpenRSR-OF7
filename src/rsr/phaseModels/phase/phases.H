@@ -33,48 +33,22 @@ SourceFiles
 #include "debug.H"
 #include "phase.H"
 #include "className.H"
+#include "typeInfo.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-namespace Foam {
-
-    // A type for constant-viscosity phases
-    template<class CompressibilityType>
-    using ConstantMuPhase = phase<CompressibilityType, UniformMu>;
-
-    // A type for variant-viscosity phases
-    template<class CompressibilityType>
-    using ChangingMuPhase = phase<CompressibilityType, ChangingMu>;
-}
-
 // Only used internally
-#define makeTypePhasesTypeName(typePhase, dataTypes...)                        \
+#define makeTypePhasesTypeName(typePhase, dataType)                            \
                                                                                \
-    template<>                                                                 \
-    const ::Foam::word typePhase<dataTypes>::typeName                          \
-        ( typePhase<dataTypes>::typeName_() );                                 \
-    template<>                                                                 \
-    int typePhase<dataTypes>::debug                                            \
-    (                                                                          \
-        ::Foam::debug::debugSwitch                                             \
-        (                                                                      \
-            typePhase<dataTypes>::typeName_(), 0                               \
-        )                                                                      \
-    );                                                                         \
-    template<>                                                                 \
-    const Foam::RegisterDebugSwitch<typePhase<dataTypes>>                      \
-        Foam::RegisterDebugSwitch<typePhase<dataTypes>>::registerDebugSwitch   \
-        ( typePhase<dataTypes>::typeName_() )
+    defineNamedTemplateTypeNameAndDebug(typePhase<dataType>, 0)
 
 // Sometimes used externally
 #define makePhasesTypeName(typePhase)                                          \
                                                                                \
-    makeTypePhasesTypeName(typePhase, Compressible, UniformMu);                \
-    makeTypePhasesTypeName(typePhase, Incompressible, UniformMu);              \
-    makeTypePhasesTypeName(typePhase, Compressible, ChangingMu)
+    makeTypePhasesTypeName(typePhase, UnifromMu);                              \
+    makeTypePhasesTypeName(typePhase, ChangingMu);
 
-// Define type info for a template instantiation
-#define makeConstantMuPhaseType(typePhase, dataType, ns)                       \
+#define makeIncompressiblePhaseType(typePhase, dataType, ns)                   \
                                                                                \
     defineNamedTemplateTypeNameAndDebug                                        \
     (                                                                          \
@@ -83,12 +57,11 @@ namespace Foam {
     namespace ns {                                                             \
     addTemplatedToRunTimeSelectionTable                                        \
     (                                                                          \
-        ConstantMuPhase, typePhase, dataType, dictionary                       \
+        IncompressiblePhase, typePhase, dataType, dictionary                   \
     );                                                                         \
     }
 
-// Define type info for a template instantiation
-#define makeChangingMuPhaseType(typePhase, dataType, ns)                       \
+#define makeCompressiblePhaseType(typePhase, dataType, ns)                     \
                                                                                \
     defineNamedTemplateTypeNameAndDebug                                        \
     (                                                                          \
@@ -97,15 +70,9 @@ namespace Foam {
     namespace ns {                                                             \
     addTemplatedToRunTimeSelectionTable                                        \
     (                                                                          \
-        ChangingMuPhase, typePhase, dataType, dictionary                       \
+        CompressiblePhase, typePhase, dataType, dictionary                     \
     );                                                                         \
     }
-
-// Define type info for scalar, vector etc. instantiations
-#define makePhases(typePhase, ns)                    \
-                                                                               \
-    makeConstantMuPhaseType(typePhase, Compressible, ns);                      \
-    makeConstantMuPhaseType(typePhase, Incompressible, ns);                      
 
 #endif
 

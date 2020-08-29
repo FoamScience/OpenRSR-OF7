@@ -62,28 +62,26 @@ SCENARIO("Tabulated FVF Model with before-and-after bubble point data")
             // Perform model calculations
             fvf->correct();
 
-            std::vector<scalar> rFVFCalculated(pCheckList.size());
-            for(size_t ci = 0; ci < rFVFCalculated.size(); ++ci)
-            {
-                rFVFCalculated[ci] = fvf->rFVF().internalField()[ci];
-            }
-            std::vector<scalar> drFVFdPCalculated(pCheckList.size());
-            for(size_t ci = 0; ci < drFVFdPCalculated.size(); ++ci)
-            {
-                drFVFdPCalculated[ci] = fvf->drFVFdP().internalField()[ci];
-            }
+            auto& rfvf = fvf->rFVF().internalField();
+            auto& drfvf = fvf->drFVFdP().internalField();
 
             THEN("Linear interpolation must be fairly accurate")
             {
                 REQUIRE_THAT
                 (
-                    rFVFCalculated,
-                    Catch::Matchers::Approx(rFVFManual)
+                    rFVFManual,
+                    Catch::Matchers::Approx
+                    (
+                        std::vector<scalar>(rfvf.begin(), rfvf.end())
+                    )
                 );
                 REQUIRE_THAT
                 (
-                    drFVFdPCalculated,
-                    Catch::Matchers::Approx(drFVFdPManual)
+                    drFVFdPManual,
+                    Catch::Matchers::Approx
+                    (
+                        std::vector<scalar>(drfvf.begin(), drfvf.end())
+                    )
                 );
             }
         }

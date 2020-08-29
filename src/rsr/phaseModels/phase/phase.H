@@ -52,21 +52,17 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                         Class phase Declaration
+                            Class phase Declaration
 \*---------------------------------------------------------------------------*/
+
+// Supported mixture types
+enum class mixtureType { singlePhase, multiPhase };
 
 template<class CompressibilityType, class ViscosityType>
 class phase
 :
     public regIOobject
 {
-public:
-
-    // Public Data Members
-
-        //- Allow phase to be in a mixture
-        enum class mixtureType { singlePhase, multiPhase };
-
 protected:
 
     // Protected Data
@@ -86,6 +82,9 @@ protected:
         //- Phase saturation in a mixture
         autoPtr<volScalarField> alphaPtr_;
 
+        //- Standard phase density
+        dimensionedScalar rhoSc_;
+
         //- Phase density
         CompressibilityType rho_;
 
@@ -101,22 +100,7 @@ protected:
 public:
 
     //- Runtime type information
-    TypeName("phase");
-
-    // Declare run-time constructor selection table
-    declareRunTimeSelectionTable
-    (
-        autoPtr,
-        phase,
-        dictionary,
-        (
-            const word& name,
-            const fvMesh& mesh,
-            const dictionary& dict,
-            const mixtureType& mT
-        ),
-        (name, mesh, dict, mT)
-    );
+    ClassName("phase");
 
     // Constructors
 
@@ -132,20 +116,10 @@ public:
         // Construct from copy
         phase (const phase&);
 
-    // Selectors
-
-        //- Return a reference to the selected phase
-        static autoPtr<phase> New
-        (
-            const word& name,
-            const fvMesh& mesh,
-            const dictionary& dict,
-            const mixtureType& mT = mixtureType::multiPhase
-        );
-
 
     //- Destructor
     virtual ~phase();
+
 
     // Member Functions
 
@@ -208,6 +182,21 @@ public:
         const surfaceScalarField& phi() const
         {
             return phiPtr_();
+        }
+
+        //- Return const-ref to standard density value
+        const dimensionedScalar& rhoSc() const {
+            return rhoSc_;
+        }
+
+        //- Return const-ref to density field
+        const CompressibilityType& rho() const {
+            return rho_;
+        }
+
+        //- Return const-ref to viscosity field
+        const CompressibilityType& mu() const {
+            return mu_;
         }
 
         //- Return const-access to FVF Model

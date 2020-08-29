@@ -75,7 +75,7 @@ Foam::FVFModel<CompressibilityType>::FVFModel
     (
         IOobject
         (
-            phaseDict.name()+".rFVF",
+            phaseDict.dictName()+".rFVF",
             mesh.time().timeName(),
             mesh,
             IOobject::READ_IF_PRESENT,
@@ -89,7 +89,7 @@ Foam::FVFModel<CompressibilityType>::FVFModel
     (
         IOobject
         (
-            phaseDict_.name()+".drFVFdP",
+            phaseDict_.dictName()+".drFVFdP",
             mesh.time().timeName(),
             mesh,
             IOobject::READ_IF_PRESENT,

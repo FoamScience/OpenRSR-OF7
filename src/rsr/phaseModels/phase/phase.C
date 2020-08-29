@@ -23,45 +23,8 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "FVFModel.H"
-#include "dimensionedVector.H"
 #include "phase.H"
 #include "fixedValueFvsPatchField.H"
-
-// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
-
-template<class CompressibilityType, class ViscosityType>
-Foam::autoPtr<Foam::phase<CompressibilityType, ViscosityType>>
-Foam::phase<CompressibilityType, ViscosityType>::New
-(
-    const word& name,
-    const fvMesh& mesh,
-    const dictionary& dict,
-    const mixtureType& mT
-)
-{
-    const word phaseType = dict.lookupOrDefault<word>
-    (
-        "phaseType",
-        "base"
-    );
-
-    typename dictionaryConstructorTable::iterator cstrIter =
-        dictionaryConstructorTablePtr_->find(phaseType);
-
-    if (cstrIter == dictionaryConstructorTablePtr_->end())
-    {
-        FatalErrorInFunction
-            << "Unknown phase type " << phaseType
-            << nl << nl
-            << "Valid phase types : " << nl
-            << dictionaryConstructorTablePtr_->sortedToc()
-            << exit(FatalError);
-    }
-
-    return autoPtr<phase<CompressibilityType, ViscosityType>>
-        (cstrIter()(name, mesh, dict, mT));
-}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -121,6 +84,12 @@ Foam::phase<CompressibilityType, ViscosityType>::phase
         :
         nullptr
     ),
+    rhoSc_
+    (
+        name+".rhoSc",
+        dimDensity,
+        readScalar(phaseDict_.lookup("rhoSc"))
+    ),
     rho_
     (
         IOobject
@@ -132,7 +101,7 @@ Foam::phase<CompressibilityType, ViscosityType>::phase
             IOobject::AUTO_WRITE
         ),
         mesh,
-        dimensionedScalar(name+".rho0", dimless, 1.0) 
+        rhoSc_
     ),
     phiPtr_
     (

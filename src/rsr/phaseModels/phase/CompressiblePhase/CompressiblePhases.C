@@ -24,6 +24,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "phases.H"
+#include "CompressiblePhase.H"
 #include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -33,29 +34,18 @@ namespace Foam
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
-#define defineConstantMuPhaseType(dataType)                                    \
-    defineNamedTemplateTypeNameAndDebug(ConstantMuPhase<dataType >, 0);        \
+#define defineCompressiblePhaseType(dataType)                                \
+    defineNamedTemplateTypeNameAndDebug(CompressiblePhase<dataType >, 0);    \
     defineTemplatedRunTimeSelectionTable                                       \
     (                                                                          \
-        ConstantMuPhase,                                                       \
-        dictionary,                                                            \
-        dataType                                                               \
-    );
-
-#define defineChangingMuPhaseType(dataType)                                    \
-    defineNamedTemplateTypeNameAndDebug(ChangingMuPhase<dataType >, 0);        \
-    defineTemplatedRunTimeSelectionTable                                       \
-    (                                                                          \
-        ChangingMuPhase,                                                       \
+        CompressiblePhase,                                                   \
         dictionary,                                                            \
         dataType                                                               \
     );
 
 // Define Phases
-defineConstantMuPhaseType(Compressible);
-defineConstantMuPhaseType(Incompressible);
-defineChangingMuPhaseType(Compressible);
-
+defineCompressiblePhaseType(UniformMu);
+defineCompressiblePhaseType(ChangingMu);
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
