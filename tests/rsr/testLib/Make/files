@@ -1,3 +1,6 @@
+
+phaseModels/samplePhase/samplePhase.C
+FVFModels/childFVFModel/childFVFModel.C
 interpolations/sampleInterpolationTable/sampleInterpolationTables.C
 
 LIB = libTestRSR
