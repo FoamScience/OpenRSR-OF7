@@ -52,6 +52,16 @@ steppedInterpolationTable
 {}
 
 
+template<class Type>
+Foam::interpolationTables::steppedInterpolationTable<Type>::
+steppedInterpolationTable
+(
+    const steppedInterpolationTable& interpTable
+)
+:
+    basicInterpolationTable<Type>(interpTable)
+{}
+
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
 template<class Type>
@@ -90,6 +100,19 @@ Foam::interpolationTables::steppedInterpolationTable<Type>::interpolate
 
     // nextElement can't be 0
 	return this->values_[nextElement-1].second();
+}
+
+// * * * * * * * * * * * * * * * Member Operators  * * * * * * * * * * * * * //
+
+template<class Type>
+Foam::interpolationTables::steppedInterpolationTable<Type>&
+Foam::interpolationTables::steppedInterpolationTable<Type>::operator=
+(
+    const steppedInterpolationTable& interpTable
+)
+{
+    *this = Foam::basicInterpolationTable<Type>::operator=(interpTable);
+    return *this;
 }
 
 // ************************************************************************* //

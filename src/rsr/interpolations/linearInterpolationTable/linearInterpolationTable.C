@@ -23,6 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+#include "interpolations/basicInterpolationTable/basicInterpolationTable.H"
 #include "linearInterpolationTable.H"
 #include "fileOperation.H"
 
@@ -51,6 +52,16 @@ linearInterpolationTable
     basicInterpolationTable<Type>(dict)
 {}
 
+
+template<class Type>
+Foam::interpolationTables::linearInterpolationTable<Type>::
+linearInterpolationTable
+(
+    const linearInterpolationTable& interpTable
+)
+:
+    basicInterpolationTable<Type>(interpTable)
+{}
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
@@ -111,6 +122,20 @@ Foam::interpolationTables::linearInterpolationTable<Type>::interpolate
 	}
 
 	return result;
+}
+
+
+// * * * * * * * * * * * * * * * Member Operators  * * * * * * * * * * * * * //
+
+template<class Type>
+Foam::interpolationTables::linearInterpolationTable<Type>&
+Foam::interpolationTables::linearInterpolationTable<Type>::operator=
+(
+    const linearInterpolationTable& interpTable
+)
+{
+    *this = Foam::basicInterpolationTable<Type>::operator=(interpTable);
+    return *this;
 }
 
 // ************************************************************************* //

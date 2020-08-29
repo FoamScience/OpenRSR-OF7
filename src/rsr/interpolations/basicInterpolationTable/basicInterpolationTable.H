@@ -120,9 +120,6 @@ public:
 
     // Constructors
 
-        //- Null constructor
-        basicInterpolationTable() = default;
-
         // Construct from components
         basicInterpolationTable
         (
@@ -132,6 +129,9 @@ public:
 
         //- Construct from dictionary
         basicInterpolationTable(const dictionary& dict);
+
+        //- Construct copy
+        basicInterpolationTable(const basicInterpolationTable& interpTable);
 
         //- Construct and return a clone
         virtual autoPtr<basicInterpolationTable<Type>> clone() const = 0;
@@ -168,7 +168,7 @@ public:
     // Member Operators
 
         //- Disallow default bitwise assignment
-        void operator=(const basicInterpolationTable&);
+        basicInterpolationTable& operator=(const basicInterpolationTable&);
 
         //- Return an element from values as const
         const Tuple2<scalar, List<Type>>& operator[](const label) const;
