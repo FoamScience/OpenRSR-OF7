@@ -12,4 +12,10 @@ phaseModels/basicIncompressiblePhase/basicIncompressiblePhases.C
 phaseModels/phase/CompressiblePhase/CompressiblePhases.C
 phaseModels/blackoilPhase/blackoilPhases.C
 
+rockModels/rock/IsoRock/IsoRocks.C
+rockModels/basicIsotropicRock/basicIsotropicRocks.C
+
+rockModels/rock/DiagAnisoRock/DiagAnisoRocks.C
+rockModels/basicDiagAnisotropicRock/basicDiagAnisotropicRocks.C
+
 LIB = $(FOAM_USER_LIBBIN)/libRSR
