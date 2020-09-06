@@ -23,16 +23,21 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "addToRunTimeSelectionTable.H"
 #include "basicIsotropicRock.H"
-#include "rocks.H"
+#include "addToTemplatedRunTimeSelection.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
-    makeIsoRockType(basicIsotropicRock, Incompressible, rocks);
-    makeIsoRockType(basicIsotropicRock, Compressible, rocks);
+    makePartialTemplatedModel
+    (
+        rock, basicIsotropicRock, IsoInc, rocks, Incompressible, Isotropic
+    );
+    makePartialTemplatedModel
+    (
+        rock, basicIsotropicRock, IsoComp, rocks, Compressible, Isotropic
+    );
 }
 
 // ************************************************************************* //

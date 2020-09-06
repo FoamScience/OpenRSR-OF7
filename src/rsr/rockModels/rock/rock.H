@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     | Website:  https://openfoam.orgfavorable texture is depicted by favorable texture is depicted by packaging of packaging of 
+   \\    /   O peration     | Website:  https://openfoam.orgfavorable texture is depicted by favorable texture is depicted by packaging of packaging of
     \\  /    A nd           | Copyright (C) 2011-2019 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
@@ -58,9 +58,9 @@ class rock
     public regIOobject
 {
 public:
-    
+
     // Public Data Types
-    
+
         // Permeability field component type
         using KcmptType = typename PermeabilityType::value_type;
 
@@ -103,6 +103,20 @@ public:
     //- Runtime type information
     ClassName("rock");
 
+    // Declare run-time constructor selection table
+    declareRunTimeSelectionTable
+    (
+        autoPtr,
+        rock,
+        dictionary,
+        (
+            const word& name,
+            const fvMesh& mesh,
+            const dictionary& rockProperties
+        ),
+        (name, mesh, rockProperties)
+    );
+
     // Constructors
 
         // Construct from components
@@ -119,6 +133,16 @@ public:
 
     //- Destructor
     virtual ~rock();
+
+    // Selectors
+
+        //- Return a reference to the selected DiagAnisoRock
+        static autoPtr<rock> New
+        (
+            const word& name,
+            const fvMesh& mesh,
+            const dictionary& rockProperties
+        );
 
 
     // Member Functions
@@ -142,7 +166,7 @@ public:
         const volScalarField& porosity() const {
             return porosity_;
         }
-        
+
         //- Return const-ref to absolute permeability field
         const PermeabilityType& K() const {
             return K_;

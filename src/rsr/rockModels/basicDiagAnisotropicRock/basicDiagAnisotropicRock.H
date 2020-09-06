@@ -36,7 +36,7 @@ SourceFiles
 #ifndef basicDiagAnisotropicRock_H
 #define basicDiagAnisotropicRock_H
 
-#include "DiagAnisoRock.H"
+#include "rock.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -52,12 +52,12 @@ namespace rocks
 template<class CompressibilityType>
 class basicDiagAnisotropicRock
 :
-    public DiagAnisoRock<CompressibilityType>
+    public rock<DiagAnisotropic, CompressibilityType>
 {
 public:
 
     //- Runtime type information
-    ClassName("diagAnisotropic");
+    ClassName("standard");
 
 
     // Constructors
@@ -84,7 +84,10 @@ public:
     // Member operators
 
         //- Disallow default bitwise assignment
-        basicDiagAnisotropicRock& operator=(const basicDiagAnisotropicRock&) = delete;
+        basicDiagAnisotropicRock& operator=
+        (
+            const basicDiagAnisotropicRock&
+        ) = delete;
 };
 
 
