@@ -3,9 +3,7 @@
 #include "catch.H"
 #include "fvCFD.H"
 #include "error.H"
-#include "phase.H"
 #include "samplePhase.H"
-#include "IncompressiblePhase.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -53,7 +51,7 @@ SCENARIO("Phase Object creation", "[Virtual]")
                 mixtureType::multiPhase
             );
 
-            THEN("Requesting a ref to alpha field errors out")
+            THEN("Requesting a ref to alpha field doesn't throw")
             {
                 REQUIRE_NOTHROW(water.alpha());
             }

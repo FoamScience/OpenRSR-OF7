@@ -37,8 +37,7 @@ SourceFiles
 #ifndef basicIncompressiblePhase_H
 #define basicIncompressiblePhase_H
 
-#include "UniformityTypes.H"
-#include "IncompressiblePhase.H"
+#include "phase.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -54,7 +53,7 @@ namespace phases
 template<class ViscosityType>
 class basicIncompressiblePhase
 :
-    public IncompressiblePhase<ViscosityType>
+    public phase<Incompressible, ViscosityType>
 {
 public:
 
@@ -69,7 +68,7 @@ public:
         (
             const word& name,
             const fvMesh& mesh,
-            const dictionary& dict,
+            const dictionary& transportProperties,
             const mixtureType& = mixtureType::singlePhase
         );
 
@@ -87,7 +86,10 @@ public:
     // Member operators
 
         //- Disallow default bitwise assignment
-        basicIncompressiblePhase& operator=(const basicIncompressiblePhase&) = delete;
+        basicIncompressiblePhase& operator=
+        (
+            const basicIncompressiblePhase&
+        ) = delete;
 };
 
 

@@ -33,11 +33,11 @@ Foam::phases::blackoilPhase<ViscosityType>::blackoilPhase
 (
     const word& name,
     const fvMesh& mesh,
-    const dictionary& dict,
+    const dictionary& transportProperties,
     const mixtureType& mT
 )
 :
-    CompressiblePhase<ViscosityType>(name, mesh, dict, mT)
+    phase<Compressible, ViscosityType>(name, mesh, transportProperties, mT)
 {
 }
 
@@ -48,15 +48,15 @@ Foam::phases::blackoilPhase<ViscosityType>::blackoilPhase
     const blackoilPhase& ph
 )
 :
-    Foam::CompressiblePhase<ViscosityType>(ph)
+    phase<Compressible, ViscosityType>(ph)
 {
 }
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
 template<class ViscosityType>
-Foam::phases::blackoilPhase<ViscosityType>::
-~blackoilPhase() {}
+Foam::phases::blackoilPhase<ViscosityType>::~blackoilPhase()
+{}
 
 // * * * * * * * * * * * * * Public Member Functions * * * * * * * * * * * * //
 

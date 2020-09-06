@@ -35,9 +35,8 @@ SourceFiles
 #ifndef samplePhase_H
 #define samplePhase_H
 
-#include "UniformityTypes.H"
-#include "fvcReconstruct.H"
 #include "phase.H"
+#include "fvcReconstruct.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

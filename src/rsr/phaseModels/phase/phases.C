@@ -23,32 +23,25 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "phases.H"
-#include "CompressiblePhase.H"
-#include "addToRunTimeSelectionTable.H"
+#include "TemplatedRunTimeSelection.H"
+#include "phase.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
-
-// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
-
-#define defineCompressiblePhaseType(dataType)                                \
-    defineNamedTemplateTypeNameAndDebug(CompressiblePhase<dataType >, 0);    \
-    defineTemplatedRunTimeSelectionTable                                       \
-    (                                                                          \
-        CompressiblePhase,                                                   \
-        dictionary,                                                            \
-        dataType                                                               \
+    defineVariadicTemplatedRunTimeSelectionTable
+    (
+        phase, Compressible,UniformMu
     );
-
-// Define Phases
-defineCompressiblePhaseType(UniformMu);
-defineCompressiblePhaseType(ChangingMu);
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-} // End namespace Foam
+    defineVariadicTemplatedRunTimeSelectionTable
+    (
+        phase, Compressible,ChangingMu
+    );
+    defineVariadicTemplatedRunTimeSelectionTable
+    (
+        phase, Incompressible,UniformMu
+    );
+}
 
 // ************************************************************************* //
