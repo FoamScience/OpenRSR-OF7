@@ -23,16 +23,18 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "addToRunTimeSelectionTable.H"
+#include "addToTemplatedRunTimeSelection.H"
 #include "basicIncompressiblePhase.H"
-#include "phases.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
-    makeIncompressiblePhaseType(basicIncompressiblePhase, UniformMu, phases);
-    makeIncompressiblePhaseType(basicIncompressiblePhase, ChangingMu, phases);
+    // Register partial specializations
+    makePartialTemplatedModel
+    (
+        phase, basicIncompressiblePhase, IncU,phases, UniformMu,Incompressible
+    );
 }
 
 // ************************************************************************* //

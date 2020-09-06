@@ -31,26 +31,60 @@ Description
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#define makeTemplatedModel(baseType,childType,TargName,ns,Targs...)\
-\
-    /* Define child type name */\
-    template<> \
-    const ::Foam::word ns::childType<Targs >::typeName(ns::childType<Targs >::typeName_()); \
-    \
-    /* Define child debug switch */\
-    template<> \
-    int ns::childType<Targs >::debug(::Foam::debug::debugSwitch(ns::childType<Targs >::typeName_(), 0));\
-    /* Register the debug switch */\
-    template<> \
-    const Foam::RegisterDebugSwitch<ns::childType<Targs >>\
-    Foam::RegisterDebugSwitch<ns::childType<Targs >>::registerDebugSwitch(ns::childType<Targs >::typeName_());\
-    \
-    /* Add child to the base's run-time selection tabe */\
-    namespace ns { \
-    baseType<Targs >::adddictionaryConstructorToTable<childType<Targs >> \
+#define makeTemplatedModel(baseType,childType,TargName,ns,Targs...)            \
+                                                                               \
+    /* Define child type name */                                               \
+    template<>                                                                 \
+    const ::Foam::word ns::childType<Targs >::                                 \
+        typeName(ns::childType<Targs >::typeName_());                          \
+                                                                               \
+    /* Define child debug switch */                                            \
+    template<>                                                                 \
+    int ns::childType<Targs >::debug                                           \
+    (                                                                          \
+        ::Foam::debug::debugSwitch(ns::childType<Targs >::typeName_(), 0)      \
+    );                                                                         \
+    /* Register the debug switch */                                            \
+    template<>                                                                 \
+    const Foam::RegisterDebugSwitch<ns::childType<Targs >>                     \
+    Foam::RegisterDebugSwitch<ns::childType<Targs >>                           \
+        ::registerDebugSwitch(ns::childType<Targs >::typeName_());             \
+                                                                               \
+    /* Add child to the base's run-time selection tabe */                      \
+    namespace ns {                                                             \
+    baseType<Targs >::adddictionaryConstructorToTable<childType<Targs >>       \
     add##phaseType##TargName##argNames##ConstructorTo##baseType##Targ##Table_; \
     }
     
+/* add a partial template of one argument to multi-args template RTS table
+ * assuming childTArg is the last one in base's Targs */
+#define makePartialTemplatedModel\
+(baseType,childType,TargName,ns,childTArg,Targs...)                            \
+                                                                               \
+    /* Define child type name */                                               \
+    template<>                                                                 \
+    const ::Foam::word ns::childType<childTArg >::                             \
+        typeName(ns::childType<childTArg >::typeName_());                      \
+                                                                               \
+    /* Define child debug switch */                                            \
+    template<>                                                                 \
+    int ns::childType<childTArg >::debug                                       \
+    (                                                                          \
+        ::Foam::debug::debugSwitch(ns::childType<childTArg >::typeName_(), 0)  \
+    );                                                                         \
+    /* Register the debug switch */                                            \
+    template<>                                                                 \
+    const Foam::RegisterDebugSwitch<ns::childType<childTArg >>                 \
+    Foam::RegisterDebugSwitch<ns::childType<childTArg >>                       \
+        ::registerDebugSwitch(ns::childType<childTArg >::typeName_());         \
+                                                                               \
+    /* Add child to the base's run-time selection tabe */                      \
+    namespace ns {                                                             \
+    baseType<Targs ,childTArg>::                                               \
+    adddictionaryConstructorToTable<childType<childTArg >>                     \
+    add##phaseType##TargName##argNames##ConstructorTo##baseType##Targ##Table_; \
+    }
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #endif

@@ -26,6 +26,40 @@ License
 #include "phase.H"
 #include "fixedValueFvsPatchField.H"
 
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+
+template<class CompressibilityType, class ViscosityType>
+Foam::autoPtr<Foam::phase<CompressibilityType, ViscosityType>>
+Foam::phase<CompressibilityType, ViscosityType>::New
+(
+    const word& name,
+    const fvMesh& mesh,
+    const dictionary& transportProperties,
+    const mixtureType& mT
+)
+{
+    const word phaseType = 
+        transportProperties.subDict(name).lookup("phaseType");
+
+    Info<< "Selecting phase type " << phaseType << " for " << name << endl;
+
+    typename dictionaryConstructorTable::iterator cstrIter =
+        dictionaryConstructorTablePtr_->find(phaseType);
+
+    if (cstrIter == dictionaryConstructorTablePtr_->end())
+    {
+        FatalErrorInFunction
+            << "Unknown Phase type "
+            << phaseType << nl << nl
+            << "Valid Phase types:" << endl
+            << dictionaryConstructorTablePtr_->sortedToc()
+            << exit(FatalError);
+    }
+
+    return autoPtr<phase>
+    ( cstrIter()(name, mesh, transportProperties, mT)  );
+}
+
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 template<class CompressibilityType, class ViscosityType>
@@ -33,63 +67,11 @@ Foam::phase<CompressibilityType, ViscosityType>::phase
 (
     const word& name,
     const fvMesh& mesh,
-    const dictionary& dict,
+    const dictionary& transportProperties,
     const mixtureType& mT
 )
 :
-    regIOobject
-    (
-        IOobject
-        (
-            name,
-            mesh.time().timeName(),
-            mesh,
-            IOobject::NO_READ,
-            IOobject::NO_WRITE
-        )
-    ),
-    name_(name),
-    phaseDict_(dict.subDict(name)),
-    mesh_(mesh),
-    U_
-    (
-        IOobject
-        (
-            name+".U",
-            mesh.time().timeName(),
-            mesh,
-            IOobject::READ_IF_PRESENT,
-            IOobject::AUTO_WRITE
-        ),
-        mesh,
-        dimensionedVector(name+".U0", dimVelocity, vector::zero)
-    ),
-    alphaPtr_
-    (
-        mT == mixtureType::multiPhase
-        ?
-        new volScalarField
-        (
-            IOobject
-            (
-                name+".alpha",
-                mesh.time().timeName(),
-                mesh,
-                IOobject::READ_IF_PRESENT,
-                IOobject::AUTO_WRITE
-            ),
-            mesh,
-            dimensionedScalar(name+".alpha", dimless, 1.0)
-        )
-        :
-        nullptr
-    ),
-    rhoSc_
-    (
-        name+".rhoSc",
-        dimDensity,
-        readScalar(phaseDict_.lookup("rhoSc"))
-    ),
+    phaseCore(name, mesh, transportProperties, mT),
     rho_
     (
         IOobject
@@ -103,22 +85,6 @@ Foam::phase<CompressibilityType, ViscosityType>::phase
         mesh,
         rhoSc_
     ),
-    phiPtr_
-    (
-        new surfaceScalarField
-        (
-           IOobject
-           (
-               name+".phi",
-               mesh.time().timeName(),
-               mesh,
-               IOobject::NO_READ,
-               IOobject::AUTO_WRITE
-           ),
-           linearInterpolate(U_) & mesh.Sf(),
-           fixedValueFvsPatchField<vector>::typeName
-        )
-    ),
     mu_
     (
         IOobject
@@ -130,7 +96,7 @@ Foam::phase<CompressibilityType, ViscosityType>::phase
             IOobject::AUTO_WRITE
         ),
         mesh,
-        dimensionedScalar(name+".rho0", dimless, 1.0) 
+        dimensionedScalar(name+".rho0", dimless, 1.0)
     ),
     BModel_
     (
@@ -149,20 +115,14 @@ Foam::phase<CompressibilityType, ViscosityType>::phase
     const phase& ph
 )
 :
-    regIOobject(ph),
-    name_(ph.name_),
-    phaseDict_(ph.phaseDict_),
-    mesh_(ph.mesh_),
-    U_(ph.U_),
-    alphaPtr_(ph.alphaPtr_),
+    phaseCore(ph),
     rho_(ph.rho_),
-    phiPtr_(ph.phiPtr_),
     mu_(ph.mu_),
-    BModel_
+    BModel_ // Creates new model
     (
         FVFModel<CompressibilityType>::New
         (
-            name_+".FVFModel", phaseDict_, mesh_
+            this->name_+".FVFModel", this->phaseDict_, this->mesh_
         )
     )
 {

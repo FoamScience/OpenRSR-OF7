@@ -23,16 +23,21 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "addToRunTimeSelectionTable.H"
 #include "blackoilPhase.H"
-#include "phases.H"
+#include "addToTemplatedRunTimeSelection.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
-    makeCompressiblePhaseType(blackoilPhase, UniformMu, phases);
-    makeCompressiblePhaseType(blackoilPhase, ChangingMu, phases);
+    makePartialTemplatedModel
+    (
+        phase, blackoilPhase, ComU, phases, UniformMu,Compressible
+    );
+    makePartialTemplatedModel
+    (
+        phase, blackoilPhase, ComC, phases, ChangingMu,Compressible
+    );
 }
 
 // ************************************************************************* //

@@ -31,46 +31,53 @@ Description
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#define defineVariadicTemplatedRunTimeSelectionTablePtr(baseType,argNames,Targs...) \
-    /* Initialize constructorsTable pointer */ \
-    template<> \
-    baseType<Targs >::argNames##ConstructorTable* \
-        baseType<Targs >::argNames##ConstructorTablePtr_ = nullptr; \
+#define defineVariadicTemplatedRunTimeSelectionTablePtr\
+(baseType,argNames,Targs...)                                                   \
     \
-    /* Specialize Construction method for the RunTime Table */ \
-    template<> \
-    void baseType<Targs >::construct##argNames##ConstructorTables()              \
+    /* Initialize constructorsTable pointer */                                 \
+    template<>                                                                 \
+    baseType<Targs >::argNames##ConstructorTable*                              \
+        baseType<Targs >::argNames##ConstructorTablePtr_ = nullptr;            \
+                                                                               \
+    /* Specialize Construction method for the RunTime Table */                 \
+    template<>                                                                 \
+    void baseType<Targs >::construct##argNames##ConstructorTables()            \
     {                                                                          \
         static bool constructed = false;                                       \
         if (!constructed)                                                      \
         {                                                                      \
             constructed = true;                                                \
-            baseType<Targs >::argNames##ConstructorTablePtr_                     \
-                = new baseType<Targs >::argNames##ConstructorTable;              \
+            baseType<Targs >::argNames##ConstructorTablePtr_                   \
+                = new baseType<Targs >::argNames##ConstructorTable;            \
         }                                                                      \
-    } \
-    /* Specialize Deconstruction method for the RunTime Table */ \
-    template<> \
-    void baseType<Targs >::destroy##argNames##ConstructorTables()                \
+    }                                                                          \
+    /* Specialize Deconstruction method for the RunTime Table */               \
+    template<>                                                                 \
+    void baseType<Targs >::destroy##argNames##ConstructorTables()              \
     {                                                                          \
-        if (baseType<Targs >::argNames##ConstructorTablePtr_)                    \
+        if (baseType<Targs >::argNames##ConstructorTablePtr_)                  \
         {                                                                      \
-            delete baseType<Targs >::argNames##ConstructorTablePtr_;             \
-            baseType<Targs >::argNames##ConstructorTablePtr_ = nullptr;          \
+            delete baseType<Targs >::argNames##ConstructorTablePtr_;           \
+            baseType<Targs >::argNames##ConstructorTablePtr_ = nullptr;        \
         }                                                                      \
     }
 
 
-#define defineVariadicTemplatedRunTimeSelectionTable(baseType,Targs...)                                \
-    template<> \
-    const ::Foam::word baseType<Targs >::typeName(baseType<Targs >::typeName_()); \
-    \
-    template<> \
-    int baseType<Targs >::debug(::Foam::debug::debugSwitch(baseType<Targs >::typeName_(), 0));\
-    template<> \
-    const Foam::RegisterDebugSwitch<baseType<Targs >>\
-    Foam::RegisterDebugSwitch<baseType<Targs >>::registerDebugSwitch(baseType<Targs >::typeName_());\
-    defineVariadicTemplatedRunTimeSelectionTablePtr(baseType, dictionary, Targs);
+#define defineVariadicTemplatedRunTimeSelectionTable(baseType,Targs...)        \
+    template<>                                                                 \
+    const ::Foam::word baseType<Targs >::typeName                              \
+        (baseType<Targs >::typeName_());                                       \
+                                                                               \
+    template<>                                                                 \
+    int baseType<Targs >::debug                                                \
+    (                                                                          \
+        ::Foam::debug::debugSwitch(baseType<Targs >::typeName_(), 0)           \
+    );                                                                         \
+    template<>                                                                 \
+    const Foam::RegisterDebugSwitch<baseType<Targs >>                          \
+    Foam::RegisterDebugSwitch<baseType<Targs >>                                \
+        ::registerDebugSwitch(baseType<Targs >::typeName_());                  \
+    defineVariadicTemplatedRunTimeSelectionTablePtr(baseType,dictionary,Targs);
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

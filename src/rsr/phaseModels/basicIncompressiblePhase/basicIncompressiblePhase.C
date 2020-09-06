@@ -33,11 +33,11 @@ Foam::phases::basicIncompressiblePhase<ViscosityType>::basicIncompressiblePhase
 (
     const word& name,
     const fvMesh& mesh,
-    const dictionary& dict,
+    const dictionary& transportProperties,
     const mixtureType& mT
 )
 :
-    IncompressiblePhase<ViscosityType>(name, mesh, dict, mT)
+    phase<Incompressible, ViscosityType>(name, mesh, transportProperties, mT)
 {
 }
 
@@ -48,7 +48,7 @@ Foam::phases::basicIncompressiblePhase<ViscosityType>::basicIncompressiblePhase
     const basicIncompressiblePhase& ph
 )
 :
-    Foam::IncompressiblePhase<ViscosityType>(ph)
+    phase<Incompressible, ViscosityType>(ph)
 {
 }
 

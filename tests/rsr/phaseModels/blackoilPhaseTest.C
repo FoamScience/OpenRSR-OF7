@@ -4,19 +4,12 @@
 #include "fvCFD.H"
 #include "error.H"
 #include "phase.H"
-#include "CompressiblePhase.H"
 #include "volFieldsFwd.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 
 using namespace Foam;
-
-namespace phases {
-    template<class ViscosityType> class blackoilPhase;
-}
-
-using namespace phases;
 
 SCENARIO("Blackoil Phase Object creation for Uniform Viscosity", "[Virtual]")
 {
@@ -27,6 +20,7 @@ SCENARIO("Blackoil Phase Object creation for Uniform Viscosity", "[Virtual]")
         word phaseName = "water";
         dictionary transportProperties;
         dictionary waterDict;
+        waterDict.add<word>("phaseType", "blackoil");
         waterDict.add<word>("FVFModel", "tabularFVFvsPressure");
         waterDict.add<scalar>("rhoSc", 10.0);
 
@@ -61,7 +55,7 @@ SCENARIO("Blackoil Phase Object creation for Uniform Viscosity", "[Virtual]")
         {
             FatalError.dontThrowExceptions();
             // Needs the presence of '0/water.U' dictionary
-            auto waterPtr = CompressiblePhase<UniformMu>::New
+            auto waterPtr = phase<Compressible,UniformMu>::New
             (
                 phaseName,
                 mesh,

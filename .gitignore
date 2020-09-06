@@ -36,3 +36,6 @@
 
 # Temporary Files
 **.tmp    
+
+# All kinds of log files
+*.log

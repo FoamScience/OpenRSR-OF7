@@ -37,8 +37,7 @@ SourceFiles
 #ifndef blackoilPhase_H
 #define blackoilPhase_H
 
-#include "UniformityTypes.H"
-#include "CompressiblePhase.H"
+#include "phase.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -48,13 +47,13 @@ namespace phases
 {
 
 /*---------------------------------------------------------------------------*\
-                   Class blackoilPhase Declaration
+                        Class blackoilPhase Declaration
 \*---------------------------------------------------------------------------*/
 
 template<class ViscosityType>
 class blackoilPhase
 :
-    public CompressiblePhase<ViscosityType>
+    public phase<Compressible, ViscosityType>
 {
 public:
 
@@ -69,12 +68,12 @@ public:
         (
             const word& name,
             const fvMesh& mesh,
-            const dictionary& dict,
+            const dictionary& transportProperties,
             const mixtureType& = mixtureType::singlePhase
         );
 
         // Construct from copy
-        blackoilPhase (const blackoilPhase&);
+        blackoilPhase(const blackoilPhase&);
 
 	// Destructor
 	virtual ~blackoilPhase();
