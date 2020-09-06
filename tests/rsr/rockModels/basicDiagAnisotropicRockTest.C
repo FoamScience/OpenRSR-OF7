@@ -1,11 +1,9 @@
-#include "UniformityTypes.H"
+#include "IsotropyTypes.H"
 #include "autoPtr.H"
 #include "catch.H"
 #include "dimensionedScalarFwd.H"
 #include "fvCFD.H"
-#include "error.H"
 #include "rock.H"
-#include "DiagAnisoRock.H"
 #include "volFieldsFwd.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -13,7 +11,7 @@
 
 using namespace Foam;
 
-SCENARIO("Rock objection creation for diagonalTensor-Permeability","[Virtual]")
+SCENARIO("Rock object creation for diagonalTensor-Permeability","[Virtual]")
 {
     GIVEN("Valid mesh and rockProperties dictionary with porosity,"
             " permeability and compressibility values")
@@ -53,7 +51,7 @@ SCENARIO("Rock objection creation for diagonalTensor-Permeability","[Virtual]")
         {
             FatalError.dontThrowExceptions();
             // Needs the presence of '0/water.U' dictionary
-            auto rockPtr = DiagAnisoRock<Incompressible>::New
+            auto rockPtr = rock<DiagAnisotropic,Incompressible>::New
             (
                 rockName,
                 mesh,

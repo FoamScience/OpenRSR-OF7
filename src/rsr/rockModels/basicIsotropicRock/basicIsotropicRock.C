@@ -35,7 +35,7 @@ Foam::rocks::basicIsotropicRock<CompressibilityType>::basicIsotropicRock
     const dictionary& rockProperties
 )
 :
-    IsoRock<CompressibilityType>(name, mesh, rockProperties)
+    rock<Isotropic, CompressibilityType>(name, mesh, rockProperties)
 {
 }
 
@@ -46,7 +46,7 @@ Foam::rocks::basicIsotropicRock<CompressibilityType>::basicIsotropicRock
     const basicIsotropicRock& rk
 )
 :
-    IsoRock<CompressibilityType>(rk)
+    rock<Isotropic, CompressibilityType>(rk)
 {
 }
 

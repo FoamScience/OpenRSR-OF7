@@ -36,7 +36,7 @@ basicDiagAnisotropicRock
     const dictionary& rockProperties
 )
 :
-    DiagAnisoRock<CompressibilityType>(name, mesh, rockProperties)
+    rock<DiagAnisotropic, CompressibilityType>(name, mesh, rockProperties)
 {
 }
 
@@ -48,7 +48,7 @@ basicDiagAnisotropicRock
     const basicDiagAnisotropicRock& rk
 )
 :
-    DiagAnisoRock<CompressibilityType>(rk)
+    rock<DiagAnisotropic, CompressibilityType>(rk)
 {
 }
 

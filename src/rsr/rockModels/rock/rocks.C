@@ -23,32 +23,29 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "rocks.H"
-#include "DiagAnisoRock.H"
-#include "addToRunTimeSelectionTable.H"
+#include "rock.H"
+#include "TemplatedRunTimeSelection.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
-
-// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
-
-#define defineDiagAnisoRockType(dataType)                                      \
-    defineNamedTemplateTypeNameAndDebug(DiagAnisoRock<dataType >, 0);          \
-    defineTemplatedRunTimeSelectionTable                                       \
-    (                                                                          \
-        DiagAnisoRock,                                                         \
-        dictionary,                                                            \
-        dataType                                                               \
+    defineVariadicTemplatedRunTimeSelectionTable
+    (
+        rock, Isotropic, Incompressible
     );
-
-// Define Phases
-defineDiagAnisoRockType(Incompressible);
-defineDiagAnisoRockType(Compressible);
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-} // End namespace Foam
+    defineVariadicTemplatedRunTimeSelectionTable
+    (
+        rock, Isotropic, Compressible
+    );
+    defineVariadicTemplatedRunTimeSelectionTable
+    (
+        rock, DiagAnisotropic, Incompressible
+    );
+    defineVariadicTemplatedRunTimeSelectionTable
+    (
+        rock, DiagAnisotropic, Compressible
+    );
+}
 
 // ************************************************************************* //

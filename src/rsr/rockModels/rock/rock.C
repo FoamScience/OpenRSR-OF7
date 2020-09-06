@@ -26,6 +26,37 @@ License
 #include "rock.H"
 #include "fixedValueFvsPatchField.H"
 
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+
+template<class PermeabilityType, class CompressibilityType>
+Foam::autoPtr<Foam::rock<PermeabilityType, CompressibilityType>>
+Foam::rock<PermeabilityType,CompressibilityType>::New
+(
+    const word& name,
+    const fvMesh& mesh,
+    const dictionary& rockProperties
+)
+{
+    // Run with standard rock models by default
+    const word rockType = rockProperties.subDict(name).lookupOrDefault<word>
+       ("rockType", "standard");
+
+    typename dictionaryConstructorTable::iterator cstrIter =
+        dictionaryConstructorTablePtr_->find(rockType);
+
+    if (cstrIter == dictionaryConstructorTablePtr_->end())
+    {
+        FatalErrorInFunction
+            << "Unknown Rock type "
+            << rockType << nl << nl
+            << "Valid Rock types:" << endl
+            << dictionaryConstructorTablePtr_->sortedToc()
+            << exit(FatalError);
+    }
+
+    return autoPtr<rock>( cstrIter()(name, mesh, rockProperties) );
+}
+
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 template<class PermeabilityType, class CompressibilityType>
