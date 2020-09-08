@@ -54,7 +54,7 @@ namespace FVFModels
 
 class tabularFVFvsPressure
 :
-    public FVFModel<Compressible>
+    public FVFModel
 {
     // Private Data Members
 

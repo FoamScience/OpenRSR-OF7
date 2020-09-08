@@ -37,13 +37,13 @@ Foam::phases::samplePhase::samplePhase
     const mixtureType& mT
 )
 :
-    phase<Incompressible, UniformMu>(name, mesh, dict, mT)
+    phase(name, mesh, dict, mT)
 {
 }
 
 Foam::phases::samplePhase::samplePhase(const samplePhase& ph)
 :
-    Foam::phase<Incompressible, UniformMu>(ph)
+    Foam::phase(ph)
 {
 }
 

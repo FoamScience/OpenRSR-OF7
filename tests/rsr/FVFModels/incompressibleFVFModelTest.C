@@ -15,20 +15,26 @@ SCENARIO("Incompressible FVF Construct")
         #include "createTestTimeAndMesh.H"
 
         // The phase dictionary
-        dictionary dict;
-        dict.add(word("FVFModel"), word("incompressible"));
+        dictionary dict("incompressible");
+        dict.add<word>("FVFModel", "incompressible");
+        dict.add<dimensionedScalar>
+        (
+            "rFVF",
+            dimensionedScalar("rFVF", dimless, 1.0)
+        );
 
-        WHEN("Quering for rFVF and drFVFdP value")
+        WHEN("Quering for rFVF and drFVFdP values")
         {
-            CHECK_NOTHROW(incompressibleFVFModel::New("fvf", dict, mesh));
-            auto fvf = incompressibleFVFModel::New("fvf", dict, mesh);
+            CHECK_NOTHROW(FVFModel::New("fvf", dict, mesh));
+            auto fvf = FVFModel::New("fvf", dict, mesh);
             // Perform model calculations
             fvf->correct();
 
-            THEN("Linear interpolation must be fairly accurate")
+            THEN("No changes to rFVF should be made")
             {
-                REQUIRE ( fvf->rFVF().value() == 1.0 );
-                REQUIRE ( fvf->drFVFdP().value() == 0.0 );
+                CHECK( fvf->rFVF().size() == 1);
+                REQUIRE( fvf->rFVF()[0] == 1.0 );
+                REQUIRE( fvf->drFVFdP()[0] == 0.0 );
             }
         }
     }

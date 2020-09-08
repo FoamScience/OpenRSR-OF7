@@ -25,8 +25,7 @@ Class
     Foam::FVFModels::incompressible
 
 Description
-    Tabular description of the relationship 1|FVF = f(P). Typically used
-    for undersaturated isotherm reservoirs.
+    A class to specify incompressible state of a phase.
 
 SourceFiles
     incompressible.C
@@ -37,7 +36,6 @@ SourceFiles
 #define incompressible_H
 
 #include "FVFModel.H"
-#include "fvPatchField.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -52,7 +50,7 @@ namespace FVFModels
 
 class incompressible
 :
-    public FVFModel<Incompressible>
+    public FVFModel
 {
 
 public:
