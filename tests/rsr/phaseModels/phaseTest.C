@@ -2,7 +2,6 @@
 #include "autoPtr.H"
 #include "catch.H"
 #include "fvCFD.H"
-#include "error.H"
 #include "samplePhase.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -17,12 +16,31 @@ SCENARIO("Phase Object creation", "[Virtual]")
     {
         #include "createTestTimeAndMesh.H"
 
-        word phaseName = "water";
+        word phaseName = "phase";
         dictionary transportProperties;
-        dictionary waterDict;
-        waterDict.add<word>("FVFModel", "incompressible");
-        waterDict.add<scalar>("rhoSc", 1.0);
-        transportProperties.add(phaseName, waterDict);
+        dictionary phaseDict(phaseName);
+        phaseDict.add<word>("FVFModel", "incompressible");
+        phaseDict.add<dimensionedScalar>
+        (
+            "rFVF",
+            dimensionedScalar("rFVF", dimless, 1.0)
+        );
+        phaseDict.add<dimensionedScalar>
+        (
+            "rhoSc",
+            dimensionedScalar("rhoSc", dimDensity, 1.0)
+        );
+        phaseDict.add<dimensionedScalar>
+        (
+            "rho0",
+            dimensionedScalar("rho0", dimDensity, 1.0)
+        );
+        phaseDict.add<dimensionedScalar>
+        (
+            "mu0",
+            dimensionedScalar("mu0", dimViscosity*dimDensity, 1.0)
+        );
+        transportProperties.add(phaseName, phaseDict);
 
         WHEN("Constructing phase in a singlePhase setup")
         {
@@ -83,7 +101,6 @@ SCENARIO("Phase Object creation", "[Virtual]")
                 REQUIRE( phi.internalField()==newPhi.internalField() );
             }
         }
-
     }
 }
 

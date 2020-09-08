@@ -34,7 +34,7 @@ namespace Foam
         defineTypeNameAndDebug (tabularFVFvsPressure, 0);
         addToRunTimeSelectionTable
         (
-            compressibleFVFModel, tabularFVFvsPressure, dictionary
+            FVFModel, tabularFVFvsPressure, dictionary
         );
     }
 }
@@ -62,6 +62,14 @@ Foam::FVFModels::tabularFVFvsPressure::tabularFVFvsPressure
         )
     )
 {
+    if (rFVF_.size() == 1)
+    {
+        FatalErrorInFunction
+            << typeName_() << " can't be used with incompressible phases."
+            << nl << "Remove any references to rFVF in " << phaseDict_.name()
+            << " Or explicitely choose the incompressible model." << nl
+            << exit(FatalError);
+    }
 }
 
 
@@ -96,10 +104,6 @@ void Foam::FVFModels::tabularFVFvsPressure::correct()
         rFVF_[celli] = interpolatedValues[0];
         drFVFdP_[celli] = interpolatedValues[1];
     }
-
-    // Correct Boundary Conditions
-    rFVF_.correctBoundaryConditions();
-    drFVFdP_.correctBoundaryConditions();
 }
 
 // ************************************************************************* //

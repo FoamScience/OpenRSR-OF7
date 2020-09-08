@@ -26,7 +26,6 @@ Class
 
 Description
 
-
 SourceFiles
     samplePhase.C
 
@@ -46,12 +45,12 @@ namespace phases
 {
 
 /*---------------------------------------------------------------------------*\
-                   Class samplePhase Declaration
+                         Class samplePhase Declaration
 \*---------------------------------------------------------------------------*/
 
 class samplePhase
 :
-    public phase<Incompressible, UniformMu>
+    public phase
 {
 public:
 

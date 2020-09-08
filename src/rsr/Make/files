@@ -2,14 +2,12 @@ interpolations/basicInterpolationTable/basicInterpolationTables.C
 interpolations/linearInterpolationTable/linearInterpolationTables.C
 interpolations/steppedInterpolationTable/steppedInterpolationTables.C
 
-FVFModels/FVFModel/FVFModels.C
+FVFModels/FVFModel/FVFModel.C
 FVFModels/incompressible/incompressible.C
 FVFModels/tabularFVFvsPressure/tabularFVFvsPressure.C
 
-phaseModels/phase/phaseCore.C
-phaseModels/phase/phases.C
-phaseModels/basicIncompressiblePhase/basicIncompressiblePhases.C
-phaseModels/blackoilPhase/blackoilPhases.C
+phaseModels/phase/phase.C
+phaseModels/blackoilPhase/blackoilPhase.C
 
 rockModels/rock/rocks.C
 rockModels/basicIsotropicRock/basicIsotropicRocks.C

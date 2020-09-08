@@ -4,8 +4,8 @@ phaseModels/blackoilPhaseTest.C
 phaseModels/phaseTest.C
 
 FVFModels/FVFModelTest.C
-FVFModels/incompressibleFVFModelTest.C
 FVFModels/tabularFVFvsPressureTest.C
+FVFModels/incompressibleFVFModelTest.C
 
 interpolations/basicInterpolationTableTest.C
 interpolations/linearScalarInterpolationTableTest.C

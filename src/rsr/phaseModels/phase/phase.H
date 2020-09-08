@@ -25,7 +25,19 @@ Class
     Foam::phase
 
 Description
-    A template base class for fluid phases.
+    A generic base class for fluid phases supporting incompressible and
+    compressible (through FVFModel) setups in single and multi-phase 
+    contexts.
+
+    Compressibility handling (For efficient incompressible objects):
+        
+    - If a rho0 dimensionedScalar is present in phase dictionary, rho is
+      initialized to have only one element (incompressible).
+    - If not, 0/phasename.rho must be read from case files and it assumes
+      full mesh.
+
+Note
+    0/phasename.rho is always preferred over dimensionedScalar from phase dict.
 
 SourceFiles
     phase.C
@@ -35,36 +47,70 @@ SourceFiles
 #ifndef phase_H
 #define phase_H
 
-#include "phaseCore.H"
+#include "DimensionedField.H"
+#include "phase.H"
 #include "FVFModel.H"
 #include "UniformityTypes.H"
+#include "singleCellFvMesh.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
 
+//- Supported mixture types
+enum class mixtureType { singlePhase, multiPhase };
+
 /*---------------------------------------------------------------------------*\
                             Class phase Declaration
 \*---------------------------------------------------------------------------*/
 
-template<class CompressibilityType, class ViscosityType>
 class phase
 :
-    public phaseCore
+    public regIOobject
 {
 protected:
 
     // Protected Data
 
-        //- Phase density
-        CompressibilityType rho_;
+        //- Phase name
+        word name_;
 
-        //- Phase viscosity
-        ViscosityType mu_;
+        //- Phase Dict
+        dictionary phaseDict_;
+
+        //- Const access to the mesh
+        const fvMesh& mesh_;
+
+        //- Phase velocity
+        volVectorField U_;
+
+        //- Phase saturation in a mixture
+        autoPtr<volScalarField> alphaPtr_;
+
+        //- Standard phase density
+        dimensionedScalar rhoSc_;
+
+        //- Initial density
+        dimensionedScalar rho0_;
+
+        //- Initial viscosity
+        dimensionedScalar mu0_;
+
+        //- Mesh for viscosity field
+        autoPtr<singleCellFvMesh> muMesh_;
+
+        //- Phase flux
+        autoPtr<surfaceScalarField> phiPtr_;
 
         //- FVF Model
-        autoPtr<FVFModel<CompressibilityType>> BModel_;
+        autoPtr<FVFModel> BModel_;
+
+        //- Phase density
+        DimensionedField<scalar,volMesh> rho_;
+
+        //- Phase viscosity
+        DimensionedField<scalar,volMesh> mu_;
 
 public:
 
@@ -118,20 +164,93 @@ public:
 
     // Member Functions
 
+        //- Return phase name
+        const word& name() const {
+            return name_;
+        }
+
+        //- Return phase dictionary
+        const dictionary& dict() const {
+            return phaseDict_;
+        }
+
+        //- Return const-access to phase mesh
+        const fvMesh& mesh() const {
+            return mesh_;
+        }
+
+        //- Return ref to velocity field (e.g. for boundary manipulation)
+        volVectorField& U() {
+            return U_;
+        }
+
+        //- Return const-ref to velocity field
+        const volVectorField& U() const {
+            return U_;
+        }
+
+        //- Return ref to saturation field (e.g. for boundary manipulation)
+        volScalarField& alpha() {
+            if (alphaPtr_.empty())
+            {
+                FatalErrorInFunction
+                    << "Trying to access non-existent alpha field for phase "
+                    << name_ << ". Is this a single phase simulation?" << endl
+                    << exit(FatalError);
+            }
+            return alphaPtr_();
+        }
+
+        //- Return const-ref to velocity field
+        const volScalarField& alpha() const {
+            if (alphaPtr_.empty())
+            {
+                FatalErrorInFunction
+                    << "Trying to access non-existent alpha field for phase "
+                    << name_ << ". Is this a single phase simulation?" << endl
+                    << exit(FatalError);
+            }
+            return alphaPtr_();
+        }
+
+        //- Return ref to phase flux
+        surfaceScalarField& phi()
+        {
+            return phiPtr_();
+        }
+
+        //- Return cosnt-access to phase flux
+        const surfaceScalarField& phi() const
+        {
+            return phiPtr_();
+        }
+
+        //- Return const-ref to standard density value
+        const dimensionedScalar& rhoSc() const {
+            return rhoSc_;
+        }
+
+        //- Write phase data to Ostream
+        virtual bool writeData(Ostream&) const override
+        {
+            NotImplemented;
+            return false;
+        }
+
         //- Return const-ref to density field
-        const CompressibilityType& rho() const {
+        const DimensionedField<scalar, volMesh>& rho() const {
             return rho_;
         }
 
         //- Return const-ref to viscosity field
-        const CompressibilityType& mu() const {
+        const DimensionedField<scalar, volMesh>& mu() const {
             return mu_;
         }
 
         //- Return const-access to FVF Model
-        const FVFModel<CompressibilityType>& BModel()
+        const FVFModel& BModel() const
         {
-            return BModel();
+            return BModel_();
         }
 
         //- Correct phase fields
@@ -150,9 +269,9 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#ifdef NoRepository
-    #include "phase.C"
-#endif
+//#ifdef NoRepository
+//    #include "phase.C"
+//#endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

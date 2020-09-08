@@ -34,7 +34,7 @@ namespace Foam
         defineTypeNameAndDebug (incompressible, 0);
         addToRunTimeSelectionTable
         (
-            incompressibleFVFModel, incompressible, dictionary
+            FVFModel, incompressible, dictionary
         );
     }
 }
@@ -50,6 +50,15 @@ Foam::FVFModels::incompressible::incompressible
     :
     FVFModel(name, phaseDict, mesh)
 {
+    if (rFVF_.size() != 1)
+    {
+        WarningInFunction
+            << "rFVF field for phase " << phaseDict_.dictName() 
+            << " has " << rFVF_.size() << " elements but incompressible "
+            << "model expects it to have only 1." << nl << nl
+            << "Are you sure you want the incompressible model?"
+            << endl;
+    }
 }
 
 
@@ -67,6 +76,7 @@ Foam::FVFModels::incompressible::incompressible
 
 void Foam::FVFModels::incompressible::correct()
 {
+    // Do nothing
 }
 
 // ************************************************************************* //

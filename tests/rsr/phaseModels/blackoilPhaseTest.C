@@ -1,8 +1,6 @@
-#include "UniformityTypes.H"
-#include "autoPtr.H"
 #include "catch.H"
+#include "autoPtr.H"
 #include "fvCFD.H"
-#include "error.H"
 #include "phase.H"
 #include "volFieldsFwd.H"
 
@@ -17,18 +15,24 @@ SCENARIO("Blackoil Phase Object creation for Uniform Viscosity", "[Virtual]")
     {
         #include "createTestTimeAndMesh.H"
 
-        word phaseName = "water";
+        word phaseName = "blackoil";
         dictionary transportProperties;
-        dictionary waterDict;
-        waterDict.add<word>("phaseType", "blackoil");
-        waterDict.add<word>("FVFModel", "tabularFVFvsPressure");
-        waterDict.add<scalar>("rhoSc", 10.0);
+        dictionary phaseDict;
+        phaseDict.add<word>("phaseType", "blackoil");
+        phaseDict.add<word>("FVFModel", "tabularFVFvsPressure"); //default
+        phaseDict.add<dimensionedScalar>
+        (
+            "rhoSc",
+            dimensionedScalar("rhoSc", dimDensity, 10.0)
+        );
+        // Use compressible FVF, so no scalars is to be added to phaseDict
+        // Use variant mu so 0/phase.mu must be present
 
         dictionary fvfData;
         fvfData.add<fileName>("file", "testData/FVF.dat");
         fvfData.add("interpolationType", "linear"); // Default
-        waterDict.add("FVFData", fvfData);
-        transportProperties.add(phaseName, waterDict);
+        phaseDict.add("FVFData", fvfData);
+        transportProperties.add(phaseName, phaseDict);
 
         // The pressure field
         volScalarField p
@@ -53,9 +57,8 @@ SCENARIO("Blackoil Phase Object creation for Uniform Viscosity", "[Virtual]")
         WHEN("Constructing blackoil phase in a singlePhase setup with"
              " linear FVF interpolation")
         {
-            FatalError.dontThrowExceptions();
             // Needs the presence of '0/water.U' dictionary
-            auto waterPtr = phase<Compressible,UniformMu>::New
+            auto waterPtr = phase::New
             (
                 phaseName,
                 mesh,
@@ -66,7 +69,7 @@ SCENARIO("Blackoil Phase Object creation for Uniform Viscosity", "[Virtual]")
             THEN("Calling correct() updates density field")
             {
                 waterPtr->correct();
-                auto rho = waterPtr->rho().internalField();
+                auto rho = waterPtr->rho();
 
                 // Expected rho vals
                 std::vector<scalar> expectedRho
@@ -81,9 +84,7 @@ SCENARIO("Blackoil Phase Object creation for Uniform Viscosity", "[Virtual]")
                 );
                 
             }
-            FatalError.throwExceptions();
         }
-
     }
 }
 

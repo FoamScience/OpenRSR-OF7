@@ -25,9 +25,12 @@ Class
     Foam::blackoilPhase
 
 Description
-    Compressible fluid class, where compressibility is expressed in terms
-    of FVF. Accounts for variant viscosity.
+    Compressiblity-capable fluid class. Compressibility is expressed only in
+    terms of Formation Volume Factor. There is also support for variant
+    viscosity.
 
+Note
+    A standard implementation of the phase abstraction
 
 SourceFiles
     blackoilPhase.C
@@ -50,10 +53,9 @@ namespace phases
                         Class blackoilPhase Declaration
 \*---------------------------------------------------------------------------*/
 
-template<class ViscosityType>
 class blackoilPhase
 :
-    public phase<Compressible, ViscosityType>
+    public phase
 {
 public:
 
@@ -98,9 +100,9 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#ifdef NoRepository
-    #include "blackoilPhase.C"
-#endif
+//#ifdef NoRepository
+//    #include "blackoilPhase.C"
+//#endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
