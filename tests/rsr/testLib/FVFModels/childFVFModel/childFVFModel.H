@@ -53,13 +53,13 @@ namespace FVFModels
 
 class childFVFModel
 :
-    public FVFModel<Compressible>
+    public FVFModel
 {
 
 public:
 
     //- Runtime type information
-    TypeName("childFVFModel");
+    ClassName("childFVFModel");
 
     // Constructors
 
@@ -72,7 +72,7 @@ public:
         );
 
     // Destructor
-    virtual ~childFVFModel() {}
+    virtual ~childFVFModel();
 
     // Member Functions
 

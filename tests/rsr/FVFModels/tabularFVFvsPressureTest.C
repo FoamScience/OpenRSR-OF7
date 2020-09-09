@@ -1,4 +1,5 @@
 #include "catch.H"
+#include "error.H"
 #include "fvCFD.H"
 #include "FVFModel.H"
 
@@ -28,18 +29,31 @@ SCENARIO("Tabulated FVF Model with before-and-after bubble point data")
         );
 
         // The phase dictionary
-        dictionary dict;
-        dict.add(word("FVFModel"), word("tabularFVFvsPressure"));
+        dictionary dict("tabular");
+        dict.add<word>("FVFModel", "tabularFVFvsPressure");
 
         dictionary fvfData;
         fvfData.add<fileName>("file", "testData/FVF.dat");
         fvfData.add("interpolationType", "linear"); // Default
         dict.add("FVFData", fvfData);
 
+        WHEN("Attempting construction in incompressible context")
+        {
+            dictionary incDict(dict);
+            incDict.add<bool>("incompressible", true);
+            THEN("rFVF has one element with default value")
+            {
+                auto fvf = FVFModel::New("fvf", incDict, mesh);
+
+                CHECK( fvf->rFVF().size() == 1);
+                CHECK( fvf->drFVFdP().size() == 1);
+                REQUIRE( fvf->rFVF()[0] == 1.0 );
+                REQUIRE( fvf->drFVFdP()[0] == 0.0 );
+            }
+        }
         WHEN("Supplied valid P values")
         {
-            autoPtr<FVFModel<Compressible>> fvf =
-                FVFModel<Compressible>::New("fvf", dict, mesh);
+            auto fvf = FVFModel::New("fvf", dict, mesh);
             std::vector<scalar> pCheckList = {
                 7.50e4, 1.00e5, 3.00e5, 4.00e5, 8.00e5, 1.50e6, 7.00e6,
                 1.00e7, 1.80e7, 2.30e7
@@ -62,8 +76,8 @@ SCENARIO("Tabulated FVF Model with before-and-after bubble point data")
             // Perform model calculations
             fvf->correct();
 
-            auto& rfvf = fvf->rFVF().internalField();
-            auto& drfvf = fvf->drFVFdP().internalField();
+            auto& rfvf = fvf->rFVF();
+            auto& drfvf = fvf->drFVFdP();
 
             THEN("Linear interpolation must be fairly accurate")
             {

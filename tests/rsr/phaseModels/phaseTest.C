@@ -1,8 +1,8 @@
 #include "UniformityTypes.H"
 #include "autoPtr.H"
 #include "catch.H"
-#include "fvCFD.H"
 #include "error.H"
+#include "fvCFD.H"
 #include "samplePhase.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -16,13 +16,42 @@ SCENARIO("Phase Object creation", "[Virtual]")
     GIVEN("Valid mesh and transportProperties")
     {
         #include "createTestTimeAndMesh.H"
+        // The pressure field
+        volScalarField p
+        (
+            IOobject
+            (
+                "p",
+                runTime.timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            ),
+            mesh,
+            dimensionedScalar("p", dimPressure, 0.0)
+        );
 
-        word phaseName = "water";
+
+        word phaseName = "phase";
         dictionary transportProperties;
-        dictionary waterDict;
-        waterDict.add<word>("FVFModel", "incompressible");
-        waterDict.add<scalar>("rhoSc", 1.0);
-        transportProperties.add(phaseName, waterDict);
+        dictionary phaseDict(phaseName);
+        phaseDict.add<dimensionedScalar>
+        (
+            "rFVF",
+            dimensionedScalar("rFVF", dimless, 1.0)
+        );
+        phaseDict.add<dimensionedScalar>
+        (
+            "rhoSc",
+            dimensionedScalar("rhoSc", dimDensity, 1.0)
+        );
+        phaseDict.add<dimensionedScalar>
+        (
+            "mu0",
+            dimensionedScalar("mu0", dimViscosity*dimDensity, 1.0)
+        );
+        phaseDict.add<bool>("incompressible", true);
+        transportProperties.add(phaseName, phaseDict);
 
         WHEN("Constructing phase in a singlePhase setup")
         {
@@ -83,7 +112,6 @@ SCENARIO("Phase Object creation", "[Virtual]")
                 REQUIRE( phi.internalField()==newPhi.internalField() );
             }
         }
-
     }
 }
 

@@ -13,7 +13,6 @@ SCENARIO("Stepped interpolation of a list of scalar values")
     dict.add<bool>("periodic", false);
     dict.add<fileName>("file", "testData/testData.dat");
 
-    FatalError.dontThrowExceptions();
 	GIVEN("A valid linear interpolation table object for scalars")
 	{
 		auto lit = basicInterpolationTable<scalar>::New(dict);

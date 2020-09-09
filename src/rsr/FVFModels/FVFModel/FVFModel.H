@@ -31,7 +31,9 @@ Class
     Foam::FVFModel
 
 Description
-    A generic abstract template for Formation Volume Factor Calculation.
+    A generic abstract class for Formation Volume Factor Calculation. Also
+    responsible for determining whether to instantiate incompressible or
+    compressible phase fields.
 
 SourceFiles
     FVFModel.C
@@ -41,25 +43,20 @@ SourceFiles
 #ifndef FVFModel_H
 #define FVFModel_H
 
-#include "UniformityTypes.H"
-#include "zeroGradientFvPatchFields.H"
+#include "DimensionedField.H"
+#include "volFieldsFwd.H"
+#include "volFields.H"
+#include "singleCellFvMesh.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
 
-// Aliases for FVFModel categories
-template<class CompressibilityType> class FVFModel;
-using compressibleFVFModel   = FVFModel<Compressible>;
-using incompressibleFVFModel = FVFModel<Incompressible>;
-
-
 /*---------------------------------------------------------------------------*\
                            Class FVFModel Declaration
 \*---------------------------------------------------------------------------*/
 
-template<class CompressibilityType>
 class FVFModel
 {
 
@@ -67,20 +64,26 @@ protected:
 
     // Protected data
 
-        //- Model Name 
+        //- Model Name
         word name_;
 
         //- Hosting dict
         dictionary phaseDict_;
 
         //- Const ref to mesh
-        const fvMesh& mesh_; 
+        const fvMesh& mesh_;
+
+        //- is this FVF model for an incompressible phase
+        bool isIncompressible_;
+
+        //- A One-cell mesh for optimized incompressible phase operations
+        autoPtr<singleCellFvMesh> oneCellMesh_;
 
         //- 1|FVF field
-        CompressibilityType rFVF_;
+        DimensionedField<scalar, volMesh> rFVF_;
 
         //- d(1|FVF)/dP field
-        CompressibilityType drFVFdP_;
+        DimensionedField<scalar, volMesh> drFVFdP_;
 
 
 public:
@@ -132,20 +135,48 @@ public:
 
     // Member Functions
 
+        //- Return model name
+        const word& name() const
+        {
+            return name_;
+        }
+
         //- Return model hosting dictionary
         const dictionary& phaseDict() const
         {
             return phaseDict_;
         }
 
+        //- Return registration mesh
+        const fvMesh& mesh() const
+        {
+            return mesh_;
+        }
+
+        //- Return attached to incompressible phase
+        bool isIncompressible() const
+        {
+            return isIncompressible_;
+        }
+
+        //- Return employed mesh
+        const fvMesh& fieldsMesh() const
+        {
+            if (isIncompressible_)
+            {
+                return oneCellMesh_();
+            }
+            return mesh_;
+        }
+
         //- Return const ref to 1|FVF
-        const CompressibilityType& rFVF() const
+        const DimensionedField<scalar,volMesh>& rFVF() const
         {
             return rFVF_;
         }
 
         //- Return const ref d(1|FVF)/dP
-        const CompressibilityType& drFVFdP() const
+        const DimensionedField<scalar,volMesh>& drFVFdP() const
         {
             return drFVFdP_;
         }
@@ -164,9 +195,9 @@ public:
 
 } // End namespace Foam
 
-#ifdef NoRepository
-    #include "FVFModel.C"
-#endif
+//#ifdef NoRepository
+//    #include "FVFModel.C"
+//#endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

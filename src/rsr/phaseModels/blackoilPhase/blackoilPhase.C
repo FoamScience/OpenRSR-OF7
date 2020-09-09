@@ -25,11 +25,24 @@ License
 
 #include "blackoilPhase.H"
 #include "fvcReconstruct.H"
+#include "addToRunTimeSelectionTable.H"
+
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+
+namespace Foam
+{
+    namespace phases {
+        defineTypeNameAndDebug (blackoilPhase, 0);
+        addToRunTimeSelectionTable
+        (
+            phase, blackoilPhase, dictionary
+        );
+    }
+}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-template<class ViscosityType>
-Foam::phases::blackoilPhase<ViscosityType>::blackoilPhase
+Foam::phases::blackoilPhase::blackoilPhase
 (
     const word& name,
     const fvMesh& mesh,
@@ -37,42 +50,38 @@ Foam::phases::blackoilPhase<ViscosityType>::blackoilPhase
     const mixtureType& mT
 )
 :
-    phase<Compressible, ViscosityType>(name, mesh, transportProperties, mT)
+    phase(name, mesh, transportProperties, mT)
 {
 }
 
 
-template<class ViscosityType>
-Foam::phases::blackoilPhase<ViscosityType>::blackoilPhase
+Foam::phases::blackoilPhase::blackoilPhase
 (
     const blackoilPhase& ph
 )
 :
-    phase<Compressible, ViscosityType>(ph)
+    phase(ph)
 {
 }
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-template<class ViscosityType>
-Foam::phases::blackoilPhase<ViscosityType>::~blackoilPhase()
+Foam::phases::blackoilPhase::~blackoilPhase()
 {}
 
 // * * * * * * * * * * * * * Public Member Functions * * * * * * * * * * * * //
 
-template<class ViscosityType>
-void Foam::phases::blackoilPhase<ViscosityType>::correct()
+void Foam::phases::blackoilPhase::correct()
 {
     // Correct FVFModel
-    this->BModel_->correct();
+    BModel_->correct();
 
-    // Update denity
-    this->rho_ = this->rhoSc_*this->BModel_->rFVF();
-    this->rho_.correctBoundaryConditions();
+    // Update current density
+    rho_ = rhoSc_*BModel_->rFVF();
 
     // Reconstruct velocity to reflect flux
-    this->U_ = fvc::reconstruct(this->phi());
-    this->U_.correctBoundaryConditions();
+    U_ = fvc::reconstruct(phi());
+    U_.correctBoundaryConditions();
 }
 
 // ************************************************************************* //

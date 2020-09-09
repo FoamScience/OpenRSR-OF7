@@ -24,12 +24,19 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "FVFModel.H"
+#include "dimensionedScalarFwd.H"
+
+// * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * * //
+
+namespace Foam
+{
+    defineTypeNameAndDebug(FVFModel, 0);
+    defineRunTimeSelectionTable(FVFModel, dictionary);
+}
 
 // * * * * * * * * * * * * Static Function Members * * * * * * * * * * * * * //
 
-template<class CompressibilityType>
-Foam::autoPtr<Foam::FVFModel<CompressibilityType>>
-Foam::FVFModel<CompressibilityType>::New
+Foam::autoPtr<Foam::FVFModel> Foam::FVFModel::New
 (
     const word& name,
     const dictionary& phaseDict,
@@ -49,7 +56,7 @@ Foam::FVFModel<CompressibilityType>::New
     {
         FatalErrorInFunction
             << "Unknown FVF Model type " << FVFType
-            << nl << nl
+            << " for phase " << phaseDict.dictName() << nl << nl
             << "Valid FVF models : " << nl
             << dictionaryConstructorTablePtr_->sortedToc()
             << exit(FatalError);
@@ -60,17 +67,35 @@ Foam::FVFModel<CompressibilityType>::New
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-template<class CompressibilityType>
-Foam::FVFModel<CompressibilityType>::FVFModel
+Foam::FVFModel::FVFModel
 (
     const word& name,
     const dictionary& phaseDict,
     const fvMesh& mesh
 )
-    :
+:
     name_(name),
     phaseDict_(phaseDict),
     mesh_(mesh),
+    isIncompressible_
+    (
+        phaseDict_.lookupOrAddDefault<bool>("incompressible", false)
+    ),
+    oneCellMesh_
+    (
+        new singleCellFvMesh
+        (
+            IOobject
+            (
+                name+".singleCellMesh",
+                mesh.polyMesh::instance(),
+                mesh.time(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            ),
+            mesh
+        )
+    ),
     rFVF_
     (
         IOobject
@@ -78,39 +103,56 @@ Foam::FVFModel<CompressibilityType>::FVFModel
             phaseDict.dictName()+".rFVF",
             mesh.time().timeName(),
             mesh,
-            IOobject::READ_IF_PRESENT,
+            isIncompressible_
+                ? IOobject::READ_IF_PRESENT
+                : IOobject::MUST_READ,
             IOobject::NO_WRITE
         ),
-        mesh,
-        dimensionedScalar("rFVF", dimless, 1.0),
-        zeroGradientFvPatchField<scalar>::typeName
+        isIncompressible_ ? oneCellMesh_() : mesh,
+        dimensionedScalar
+        (
+            "rFVF",
+            phaseDict_.lookupOrAddDefault<dimensionedScalar>
+            (
+                "rFVF", dimensionedScalar("rFVF", dimless, 1.0)
+            )
+        )
     ),
     drFVFdP_
     (
         IOobject
         (
-            phaseDict_.dictName()+".drFVFdP",
+            phaseDict.dictName()+".drFVFdP",
             mesh.time().timeName(),
             mesh,
-            IOobject::READ_IF_PRESENT,
+            isIncompressible_
+                ? IOobject::READ_IF_PRESENT
+                : IOobject::MUST_READ,
             IOobject::NO_WRITE
         ),
-        mesh,
-        dimensionedScalar("drFVFdP", dimless/dimPressure, 0.0),
-        zeroGradientFvPatchField<scalar>::typeName
+        isIncompressible_ ? oneCellMesh_() : mesh,
+        dimensionedScalar
+        (
+            "drFVFdP",
+            phaseDict_.lookupOrAddDefault<dimensionedScalar>
+            (
+                "drFVFdP", dimensionedScalar("drFVFdP", dimless, 0.0)
+            )
+        )
     )
 {}
 
 
-template<class CompressibilityType>
-Foam::FVFModel<CompressibilityType>::FVFModel
+Foam::FVFModel::FVFModel
 (
     const FVFModel& fvfModel
 )
-    :
+:
     name_(fvfModel.name_),
     phaseDict_(fvfModel.phaseDict_),
     mesh_(fvfModel.mesh_),
+    isIncompressible_(fvfModel.isIncompressible_),
+    oneCellMesh_(fvfModel.oneCellMesh_),
     rFVF_(fvfModel.rFVF_),
     drFVFdP_(fvfModel.drFVFdP_)
 {}

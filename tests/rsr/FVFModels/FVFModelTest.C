@@ -1,4 +1,6 @@
 #include "catch.H"
+#include "dimensionedScalarFwd.H"
+#include "error.H"
 #include "fvCFD.H"
 #include "FVFModel.H"
 
@@ -8,14 +10,17 @@ using namespace Foam;
 
 SCENARIO("FVF Model Selection with Default configuration", "[Virtual]")
 {
-    //Foam::FatalError.dontThrowExceptions();
-
-    GIVEN("Pressure field and RunTime-Selectable implementation of 'FVFModel'")
+    GIVEN("Valid mesh and RunTime-Selectable implementation of 'FVFModel'")
     {
         #include "createTestTimeAndMesh.H"
 
-        dictionary dict;
-        dict.add(word("FVFModel"), word(""));
+        dictionary dict("water");
+        dict.add<dimensionedScalar>
+        (
+            "rFVF",
+            dimensionedScalar("rFVF", dimless, 1.0)
+        );
+        dict.add<word>("FVFModel", "");
 
         WHEN("Passing invalid model identifier to the selector")
         {
@@ -26,54 +31,48 @@ SCENARIO("FVF Model Selection with Default configuration", "[Virtual]")
             {
                 REQUIRE_THROWS
                 (
-                    FVFModel<Compressible>::New("invalidModel", dict, mesh)
+                    FVFModel::New("invalidModel", dict, mesh)
                 );
             }
         }
 
-        WHEN("Calling correct() on a valid FVF model object")
+        WHEN("Constructing a child FVF model in incompressible mode")
         {
-            // Try to instantiate a model from an "InvalidModelName" class
             dict.set("FVFModel", "childFVFModel");
-            auto fvf = FVFModel<Compressible>::New("fvf", dict, mesh);
-            fvf->correct();
-            THEN("1|FVF BCs must reflect a zeroGradient situation")
+            dict.add<bool>("incompressible", true); // Defualt
+
+            auto fvf = FVFModel::New("fvf", dict, mesh);
+            THEN("The selected FVF mesh is a single-cell one")
             {
-                const volScalarField& rfvf = fvf->rFVF();
-                forAll(mesh.boundary(), pi)
-                {
-                    const word& patchType = mesh.boundary()[pi].type();
-                    if (patchType != "empty")
-                    forAll(mesh.boundary()[pi], fi)
-                    {
-                        const label& bcell = 
-                            mesh.boundaryMesh()[pi].faceCells()[fi];
-                        REQUIRE
-                        (
-                            rfvf.internalField()[bcell] 
-                            == rfvf.boundaryField()[pi][fi]
-                        );
-                    }
-                }
+                CHECK(fvf->rFVF().size() == 1);
+                CHECK(fvf->drFVFdP().size() == 1);
+
+                // REQUIRE THAT 0/water.rFVF is preferred over dimensionedScalar
+                REQUIRE(fvf->rFVF()[0] == 1.5);
+                REQUIRE(fvf->drFVFdP()[0] == 0.0);
             }
-            THEN("d(1|FVF)dP BCs must reflect a zeroGradient situation")
+        }
+        WHEN("Constructing a child FVF model in compressible mode")
+        {
+            dict.set("FVFModel", "childFVFModel");
+            dict.set("incompressible", false);
+
+            auto fvf = FVFModel::New("fvf", dict, mesh);
+            THEN("The selected FVF mesh is the full one")
             {
-                const volScalarField& drfvfdp = fvf->rFVF();
-                forAll(mesh.boundary(), pi)
-                {
-                    const word& patchType = mesh.boundary()[pi].type();
-                    if (patchType != "empty")
-                    forAll(mesh.boundary()[pi], fi)
-                    {
-                        const label& bcell = 
-                            mesh.boundaryMesh()[pi].faceCells()[fi];
-                        REQUIRE
-                        (
-                            drfvfdp.internalField()[bcell] 
-                            == drfvfdp.boundaryField()[pi][fi]
-                        );
-                    }
-                }
+                CHECK(fvf->rFVF().size() == mesh.nCells());
+                CHECK(fvf->drFVFdP().size() == mesh.nCells());
+
+                REQUIRE
+                (
+                    std::vector<scalar>(fvf->rFVF().begin(), fvf->rFVF().end())
+                    == std::vector<scalar>(mesh.nCells(), 1.5)
+                );
+                REQUIRE
+                (
+                    std::vector<scalar>(fvf->drFVFdP().begin(),fvf->drFVFdP().end())
+                    == std::vector<scalar>(mesh.nCells(), 0.0)
+                );
             }
         }
     }

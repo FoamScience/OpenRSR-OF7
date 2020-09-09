@@ -35,7 +35,7 @@ namespace Foam
         defineTypeNameAndDebug(childFVFModel, 0);
         addToRunTimeSelectionTable
         (
-            compressibleFVFModel,
+            FVFModel,
             childFVFModel,
             dictionary
         );
@@ -55,13 +55,13 @@ Foam::FVFModels::childFVFModel::childFVFModel
 {
 }
 
+Foam::FVFModels::childFVFModel::~childFVFModel() {}
 
 void Foam::FVFModels::childFVFModel::correct()
 {
     //forAll(rFVF_.internalField(), ci){
     //    rFVF_[ci] = ci;
     //}
-    rFVF_.correctBoundaryConditions();
 }
 
 // ************************************************************************* //
