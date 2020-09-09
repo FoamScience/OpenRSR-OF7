@@ -19,49 +19,57 @@ License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+    along with OpenFOAM.  If not, see .
 
 \*---------------------------------------------------------------------------*/
 
 #include "basicIsotropicRock.H"
 
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+
+namespace Foam
+{
+    namespace rocks {
+        defineTypeNameAndDebug (basicIsotropicRock, 0);
+        addToTemplateRockRunTimeSelectionTable
+        (
+            rock, basicIsotropicRock, Isotropic, dictionary
+        );
+    }
+}
+
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-template<class CompressibilityType>
-Foam::rocks::basicIsotropicRock<CompressibilityType>::basicIsotropicRock
+Foam::rocks::basicIsotropicRock::basicIsotropicRock
 (
     const word& name,
     const fvMesh& mesh,
     const dictionary& rockProperties
 )
 :
-    rock<Isotropic, CompressibilityType>(name, mesh, rockProperties)
+    rock(name, mesh, rockProperties)
 {
 }
 
 
-template<class CompressibilityType>
-Foam::rocks::basicIsotropicRock<CompressibilityType>::basicIsotropicRock
+Foam::rocks::basicIsotropicRock::basicIsotropicRock
 (
     const basicIsotropicRock& rk
 )
 :
-    rock<Isotropic, CompressibilityType>(rk)
+    rock(rk)
 {
 }
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-template<class CompressibilityType>
-Foam::rocks::basicIsotropicRock<CompressibilityType>::
-~basicIsotropicRock() {}
+Foam::rocks::basicIsotropicRock::~basicIsotropicRock() {}
 
 // * * * * * * * * * * * * * Public Member Functions * * * * * * * * * * * * //
 
-template<class CompressibilityType>
-void Foam::rocks::basicIsotropicRock<CompressibilityType>::correct()
+void Foam::rocks::basicIsotropicRock::correct()
 {
-    // TODO: Do absolutely nothing
+    // TODO: Do absolutely nothing for now
     // TODO: Or maybe update compressibility based on pressure
     // Alternative: Update compressibility using Hall's Correlation
 }

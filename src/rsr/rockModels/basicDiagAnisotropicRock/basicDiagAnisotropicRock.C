@@ -19,16 +19,28 @@ License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+    along with OpenFOAM.  If not, see .
 
 \*---------------------------------------------------------------------------*/
 
 #include "basicDiagAnisotropicRock.H"
 
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+
+namespace Foam
+{
+    namespace rocks {
+        defineTypeNameAndDebug (basicDiagAnisotropicRock, 0);
+        addToTemplateRockRunTimeSelectionTable
+        (
+            rock, basicDiagAnisotropicRock, DiagAnisotropic, dictionary
+        );
+    }
+}
+
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-template<class CompressibilityType>
-Foam::rocks::basicDiagAnisotropicRock<CompressibilityType>::
+Foam::rocks::basicDiagAnisotropicRock::
 basicDiagAnisotropicRock
 (
     const word& name,
@@ -36,34 +48,30 @@ basicDiagAnisotropicRock
     const dictionary& rockProperties
 )
 :
-    rock<DiagAnisotropic, CompressibilityType>(name, mesh, rockProperties)
+    rock(name, mesh, rockProperties)
 {
 }
 
 
-template<class CompressibilityType>
-Foam::rocks::basicDiagAnisotropicRock<CompressibilityType>::
+Foam::rocks::basicDiagAnisotropicRock::
 basicDiagAnisotropicRock
 (
     const basicDiagAnisotropicRock& rk
 )
 :
-    rock<DiagAnisotropic, CompressibilityType>(rk)
+    rock(rk)
 {
 }
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-template<class CompressibilityType>
-Foam::rocks::basicDiagAnisotropicRock<CompressibilityType>::
-~basicDiagAnisotropicRock() {}
+Foam::rocks::basicDiagAnisotropicRock::~basicDiagAnisotropicRock() {}
 
 // * * * * * * * * * * * * * Public Member Functions * * * * * * * * * * * * //
 
-template<class CompressibilityType>
-void Foam::rocks::basicDiagAnisotropicRock<CompressibilityType>::correct()
+void Foam::rocks::basicDiagAnisotropicRock::correct()
 {
-    // TODO: Do absolutely nothing
+    // TODO: Do absolutely nothing for now
     // TODO: Or maybe update compressibility based on pressure
     // Alternative: Update compressibility using Hall's Correlation
 }

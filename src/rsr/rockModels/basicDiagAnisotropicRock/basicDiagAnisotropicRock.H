@@ -49,10 +49,9 @@ namespace rocks
                    Class basicDiagAnisotropicRock Declaration
 \*---------------------------------------------------------------------------*/
 
-template<class CompressibilityType>
 class basicDiagAnisotropicRock
 :
-    public rock<DiagAnisotropic, CompressibilityType>
+    public rock<DiagAnisotropic>
 {
 public:
 
@@ -99,9 +98,9 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#ifdef NoRepository
-    #include "basicDiagAnisotropicRock.C"
-#endif
+//#ifdef NoRepository
+//    #include "basicDiagAnisotropicRock.C"
+//#endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

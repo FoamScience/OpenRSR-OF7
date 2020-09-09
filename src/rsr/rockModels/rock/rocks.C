@@ -32,19 +32,15 @@ namespace Foam
 {
     defineVariadicTemplatedRunTimeSelectionTable
     (
-        rock, Isotropic, Incompressible
+        rock, Isotropic
     );
     defineVariadicTemplatedRunTimeSelectionTable
     (
-        rock, Isotropic, Compressible
+        rock, DiagAnisotropic
     );
     defineVariadicTemplatedRunTimeSelectionTable
     (
-        rock, DiagAnisotropic, Incompressible
-    );
-    defineVariadicTemplatedRunTimeSelectionTable
-    (
-        rock, DiagAnisotropic, Compressible
+        rock, Anisotropic
     );
 }
 

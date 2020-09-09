@@ -26,7 +26,7 @@ Class
 
 Description
     A template base class for reservoir rocks, with pressure-dependent
-    compressibility and anisotropic media support
+    compressibility and anisotropic media support.
 
 SourceFiles
     rock.C
@@ -39,8 +39,8 @@ SourceFiles
 #include "DimensionedField.H"
 #include "GeometricField.H"
 #include "regIOobject.H"
-#include "UniformityTypes.H"
 #include "IsotropyTypes.H"
+#include "singleCellFvMesh.H"
 #include "volFieldsFwd.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -52,7 +52,7 @@ namespace Foam
                              Class rock Declaration
 \*---------------------------------------------------------------------------*/
 
-template<class PermeabilityType, class CompressibilityType>
+template<class PermeabilityType>
 class rock
 :
     public regIOobject
@@ -63,9 +63,6 @@ public:
 
         // Permeability field component type
         using KcmptType = typename PermeabilityType::value_type;
-
-        // Compressibility field component type
-        using CcmptType = typename CompressibilityType::cmptType;
 
 protected:
 
@@ -87,16 +84,22 @@ protected:
         dimensioned<KcmptType> permInit_;
 
         //- Initial Compressibility
-        dimensioned<CcmptType> compInit_;
+        dimensionedScalar compInit_;
+
+        //- Is the rock compressible
+        bool isIncompressible_;
+
+        //- Mesh for viscosity field
+        autoPtr<singleCellFvMesh> oneCellMesh_;
 
         //- Rock porosity field
-        volScalarField porosity_;
+        DimensionedField<scalar, volMesh> porosity_;
 
         //- Rock absolute-permeability field
         PermeabilityType K_;
 
         //- Rock Compressibility field
-        CompressibilityType c_;
+        DimensionedField<scalar, volMesh> c_;
 
 public:
 
@@ -163,7 +166,7 @@ public:
         }
 
         //- Return const-ref to porosity field
-        const volScalarField& porosity() const {
+        const DimensionedField<scalar, volMesh>& porosity() {
             return porosity_;
         }
 
@@ -173,7 +176,7 @@ public:
         }
 
         //- Return const-ref to compressibility field
-        const CompressibilityType& Cf() {
+        const DimensionedField<scalar, volMesh>& Cf() {
             return c_;
         }
 
@@ -193,6 +196,16 @@ public:
         rock& operator=(const rock&) = delete;
 };
 
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+// Add a specialized to rock RTS table
+#define addToTemplateRockRunTimeSelectionTable(baseType,thisType,Targ,argNames)\
+                                                                               \
+    /* Add the thisType constructor function to the table */                   \
+    baseType<Targ>::add##argNames##ConstructorToTable<thisType>                \
+        add##thisType##Targ##argNames##ConstructorTo##baseType##Targ##Table_
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

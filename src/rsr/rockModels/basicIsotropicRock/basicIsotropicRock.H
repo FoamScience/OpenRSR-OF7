@@ -45,13 +45,12 @@ namespace rocks
 {
 
 /*---------------------------------------------------------------------------*\
-                   Class basicIsotropicRock Declaration
+                      Class basicIsotropicRock Declaration
 \*---------------------------------------------------------------------------*/
 
-template<class CompressibilityType>
 class basicIsotropicRock
 :
-    public rock<Isotropic, CompressibilityType>
+    public rock<Isotropic>
 {
 public:
 
@@ -95,9 +94,9 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#ifdef NoRepository
-    #include "basicIsotropicRock.C"
-#endif
+//#ifdef NoRepository
+//    #include "basicIsotropicRock.C"
+//#endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

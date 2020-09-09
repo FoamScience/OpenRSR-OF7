@@ -21,10 +21,11 @@ SCENARIO("Rock object creation for diagonalTensor-Permeability","[Virtual]")
         word rockName = "rock";
 
         dictionary rockDict;
+        rockDict.add("incompressible", true);
         rockDict.add<dimensionedScalar>
         (
             "porosity",
-            dimensionedScalar( rockName+".porosity", dimless, 0.2)
+            dimensionedScalar(rockName+".porosity", dimless, 0.2)
         );
         rockDict.add<dimensionedVector>
         (
@@ -51,7 +52,7 @@ SCENARIO("Rock object creation for diagonalTensor-Permeability","[Virtual]")
         {
             FatalError.dontThrowExceptions();
             // Needs the presence of '0/water.U' dictionary
-            auto rockPtr = rock<DiagAnisotropic,Incompressible>::New
+            auto rockPtr = rock<DiagAnisotropic>::New
             (
                 rockName,
                 mesh,
@@ -60,7 +61,7 @@ SCENARIO("Rock object creation for diagonalTensor-Permeability","[Virtual]")
 
             THEN("Members must be initialized correctly")
             {
-                CHECK(rockPtr->Cf().value() == 1e-6);
+                CHECK(rockPtr->Cf()[0] == 1e-6);
                 CHECK(rockPtr->porosity()[0] == 0.2);
                 CHECK(rockPtr->K()[0] == vector(1e-12, 2e-12, 5e-15));
             }
