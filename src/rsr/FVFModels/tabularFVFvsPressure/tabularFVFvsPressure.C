@@ -23,6 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+#include "basicInterpolationTable.H"
 #include "tabularFVFvsPressure.H"
 #include "addToRunTimeSelectionTable.H"
 
@@ -51,25 +52,19 @@ Foam::FVFModels::tabularFVFvsPressure::tabularFVFvsPressure
     FVFModel(name, phaseDict, mesh),
     pName_
     (
-        phaseDict.subDict("FVFData").lookupOrDefault<word>("pName", "p")
+        phaseDict.lookupOrDefault<word>("pName", "p")
     ),
     p_(mesh.lookupObject<volScalarField>(pName_)),
     rFVFseries_
     (
-        basicInterpolationTable<scalar>::New
+        this->isIncompressible_
+        ? autoPtr<basicInterpolationTable<scalar>>(nullptr)
+        : basicInterpolationTable<scalar>::New
         (
             phaseDict.subDict("FVFData")
         )
     )
 {
-    if (rFVF_.size() == 1)
-    {
-        FatalErrorInFunction
-            << typeName_() << " can't be used with incompressible phases."
-            << nl << "Remove any references to rFVF in " << phaseDict_.name()
-            << " Or explicitely choose the incompressible model." << nl
-            << exit(FatalError);
-    }
 }
 
 
@@ -81,13 +76,7 @@ Foam::FVFModels::tabularFVFvsPressure::tabularFVFvsPressure
     FVFModel(fvfModel),
     pName_(fvfModel.pName_),
     p_(fvfModel.p_),
-    rFVFseries_
-    (
-        basicInterpolationTable<scalar>::New
-        (
-            fvfModel.phaseDict_.subDict("FVFData")
-        )
-    )
+    rFVFseries_(fvfModel.rFVFseries_)
 {
 }
 
@@ -96,6 +85,10 @@ Foam::FVFModels::tabularFVFvsPressure::tabularFVFvsPressure
 
 void Foam::FVFModels::tabularFVFvsPressure::correct()
 {
+    if (isIncompressible_)
+    {
+        return; // Do nothing
+    }
     // Read In FVF data
     forAll(p_.internalField(), celli)
     {

@@ -1,10 +1,9 @@
 rockModels/basicDiagAnisotropicRockTest.C
 
-phaseModels/blackoilPhaseTest.C
+/*phaseModels/blackoilPhaseTest.C*/
 phaseModels/phaseTest.C
 
 FVFModels/FVFModelTest.C
-FVFModels/incompressibleFVFModelTest.C
 FVFModels/tabularFVFvsPressureTest.C
 
 interpolations/basicInterpolationTableTest.C

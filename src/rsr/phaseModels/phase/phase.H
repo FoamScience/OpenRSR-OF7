@@ -29,15 +29,16 @@ Description
     compressible (through FVFModel) setups in single and multi-phase 
     contexts.
 
-    Compressibility handling (For efficient incompressible objects):
+    Compressibility handling is the responsibility of FVFModel class.
         
-    - If a rho0 dimensionedScalar is present in phase dictionary, rho is
-      initialized to have only one element (incompressible).
-    - If not, 0/phasename.rho must be read from case files and it assumes
+    Optimizing viscosity field size is subject to the following reasoning:
+    - If a mu0 dimensionedScalar is present in phase dictionary, mu is
+      initialized to have only one element (the value is the provided one).
+    - If not, 0/phasename.mu must be read from case files and it assumes
       full mesh.
 
 Note
-    0/phasename.rho is always preferred over dimensionedScalar from phase dict.
+    0/phasename.mu is always preferred over dimensionedScalar from phase dict.
 
 SourceFiles
     phase.C

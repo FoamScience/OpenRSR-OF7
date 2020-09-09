@@ -31,7 +31,9 @@ Class
     Foam::FVFModel
 
 Description
-    A generic abstract class for Formation Volume Factor Calculation.
+    A generic abstract class for Formation Volume Factor Calculation. Also
+    responsible for determining whether to instantiate incompressible or
+    compressible phase fields.
 
 SourceFiles
     FVFModel.C
@@ -71,8 +73,8 @@ protected:
         //- Const ref to mesh
         const fvMesh& mesh_;
 
-        //- 1|FVF in the incompressible case
-        dimensionedScalar incrFVF_;
+        //- is this FVF model for an incompressible phase
+        bool isIncompressible_;
 
         //- A One-cell mesh for optimized incompressible phase operations
         autoPtr<singleCellFvMesh> oneCellMesh_;
@@ -151,10 +153,16 @@ public:
             return mesh_;
         }
 
+        //- Return attached to incompressible phase
+        bool isIncompressible() const
+        {
+            return isIncompressible_;
+        }
+
         //- Return employed mesh
         const fvMesh& fieldsMesh() const
         {
-            if (rFVF_.size() == 1)
+            if (isIncompressible_)
             {
                 return oneCellMesh_();
             }
