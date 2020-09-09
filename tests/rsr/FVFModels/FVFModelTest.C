@@ -10,7 +10,7 @@ using namespace Foam;
 
 SCENARIO("FVF Model Selection with Default configuration", "[Virtual]")
 {
-    GIVEN("Pressure field and RunTime-Selectable implementation of 'FVFModel'")
+    GIVEN("Valid mesh and RunTime-Selectable implementation of 'FVFModel'")
     {
         #include "createTestTimeAndMesh.H"
 
@@ -39,6 +39,8 @@ SCENARIO("FVF Model Selection with Default configuration", "[Virtual]")
         WHEN("Constructing a child FVF model in incompressible mode")
         {
             dict.set("FVFModel", "childFVFModel");
+            dict.add<bool>("incompressible", true); // Defualt
+
             auto fvf = FVFModel::New("fvf", dict, mesh);
             THEN("The selected FVF mesh is a single-cell one")
             {
@@ -53,11 +55,8 @@ SCENARIO("FVF Model Selection with Default configuration", "[Virtual]")
         WHEN("Constructing a child FVF model in compressible mode")
         {
             dict.set("FVFModel", "childFVFModel");
-            dict.set
-            (
-                "rFVF",
-                dimensionedScalar("rFVF", dimless, -1.0)
-            );
+            dict.set("incompressible", false);
+
             auto fvf = FVFModel::New("fvf", dict, mesh);
             THEN("The selected FVF mesh is the full one")
             {

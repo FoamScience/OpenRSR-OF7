@@ -40,14 +40,15 @@ SCENARIO("Tabulated FVF Model with before-and-after bubble point data")
         WHEN("Attempting construction in incompressible context")
         {
             dictionary incDict(dict);
-            incDict.add<dimensionedScalar>
-            (
-                "rFVF",
-                dimensionedScalar("rFVF", dimless, 1.0)
-            );
-            THEN("Construction errors out.")
+            incDict.add<bool>("incompressible", true);
+            THEN("rFVF has one element with default value")
             {
-                REQUIRE_THROWS(FVFModel::New("fvf", incDict, mesh));
+                auto fvf = FVFModel::New("fvf", incDict, mesh);
+
+                CHECK( fvf->rFVF().size() == 1);
+                CHECK( fvf->drFVFdP().size() == 1);
+                REQUIRE( fvf->rFVF()[0] == 1.0 );
+                REQUIRE( fvf->drFVFdP()[0] == 0.0 );
             }
         }
         WHEN("Supplied valid P values")

@@ -140,7 +140,7 @@ Foam::phase::phase
         phaseDict_.lookupOrAddDefault<dimensionedScalar>
         (
             "rho0",
-            dimensionedScalar("rho0", dimViscosity*dimDensity, -1)
+            dimensionedScalar("rho0", dimViscosity*dimDensity, 1.0)
         )
     ),
     mu0_
@@ -199,9 +199,9 @@ Foam::phase::phase
             name+".rho",
             mesh.time().timeName(),
             mesh,
-            rho0_.value() == -1
-                ? IOobject::MUST_READ
-                : IOobject::READ_IF_PRESENT,
+            BModel_->isIncompressible()
+                ? IOobject::READ_IF_PRESENT
+                : IOobject::MUST_READ,
             IOobject::AUTO_WRITE
         ),
         BModel_->rFVF().mesh(), // Follow the mesh from BModel

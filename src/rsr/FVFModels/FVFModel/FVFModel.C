@@ -77,14 +77,9 @@ Foam::FVFModel::FVFModel
     name_(name),
     phaseDict_(phaseDict),
     mesh_(mesh),
-    incrFVF_
+    isIncompressible_
     (
-        phaseDict.dictName()+".rFVF",
-        phaseDict_.lookupOrAddDefault<dimensionedScalar>
-        (
-            "rFVF",
-            dimensionedScalar("rFVF", dimless, -1)
-        )
+        phaseDict_.lookupOrAddDefault<bool>("incompressible", false)
     ),
     oneCellMesh_
     (
@@ -108,16 +103,19 @@ Foam::FVFModel::FVFModel
             phaseDict.dictName()+".rFVF",
             mesh.time().timeName(),
             mesh,
-            incrFVF_.value() == -1
-                ? IOobject::MUST_READ
-                : IOobject::READ_IF_PRESENT,
+            isIncompressible_
+                ? IOobject::READ_IF_PRESENT
+                : IOobject::MUST_READ,
             IOobject::NO_WRITE
         ),
-        incrFVF_.value() == -1 ? mesh : oneCellMesh_(),
+        isIncompressible_ ? oneCellMesh_() : mesh,
         dimensionedScalar
         (
-            "rFVF", dimless,
-            incrFVF_.value() == -1 ? 1.0 : incrFVF_.value()
+            "rFVF",
+            phaseDict_.lookupOrAddDefault<dimensionedScalar>
+            (
+                "rFVF", dimensionedScalar("rFVF", dimless, 1.0)
+            )
         )
     ),
     drFVFdP_
@@ -127,13 +125,20 @@ Foam::FVFModel::FVFModel
             phaseDict.dictName()+".drFVFdP",
             mesh.time().timeName(),
             mesh,
-            incrFVF_.value() == -1
-                ? IOobject::MUST_READ
-                : IOobject::READ_IF_PRESENT,
+            isIncompressible_
+                ? IOobject::READ_IF_PRESENT
+                : IOobject::MUST_READ,
             IOobject::NO_WRITE
         ),
-        incrFVF_.value() == -1 ? mesh : oneCellMesh_(),
-        dimensionedScalar("drFVFdP", dimless/dimPressure, 0.0)
+        isIncompressible_ ? oneCellMesh_() : mesh,
+        dimensionedScalar
+        (
+            "drFVFdP",
+            phaseDict_.lookupOrAddDefault<dimensionedScalar>
+            (
+                "drFVFdP", dimensionedScalar("drFVFdP", dimless, 0.0)
+            )
+        )
     )
 {}
 
@@ -146,7 +151,7 @@ Foam::FVFModel::FVFModel
     name_(fvfModel.name_),
     phaseDict_(fvfModel.phaseDict_),
     mesh_(fvfModel.mesh_),
-    incrFVF_(fvfModel.incrFVF_),
+    isIncompressible_(fvfModel.isIncompressible_),
     oneCellMesh_(fvfModel.oneCellMesh_),
     rFVF_(fvfModel.rFVF_),
     drFVFdP_(fvfModel.drFVFdP_)

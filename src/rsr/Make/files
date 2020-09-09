@@ -3,7 +3,6 @@ interpolations/linearInterpolationTable/linearInterpolationTables.C
 interpolations/steppedInterpolationTable/steppedInterpolationTables.C
 
 FVFModels/FVFModel/FVFModel.C
-FVFModels/incompressible/incompressible.C
 FVFModels/tabularFVFvsPressure/tabularFVFvsPressure.C
 
 phaseModels/phase/phase.C

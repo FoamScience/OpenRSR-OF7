@@ -1,6 +1,7 @@
 #include "UniformityTypes.H"
 #include "autoPtr.H"
 #include "catch.H"
+#include "error.H"
 #include "fvCFD.H"
 #include "samplePhase.H"
 
@@ -15,11 +16,25 @@ SCENARIO("Phase Object creation", "[Virtual]")
     GIVEN("Valid mesh and transportProperties")
     {
         #include "createTestTimeAndMesh.H"
+        // The pressure field
+        volScalarField p
+        (
+            IOobject
+            (
+                "p",
+                runTime.timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            ),
+            mesh,
+            dimensionedScalar("p", dimPressure, 0.0)
+        );
+
 
         word phaseName = "phase";
         dictionary transportProperties;
         dictionary phaseDict(phaseName);
-        phaseDict.add<word>("FVFModel", "incompressible");
         phaseDict.add<dimensionedScalar>
         (
             "rFVF",
@@ -32,14 +47,10 @@ SCENARIO("Phase Object creation", "[Virtual]")
         );
         phaseDict.add<dimensionedScalar>
         (
-            "rho0",
-            dimensionedScalar("rho0", dimDensity, 1.0)
-        );
-        phaseDict.add<dimensionedScalar>
-        (
             "mu0",
             dimensionedScalar("mu0", dimViscosity*dimDensity, 1.0)
         );
+        phaseDict.add<bool>("incompressible", true);
         transportProperties.add(phaseName, phaseDict);
 
         WHEN("Constructing phase in a singlePhase setup")
