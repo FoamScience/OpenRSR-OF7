@@ -10,6 +10,9 @@ interpolations/basicInterpolationTableTest.C
 interpolations/linearScalarInterpolationTableTest.C
 interpolations/steppedScalarInterpolationTableTest.C
 
+fields/VolatileOpsTraitsMTest.C
+fields/VolatileDimensionedFieldTest.C
+
 rsrTestDriver.C
 
 EXE = rsrTestDriver
