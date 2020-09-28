@@ -271,6 +271,13 @@ public:
             return DimensionedField<Type, GeoMesh>::operator[]( index & mask_);
         }
 
+        // Assignment from temporary dimensioned field
+        void operator=(const tmp<DimensionedField<Type, GeoMesh>>& df)
+        {
+            DimensionedField<Type, GeoMesh>::operator=(df);
+            mask_ = mask_ ? mask_ : (GeoMesh::size(df().mesh()) == 1 ? 0 : -1);
+        }
+
         // Product operators using operator between field elements
         MEMBER_PRODUCT_OPERATOR_DECL
         (
