@@ -23,32 +23,16 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "rocks.H"
-#include "DiagAnisoRock.H"
-#include "addToRunTimeSelectionTable.H"
+#ifndef VolatileDimensionedFields_H
+#define VolatileDimensionedFields_H
+
+//#include "VolatileDimensionedScalarField.H"
+//#include "VolatileDimensionedVectorField.H"
+//#include "VolatileDimensionedTensorField.H"
+//#include "VolatileDimensionedSphericalTensorField.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-namespace Foam
-{
-
-// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
-
-#define defineDiagAnisoRockType(dataType)                                      \
-    defineNamedTemplateTypeNameAndDebug(DiagAnisoRock<dataType >, 0);          \
-    defineTemplatedRunTimeSelectionTable                                       \
-    (                                                                          \
-        DiagAnisoRock,                                                         \
-        dictionary,                                                            \
-        dataType                                                               \
-    );
-
-// Define Phases
-defineDiagAnisoRockType(Incompressible);
-defineDiagAnisoRockType(Compressible);
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-} // End namespace Foam
+#endif
 
 // ************************************************************************* //

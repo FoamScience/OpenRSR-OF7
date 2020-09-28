@@ -19,61 +19,71 @@ License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with OpenFOAM.  If not, see .
+    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
 
-#include "basicDiagAnisotropicRock.H"
+#include "IOstreams.H"
 
-// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
-
-namespace Foam
-{
-    namespace rocks {
-        defineTypeNameAndDebug (basicDiagAnisotropicRock, 0);
-        addToTemplateRockRunTimeSelectionTable
-        (
-            rock, basicDiagAnisotropicRock, DiagAnisotropic, dictionary
-        );
-    }
-}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::rocks::basicDiagAnisotropicRock::
-basicDiagAnisotropicRock
+template<class Type, class GeoMesh>
+Foam::VolatileDimensionedField<Type, GeoMesh>::VolatileDimensionedField
 (
-    const word& name,
-    const fvMesh& mesh,
-    const dictionary& rockProperties
+    const IOobject& io,
+    const Mesh& mesh,
+    const word& fieldDictEntry
 )
 :
-    rock(name, mesh, rockProperties)
+    DimensionedField<Type, GeoMesh>(io, mesh, fieldDictEntry),
+    mask_(GeoMesh::size(mesh) == 1 ? 0 : -1)
 {
 }
 
 
-Foam::rocks::basicDiagAnisotropicRock::
-basicDiagAnisotropicRock
+template<class Type, class GeoMesh>
+Foam::VolatileDimensionedField<Type, GeoMesh>::VolatileDimensionedField
 (
-    const basicDiagAnisotropicRock& rk
+    const IOobject& io,
+    const Mesh& mesh,
+    const dictionary& fieldDict,
+    const word& fieldDictEntry
 )
 :
-    rock(rk)
+    DimensionedField<Type, GeoMesh>(io, mesh, fieldDictEntry),
+    mask_(GeoMesh::size(mesh) == 1 ? 0 : -1)
 {
 }
 
-// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::rocks::basicDiagAnisotropicRock::~basicDiagAnisotropicRock() {}
+// * * * * * * * * * * * * * * * IOstream Operators  * * * * * * * * * * * * //
 
-// * * * * * * * * * * * * * Public Member Functions * * * * * * * * * * * * //
-
-void Foam::rocks::basicDiagAnisotropicRock::correct()
+template<class Type, class GeoMesh>
+Foam::Ostream& Foam::operator<<
+(
+    Ostream& os,
+    const VolatileDimensionedField<Type, GeoMesh>& df
+)
 {
-    // TODO: Do absolutely nothing for now
-    // TODO: Or maybe update compressibility based on pressure
-    // Alternative: Update compressibility using Hall's Correlation
+    df.writeData(os);
+
+    return os;
 }
+
+
+template<class Type, class GeoMesh>
+Foam::Ostream& Foam::operator<<
+(
+    Ostream& os,
+    const tmp<VolatileDimensionedField<Type, GeoMesh>>& tdf
+)
+{
+    tdf().writeData(os);
+    tdf.clear();
+
+    return os;
+}
+
 
 // ************************************************************************* //

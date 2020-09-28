@@ -8,4 +8,8 @@ FVFModels/tabularFVFvsPressure/tabularFVFvsPressure.C
 phaseModels/phase/phase.C
 phaseModels/blackoilPhase/blackoilPhase.C
 
+rockModels/rock/rocks.C
+rockModels/basicIsotropicRock/basicIsotropicRock.C
+rockModels/basicDiagAnisotropicRock/basicDiagAnisotropicRock.C
+
 LIB = $(FOAM_USER_LIBBIN)/libRSR

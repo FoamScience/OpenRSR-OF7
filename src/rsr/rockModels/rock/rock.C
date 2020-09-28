@@ -23,13 +23,45 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+#include "dimensionedScalarFwd.H"
 #include "rock.H"
 #include "fixedValueFvsPatchField.H"
 
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+
+template<class PermeabilityType>
+Foam::autoPtr<Foam::rock<PermeabilityType>>
+Foam::rock<PermeabilityType>::New
+(
+    const word& name,
+    const fvMesh& mesh,
+    const dictionary& rockProperties
+)
+{
+    // Run with standard rock models by default
+    const word rockType = rockProperties.subDict(name).lookupOrDefault<word>
+       ("rockType", "standard");
+
+    typename dictionaryConstructorTable::iterator cstrIter =
+        dictionaryConstructorTablePtr_->find(rockType);
+
+    if (cstrIter == dictionaryConstructorTablePtr_->end())
+    {
+        FatalErrorInFunction
+            << "Unknown Rock type "
+            << rockType << nl << nl
+            << "Valid Rock types:" << endl
+            << dictionaryConstructorTablePtr_->sortedToc()
+            << exit(FatalError);
+    }
+
+    return autoPtr<rock>( cstrIter()(name, mesh, rockProperties) );
+}
+
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-template<class PermeabilityType, class CompressibilityType>
-Foam::rock<PermeabilityType, CompressibilityType>::rock
+template<class PermeabilityType>
+Foam::rock<PermeabilityType>::rock
 (
     const word& name,
     const fvMesh& mesh,
@@ -50,9 +82,51 @@ Foam::rock<PermeabilityType, CompressibilityType>::rock
     name_(name),
     rockDict_(rockProperties.subDict(name)),
     mesh_(mesh),
-    poroInit_("porosity", dimless, rockDict_),
-    permInit_("permeability", dimArea, rockDict_),
-    compInit_("compressibility", (dimless/dimPressure), rockDict_),
+    poroInit_
+    (
+        "porosity",
+        rockDict_.lookupOrAddDefault<dimensionedScalar>
+        (
+            "porosity", dimensionedScalar("porosity", dimless, -1.0)
+        )
+    ),
+    permInit_
+    (
+        "permeability",
+        rockDict_.lookupOrAddDefault<dimensioned<KcmptType>>
+        (
+            "permeability", dimensioned<KcmptType>("permeability", dimArea, static_cast<KcmptType>(Zero))
+        )
+    ),
+    compInit_
+    (
+        "compressibility",
+        rockDict_.lookupOrAddDefault<dimensionedScalar>
+        (
+            "compressibility",
+            dimensionedScalar("compressibility", dimless/dimPressure, 1e-6)
+        )
+    ),
+    isIncompressible_(rockDict_.lookupOrAddDefault("incompressible", false)),
+    oneCellMesh_
+    (
+        ( isIncompressible_
+          or poroInit_.value() != -1
+          or permInit_.value() != static_cast<KcmptType>(Zero) )
+        ?  new singleCellFvMesh
+           (
+               IOobject
+               (
+                   name+".onceCellMesh",
+                   mesh.polyMesh::instance(),
+                   mesh.time(),
+                   IOobject::NO_READ,
+                   IOobject::NO_WRITE
+               ),
+               mesh
+           )
+        : nullptr
+    ),
     porosity_
     (
         IOobject
@@ -60,10 +134,12 @@ Foam::rock<PermeabilityType, CompressibilityType>::rock
             name+".porosity",
             mesh.time().timeName(),
             mesh,
-            IOobject::READ_IF_PRESENT,
+            poroInit_.value() == -1
+                ? IOobject::MUST_READ
+                : IOobject::READ_IF_PRESENT,
             IOobject::AUTO_WRITE
         ),
-        mesh,
+        poroInit_.value() == -1 ? mesh : oneCellMesh_(),
         poroInit_
     ),
     K_
@@ -73,10 +149,12 @@ Foam::rock<PermeabilityType, CompressibilityType>::rock
             name+".permeability",
             mesh.time().timeName(),
             mesh,
-            IOobject::READ_IF_PRESENT,
+            permInit_.value() == static_cast<KcmptType>(Zero)
+                ? IOobject::MUST_READ
+                : IOobject::READ_IF_PRESENT,
             IOobject::AUTO_WRITE
         ),
-        mesh,
+        permInit_.value() == static_cast<KcmptType>(Zero) ? mesh : oneCellMesh_(),
         permInit_
     ),
     c_
@@ -86,7 +164,9 @@ Foam::rock<PermeabilityType, CompressibilityType>::rock
             name+".compressibility",
             mesh.time().timeName(),
             mesh,
-            IOobject::READ_IF_PRESENT,
+            !isIncompressible_
+                ? IOobject::MUST_READ
+                : IOobject::READ_IF_PRESENT,
             IOobject::AUTO_WRITE
         ),
         mesh,
@@ -96,8 +176,8 @@ Foam::rock<PermeabilityType, CompressibilityType>::rock
 }
 
 
-template<class PermeabilityType, class CompressibilityType>
-Foam::rock<PermeabilityType, CompressibilityType>::rock
+template<class PermeabilityType>
+Foam::rock<PermeabilityType>::rock
 (
     const rock& rk
 )
@@ -109,6 +189,8 @@ Foam::rock<PermeabilityType, CompressibilityType>::rock
     poroInit_(rk.poroInit_),
     permInit_(rk.permInit_),
     compInit_(rk.compInit_),
+    isIncompressible_(rk.isIncompressible_),
+    oneCellMesh_(rk.oneCellMesh_),
     porosity_(rk.porosity_),
     K_(rk.K_),
     c_(rk.c_)
@@ -118,8 +200,8 @@ Foam::rock<PermeabilityType, CompressibilityType>::rock
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-template<class PermeabilityType, class CompressibilityType>
-Foam::rock<PermeabilityType, CompressibilityType>::~rock()
+template<class PermeabilityType>
+Foam::rock<PermeabilityType>::~rock()
 {}
 
 // ************************************************************************* //

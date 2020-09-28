@@ -1,6 +1,6 @@
-/*rockModels/basicDiagAnisotropicRockTest.C*/
+rockModels/basicDiagAnisotropicRockTest.C
 
-/*phaseModels/blackoilPhaseTest.C*/
+phaseModels/blackoilPhaseTest.C
 phaseModels/phaseTest.C
 
 FVFModels/FVFModelTest.C
@@ -9,6 +9,9 @@ FVFModels/tabularFVFvsPressureTest.C
 interpolations/basicInterpolationTableTest.C
 interpolations/linearScalarInterpolationTableTest.C
 interpolations/steppedScalarInterpolationTableTest.C
+
+fields/VolatileOpsTraitsMTest.C
+fields/VolatileDimensionedFieldTest.C
 
 rsrTestDriver.C
 

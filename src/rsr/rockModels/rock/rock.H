@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     | Website:  https://openfoam.orgfavorable texture is depicted by favorable texture is depicted by packaging of packaging of 
+   \\    /   O peration     | Website:  https://openfoam.orgfavorable texture is depicted by favorable texture is depicted by packaging of packaging of
     \\  /    A nd           | Copyright (C) 2011-2019 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
@@ -26,7 +26,7 @@ Class
 
 Description
     A template base class for reservoir rocks, with pressure-dependent
-    compressibility and anisotropic media support
+    compressibility and anisotropic media support.
 
 SourceFiles
     rock.C
@@ -39,8 +39,8 @@ SourceFiles
 #include "DimensionedField.H"
 #include "GeometricField.H"
 #include "regIOobject.H"
-#include "UniformityTypes.H"
 #include "IsotropyTypes.H"
+#include "singleCellFvMesh.H"
 #include "volFieldsFwd.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -52,20 +52,17 @@ namespace Foam
                              Class rock Declaration
 \*---------------------------------------------------------------------------*/
 
-template<class PermeabilityType, class CompressibilityType>
+template<class PermeabilityType>
 class rock
 :
     public regIOobject
 {
 public:
-    
+
     // Public Data Types
-    
+
         // Permeability field component type
         using KcmptType = typename PermeabilityType::value_type;
-
-        // Compressibility field component type
-        using CcmptType = typename CompressibilityType::cmptType;
 
 protected:
 
@@ -87,21 +84,41 @@ protected:
         dimensioned<KcmptType> permInit_;
 
         //- Initial Compressibility
-        dimensioned<CcmptType> compInit_;
+        dimensionedScalar compInit_;
+
+        //- Is the rock compressible
+        bool isIncompressible_;
+
+        //- Mesh for viscosity field
+        autoPtr<singleCellFvMesh> oneCellMesh_;
 
         //- Rock porosity field
-        volScalarField porosity_;
+        DimensionedField<scalar, volMesh> porosity_;
 
         //- Rock absolute-permeability field
         PermeabilityType K_;
 
         //- Rock Compressibility field
-        CompressibilityType c_;
+        DimensionedField<scalar, volMesh> c_;
 
 public:
 
     //- Runtime type information
     ClassName("rock");
+
+    // Declare run-time constructor selection table
+    declareRunTimeSelectionTable
+    (
+        autoPtr,
+        rock,
+        dictionary,
+        (
+            const word& name,
+            const fvMesh& mesh,
+            const dictionary& rockProperties
+        ),
+        (name, mesh, rockProperties)
+    );
 
     // Constructors
 
@@ -119,6 +136,16 @@ public:
 
     //- Destructor
     virtual ~rock();
+
+    // Selectors
+
+        //- Return a reference to the selected DiagAnisoRock
+        static autoPtr<rock> New
+        (
+            const word& name,
+            const fvMesh& mesh,
+            const dictionary& rockProperties
+        );
 
 
     // Member Functions
@@ -139,17 +166,17 @@ public:
         }
 
         //- Return const-ref to porosity field
-        const volScalarField& porosity() const {
+        const DimensionedField<scalar, volMesh>& porosity() {
             return porosity_;
         }
-        
+
         //- Return const-ref to absolute permeability field
         const PermeabilityType& K() const {
             return K_;
         }
 
         //- Return const-ref to compressibility field
-        const CompressibilityType& Cf() {
+        const DimensionedField<scalar, volMesh>& Cf() {
             return c_;
         }
 
@@ -169,6 +196,16 @@ public:
         rock& operator=(const rock&) = delete;
 };
 
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+// Add a specialized to rock RTS table
+#define addToTemplateRockRunTimeSelectionTable(baseType,thisType,Targ,argNames)\
+                                                                               \
+    /* Add the thisType constructor function to the table */                   \
+    baseType<Targ>::add##argNames##ConstructorToTable<thisType>                \
+        add##thisType##Targ##argNames##ConstructorTo##baseType##Targ##Table_
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

@@ -35,7 +35,7 @@ SourceFiles
 #ifndef basicIsotropicRock_H
 #define basicIsotropicRock_H
 
-#include "IsoRock.H"
+#include "rock.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -45,18 +45,17 @@ namespace rocks
 {
 
 /*---------------------------------------------------------------------------*\
-                   Class basicIsotropicRock Declaration
+                      Class basicIsotropicRock Declaration
 \*---------------------------------------------------------------------------*/
 
-template<class CompressibilityType>
 class basicIsotropicRock
 :
-    public IsoRock<CompressibilityType>
+    public rock<Isotropic>
 {
 public:
 
     //- Runtime type information
-    ClassName("isotropic");
+    ClassName("standard");
 
 
     // Constructors
@@ -95,9 +94,9 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#ifdef NoRepository
-    #include "basicIsotropicRock.C"
-#endif
+//#ifdef NoRepository
+//    #include "basicIsotropicRock.C"
+//#endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

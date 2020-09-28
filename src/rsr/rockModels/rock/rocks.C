@@ -23,16 +23,25 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "addToRunTimeSelectionTable.H"
-#include "basicDiagAnisotropicRock.H"
-#include "rocks.H"
+#include "rock.H"
+#include "TemplatedRunTimeSelection.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
-    makeDiagAnisoRockType(basicDiagAnisotropicRock, Incompressible, rocks);
-    makeDiagAnisoRockType(basicDiagAnisotropicRock, Compressible, rocks);
+    defineVariadicTemplatedRunTimeSelectionTable
+    (
+        rock, Isotropic
+    );
+    defineVariadicTemplatedRunTimeSelectionTable
+    (
+        rock, DiagAnisotropic
+    );
+    defineVariadicTemplatedRunTimeSelectionTable
+    (
+        rock, Anisotropic
+    );
 }
 
 // ************************************************************************* //
