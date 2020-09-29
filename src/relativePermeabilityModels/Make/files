@@ -1,0 +1,4 @@
+relPermModel/relPermModels.C
+krBrooksCorey/krBrooksCoreys.C
+
+LIB = $(FOAM_USER_LIBBIN)/librelativePermeabilityModels

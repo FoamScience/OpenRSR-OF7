@@ -1,0 +1,16 @@
+EXE_INC = \
+    -ggdb --std=c++14 \
+    -I$(LIB_SRC)/OpenFOAM/lnInclude \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/meshTools/lnInclude \
+	-I../catch2 \
+	-I../../src/rsr/lnInclude \
+	-I../../src/relativePermeabilityModels/lnInclude \
+    
+EXE_LIBS = \
+    -lOpenFOAM \
+    -lfiniteVolume \
+    -lmeshTools \
+	-L$(FOAM_USER_LIBBIN) \
+    -lRSR \
+    -lrelativePermeabilityModels
