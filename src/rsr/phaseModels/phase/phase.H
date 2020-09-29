@@ -48,7 +48,7 @@ SourceFiles
 #ifndef phase_H
 #define phase_H
 
-#include "DimensionedField.H"
+#include "VolatileDimensionedField.H"
 #include "phase.H"
 #include "FVFModel.H"
 #include "UniformityTypes.H"
@@ -108,10 +108,10 @@ protected:
         autoPtr<FVFModel> BModel_;
 
         //- Phase density
-        DimensionedField<scalar,volMesh> rho_;
+        VolatileDimensionedField<scalar,volMesh> rho_;
 
         //- Phase viscosity
-        DimensionedField<scalar,volMesh> mu_;
+        VolatileDimensionedField<scalar,volMesh> mu_;
 
 public:
 
@@ -239,12 +239,12 @@ public:
         }
 
         //- Return const-ref to density field
-        const DimensionedField<scalar, volMesh>& rho() const {
+        const VolatileDimensionedField<scalar, volMesh>& rho() const {
             return rho_;
         }
 
         //- Return const-ref to viscosity field
-        const DimensionedField<scalar, volMesh>& mu() const {
+        const VolatileDimensionedField<scalar, volMesh>& mu() const {
             return mu_;
         }
 
