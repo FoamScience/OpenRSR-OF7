@@ -120,11 +120,10 @@ Foam::phase::phase
                 name+".alpha",
                 mesh.time().timeName(),
                 mesh,
-                IOobject::READ_IF_PRESENT,
+                IOobject::MUST_READ,
                 IOobject::AUTO_WRITE
             ),
-            mesh,
-            dimensionedScalar(name+".alpha", dimless, 1.0)
+            mesh
         )
         :
         nullptr
