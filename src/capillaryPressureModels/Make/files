@@ -1,0 +1,5 @@
+capPressModel/capPressModels.C
+pcBrooksCorey/pcBrooksCoreys.C
+pcTabular/pcTabulars.C
+
+LIB = $(FOAM_USER_LIBBIN)/libcapillaryPressureModels
