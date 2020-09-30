@@ -17,7 +17,6 @@ SCENARIO("Brooks Corey Calculation of relative permeability", "[Virtual]")
         #include "createTestTimeAndMesh.H"
         #include "createTestBlackoilPhase.H"
         #include "createTestIsoRock.H"
-        FatalError.dontThrowExceptions();
 
         dictionary transportProperties;
         dictionary rockProperties;
@@ -41,7 +40,7 @@ SCENARIO("Brooks Corey Calculation of relative permeability", "[Virtual]")
 
         createTestIsoRock(rk, 1e-12, 0.2, 1e-6);
 
-        dictionary krDict("krModel(oil,water)");
+        dictionary krDict("krModel<water,oil>");
         krDict.add("type", "BrooksCorey");
         krDict.add<dimensionedScalar>
         (
