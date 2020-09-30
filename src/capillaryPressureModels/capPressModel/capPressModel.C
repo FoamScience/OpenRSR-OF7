@@ -24,18 +24,18 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "regIOobject.H"
-#include "relPermModel.H"
+#include "capPressModel.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 template<class RockType, int nPhases>
-Foam::string Foam::relPermModel<RockType, nPhases>::nameRegExp = "(.*)<(.*)>";
+Foam::string Foam::capPressModel<RockType, nPhases>::nameRegExp = "(.*)<(.*)>";
 
 // * * * * * * * * * * * *  Static Member Functions  * * * * * * * * * * * * //
 
 template<class RockType, int nPhases>
 Foam::Tuple2<Foam::word, Foam::wordList>
-Foam::relPermModel<RockType, nPhases>::parseModelName(const word& modelName)
+Foam::capPressModel<RockType, nPhases>::parseModelName(const word& modelName)
 {
     Tuple2<word, wordList> result;
     List<string> groups;
@@ -46,9 +46,9 @@ Foam::relPermModel<RockType, nPhases>::parseModelName(const word& modelName)
     if (groups.empty())
     {
         WarningInFunction
-            << "Can't parse relative permeability model name: "
+            << "Can't parse capillary pressure model name: "
             << modelName << nl
-            << "Please use simple names like: krModel<water, oil>" << nl;
+            << "Please use simple names like: pcModel<water,oil>" << nl;
         result.first() = modelName;
         return result;
     }
@@ -79,8 +79,8 @@ Foam::relPermModel<RockType, nPhases>::parseModelName(const word& modelName)
 
 
 template<class RockType, int nPhases>
-Foam::autoPtr<Foam::relPermModel<RockType, nPhases>>
-Foam::relPermModel<RockType, nPhases>::New
+Foam::autoPtr<Foam::capPressModel<RockType, nPhases>>
+Foam::capPressModel<RockType, nPhases>::New
 (
     const word& name,
     const dictionary& transportProperties,
@@ -90,7 +90,7 @@ Foam::relPermModel<RockType, nPhases>::New
     const word modelType =
         transportProperties.subDict(name).lookup("type");
 
-    Info<< "Selecting relative permeability model type " << modelType << endl;
+    Info<< "Selecting capillary pressure model type " << modelType << endl;
 
     typename dictionaryConstructorTable::iterator cstrIter =
         dictionaryConstructorTablePtr_->find(modelType);
@@ -98,21 +98,52 @@ Foam::relPermModel<RockType, nPhases>::New
     if (cstrIter == dictionaryConstructorTablePtr_->end())
     {
         FatalErrorInFunction
-            << "Unknown Relative Permeability Model type"
+            << "Unknown Capillary Pressure Model type"
             << modelType << nl << nl
-            << "Valid relative permeability model types:" << endl
+            << "Valid capillary pressure model types:" << endl
             << dictionaryConstructorTablePtr_->sortedToc()
             << exit(FatalError);
     }
 
-    return autoPtr<relPermModel>
+    return autoPtr<capPressModel>
     ( cstrIter()(name, transportProperties, rock) );
+}
+
+template<class RockType, int nPhases>
+const Foam::capPressModel<RockType, nPhases>&
+Foam::capPressModel<RockType, nPhases>::getPcModel
+(
+    const word& phaseName,
+    const fvMesh& mesh
+)
+{
+    word modelName = "";
+    HashTable<const capPressModel*> candidates
+        = mesh.lookupClass<capPressModel>();
+    forAllIter(typename HashTable<const capPressModel*>, candidates, it)
+    {
+        if (findIndex((*it)->phases(), phaseName) != -1)
+        {
+            modelName = (*it)->name(); 
+        }
+    }
+    
+    if (modelName == "")
+    {
+        // Make sure the phase exists first
+        mesh.lookupObject<phase>(phaseName);
+        FatalErrorInFunction
+            << "No Pc model for phase " + phaseName + " of type "
+            << capPressModel::typeName_() << " was found."
+            << exit(FatalError);
+    }
+    return mesh.lookupObject<capPressModel>(modelName);
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 template<class RockType, int nPhases>
-Foam::relPermModel<RockType, nPhases>::relPermModel
+Foam::capPressModel<RockType, nPhases>::capPressModel
 (
     const word& name,
     const dictionary& transportProperties,
@@ -130,74 +161,69 @@ Foam::relPermModel<RockType, nPhases>::relPermModel
             IOobject::NO_WRITE
         )
     ),
-    name_(name),
-    krDict_(transportProperties.subDict(name)),
+    name_(parseModelName(name).first()),
+    pcDict_(transportProperties.subDict(name)),
     rock_(rock),
     phaseNames_
     (
         ! parseModelName(name).second().empty()
         ? parseModelName(name).second()
-        : krDict_.lookup("phases")
+        : pcDict_.lookup("phases")
     ),
     canonicalPhases_
     (
-        krDict_.found("canonicalPhases")
-        ? krDict_.lookup("canonicalPhases")
+        pcDict_.found("canonicalPhases")
+        ? pcDict_.lookup("canonicalPhases")
         : wordList(phaseNames_.begin(),phaseNames_.end()-1)
     ),
-    krTable_(nPhases*(1+canonicalPhases_.size()))
+    pcTable_(2*canonicalPhases_.size())
 {
     if (phaseNames_.size() != nPhases)
     {
         FatalErrorInFunction
-            << "Relative permeability Model " << name
+            << "Capillary pressure Model " << name
             << " is supposed to have " << nPhases << " phases but got "
             << phaseNames_.size() << nl << nl
             << exit(FatalError);
     }
 
-    // Initialize krTable
-    // Reserving space for a kr field per phase, and then for derivatives
-    // wrt canonical phases per phase
-    forAll(phaseNames_, pi)
+    // Initialize pcTable
+    forAll(canonicalPhases_, pi)
     {
-        krTable_.insert
+        pcTable_.insert
         (
-            krName(phaseNames_[pi]),
+            pcName(canonicalPhases_[pi]),
             DimensionedField<scalar, volMesh>
             (
                 IOobject
                 (
-                    krName(phaseNames_[pi]),
+                    pcName(canonicalPhases_[pi]),
                     rock.mesh().time().timeName(),
                     rock.mesh(),
                     IOobject::READ_IF_PRESENT,
                     IOobject::NO_WRITE
                 ),
                 rock.mesh(),
-                dimensionedScalar("kr", 1)
+                dimensionedScalar("pc", dimPressure, 0)
             )
         );
-        forAll(canonicalPhases_, ci)
-        {
-            krTable_.insert
+        pcTable_.insert
+        (
+            dpcName(canonicalPhases_[pi], canonicalPhases_[pi]),
+            DimensionedField<scalar, volMesh>
             (
-                dkrName(phaseNames_[pi], canonicalPhases_[ci]),
-                DimensionedField<scalar, volMesh>
+                IOobject
                 (
-                    IOobject
-                    (
-                        dkrName(phaseNames_[pi], canonicalPhases_[ci]),
-                        rock.mesh().time().timeName(),
-                        rock.mesh(),
-                        IOobject::READ_IF_PRESENT,
-                        IOobject::NO_WRITE
-                    ),
+                    dpcName(canonicalPhases_[pi], canonicalPhases_[pi]),
+                    rock.mesh().time().timeName(),
                     rock.mesh(),
-                    dimensionedScalar("kr", 0)
-                )
-            );
-        }
+                    IOobject::READ_IF_PRESENT,
+                    IOobject::NO_WRITE
+                ),
+                rock.mesh(),
+                dimensionedScalar("pc", dimPressure, 0)
+            )
+        );
     }
 }
 
@@ -205,7 +231,7 @@ Foam::relPermModel<RockType, nPhases>::relPermModel
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
 template<class RockType, int nPhases>
-Foam::relPermModel<RockType, nPhases>::~relPermModel()
+Foam::capPressModel<RockType, nPhases>::~capPressModel()
 {}
 
 // ************************************************************************* //
