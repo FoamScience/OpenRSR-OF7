@@ -40,6 +40,7 @@ SourceFiles
 #define VolatileDimensionedField_H
 
 #include "DimensionedField.H"
+#include "surfaceMesh.H"
 #include "VolatileDimensionedFieldM.H"
 #include "products.H"
 
