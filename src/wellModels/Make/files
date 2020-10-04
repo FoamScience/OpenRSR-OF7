@@ -1,0 +1,8 @@
+well/sourceProperties/sourceProperties.C
+
+well/wells.C
+wellSource/wellSources.C
+driveHandler/driveHandlers.C
+wellModel/wellModels.C
+
+LIB = $(FOAM_USER_LIBBIN)/libwellModels
