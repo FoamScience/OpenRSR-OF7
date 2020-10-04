@@ -26,62 +26,36 @@ License
 #include "UniformDimensionedField.H"
 #include "sourceProperties.H"
 
-namespace Foam
-{
-    defineTypeNameAndDebug(sourceProperties, 0);
-}
-
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 Foam::sourceProperties::sourceProperties
 (
     const fvMesh& mesh,
-    const dictionary& wellDict,
-    const cellSet& wellSet,
-    const faceSet& faces
+    const dictionary& wellDict
 )
 :
-    mesh_(mesh),
     g_
     (
-        mesh.lookupObject<UniformDimensionedField<vector>>("g")
+        mesh.lookupObject<UniformDimensionedField<scalar>>("g")
     ),
     orientation_
     (
         wordToOrientationHandling
         (
-            wellDict.lookup("orientation")
+            wellDict.lookupOrDefault<word>("orientation", "vertical")
         )
     ),
-    operation_
-    (
-        wordToOpHandling(wellDict.lookup("operationMode"))
-    ),
-    cells_(wellSet.toc()),
-    faces_(faces.toc()),
-    V_(wellDict.dictName()+".V", dimVolume, 0.0),
     radius_
     (
         wellDict.dictName()+".radius",
-        dimensionedScalar("radius", dimLength, wellDict)), skin_
+        dimensionedScalar("radius", dimLength, wellDict)
+    ),
+    skin_
     (
         readScalar(wellDict.lookup("skin"))
     ),
-    J_(),
-    injPhase_
-    (
-     operation_ == operationHandling::injection
-     ? word(wellDict.lookup("injectedPhase"))
-     : "none"
-    )
+    J_()
 {
-    cellsVolume();
-    if (debug and cells_.empty())
-    {
-        WarningInFunction
-            << "No cells in well set " << wellSet.name()
-            << ". If a segfault occurs this is the cause." << nl << endl;
-    }
 }
 
 // * * * * * * * * * * * * * Public Member Functions * * * * * * * * * * * * //
@@ -96,18 +70,10 @@ Foam::sourceProperties::wordToOrientationHandling
     {
         return orientationHandling::vertical;
     }
-    else if (ori == "horizontalX")
-    {
-        return orientationHandling::horizontalX;
-    }
-    else if (ori == "horizontalY")
-    {
-        return orientationHandling::horizontalY;
-    }
-    else
+    else 
     {
         WarningInFunction
-            << "Bad well orientation specifier " << ori
+            << "Bad well orientation mode specifier " << ori
             << ", using 'generic'" << endl;
     }
     return orientationHandling::generic;
@@ -127,65 +93,9 @@ Foam::word Foam::sourceProperties::orientationHandlingToWord
             enumName = "vertical";
             break;
         }
-        case orientationHandling::horizontalX :
-        {
-            enumName = "horizontalX";
-            break;
-        }
-        case orientationHandling::horizontalY :
-        {
-            enumName = "horizontalY";
-            break;
-        }
         case orientationHandling::generic :
         {
             enumName = "generic";
-            break;
-        }
-    }
-    return enumName;
-}
-
-Foam::sourceProperties::operationHandling 
-Foam::sourceProperties::wordToOpHandling
-(
-    const word& op
-) const
-{
-    if (op == "production")
-    {
-        return operationHandling::production;
-    }
-    else if (op == "injection") 
-    {
-        return operationHandling::injection;
-    }
-    else 
-    {
-        WarningInFunction
-            << "Bad well operation mode specifier " << op
-            << ", using 'production'" << endl;
-    }
-    return operationHandling::production;
-}
-
-
-Foam::word Foam::sourceProperties::opHandlingToWord
-(
-    const operationHandling& op
-) const
-{
-    word enumName("production");
-    switch (op)
-    {
-        case operationHandling::production :
-        {
-            enumName = "production";
-            break;
-        }
-        case operationHandling::injection :
-        {
-            enumName = "injection";
             break;
         }
     }

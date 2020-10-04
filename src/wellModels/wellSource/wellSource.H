@@ -52,6 +52,8 @@ SourceFiles
 #include "sourceProperties.H"
 #include "fvScalarMatrix.H"
 #include "fvMesh.H"
+#include "relPermModel.H"
+#include "capPressModel.H"
 #include "addToTemplatedRunTimeSelection.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -91,6 +93,12 @@ protected:
         //- Canonical Pressure Field
         const volScalarField& p_;
 
+        //- Const-access to Kr model which is directly responsible for phase kr
+        const relPermModel<RockType, nPhases>& krModel_;
+
+        //- Const-access to Pc model which is directly responsible for pc
+        const capPressModel<RockType, nPhases>& pcModel_;
+        
 public:
 
     //- Runtime type information
@@ -151,11 +159,6 @@ public:
             return wellSourceDict_;
         }
 
-        //- Return phase name
-        const word& phaseName() const {
-            return phase_.name();
-        }
-
         //- Return const-access to the rock
         const RockType& rock() const {
             return rock_;
@@ -166,24 +169,24 @@ public:
         (
             scalarList& coeff0,
             sourceProperties& srcProps,
-            const labelList& cellIDs
-        ) = 0;
+            const labelList cellIDs
+        ) const = 0;
 
         //- How to calculate coeff1 in q = coeff0 p + coeff1 BHP + coeff2
         virtual void calculateCoeff1
         (
             scalarList& coeff1,
             sourceProperties& srcProps,
-            const labelList& cellIDs
-        ) = 0;
+            const labelList cellIDs
+        ) const = 0;
 
         //- How to calculate coeff2 in q = coeff0 p + coeff1 BHP + coeff2
         virtual void calculateCoeff2
         (
             scalarList& coeff2,
             sourceProperties& srcProps,
-            const labelList& cellIDs
-        ) = 0;
+            const labelList cellIDs
+        ) const = 0;
 
     // Member Operators
 
@@ -196,8 +199,8 @@ public:
 
 } // End namespace Foam
 
-#define makeTemplatedWellSource\
-(baseType,childType,TargName,ns,nPhases,childTArg)                             \
+#define maketwoPhaseTemplatedWellSource\
+(baseType,childType,TargName,ns,childTArg)                                     \
                                                                                \
     /* Define child type name */                                               \
     template<>                                                                 \
@@ -218,7 +221,7 @@ public:
                                                                                \
     /* Add child to the base's run-time selection tabe */                      \
     namespace ns {                                                             \
-    baseType<childTArg, nPhases>::                                             \
+    baseType<childTArg, 2>::                                                   \
     adddictionaryConstructorToTable<childType<childTArg >>                     \
     add##phaseType##TargName##argNames##ConstructorTo##baseType##Targ##Table_; \
     }

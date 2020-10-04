@@ -74,7 +74,21 @@ Foam::wellSource<RockType, nPhases>::wellSource
     phase_(attachedPhase),
     wellSourceDict_(wellSourceDict),
     rock_(rock),
-    p_(rock.mesh().template lookupObject<volScalarField>("p"))
+    p_(rock.mesh().template lookupObject<volScalarField>("p")),
+    krModel_
+    (
+        relPermModel<RockType, nPhases>::getKrModel
+        (
+            attachedPhase.name(), rock.mesh()
+        )
+    ),
+    pcModel_
+    (
+        capPressModel<RockType, nPhases>::getPcModel
+        (
+            attachedPhase.name(), rock.mesh()
+        )
+    )
 {
 }
 

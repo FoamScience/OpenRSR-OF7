@@ -31,7 +31,6 @@ Description
     - Figure out the coefficients a, b and c in the relationship:
       $\f q = ap + b BHP + c\f$ for each phase (p is the canonical pressure)
       for a well *when* a parameter is imposed.
-    - Take into account the well's operation mode
 
 SourceFiles
     driveHandler.C
@@ -41,12 +40,8 @@ SourceFiles
 #ifndef driveHandler_H
 #define driveHandler_H
 
-#include "fvMatricesFwd.H"
 #include "scalarList.H"
 #include "wellSource.H"
-#include "cellToFace.H"
-#include "HashPtrTable.H"
-#include "sourceProperties.H"
 #include "basicInterpolationTable.H"
 #include "addToTemplatedRunTimeSelection.H"
 
@@ -74,16 +69,10 @@ protected:
         dictionary driveDict_;
 
         //- Well source describer
-        wellSource<RockType, nPhases>& wellSource_;
-
-        //- Access to Source-related part of the well
-        sourceProperties& srcProps_;
-
-        //- Access to per-phase source matrices
-        HashPtrTable<fvScalarMatrix>& matrices_;
+        const wellSource<RockType, nPhases>& wellSource_;
 
         //- Well cells IDs (global)
-        const labelList& cells_;
+        const scalarList& cells_;
 
         //- Time series of drive values vs simulation time
         autoPtr<basicInterpolationTable<scalar>> driveSeries_;
@@ -105,11 +94,10 @@ public:
         (
             const word& name,
             const dictionary& driveDict,
-            wellSource<RockType, nPhases>& source,
-            sourceProperties& srcProps,
-            HashPtrTable<fvScalarMatrix>& matrices
+            const wellSource<RockType, nPhases>& source,
+            const scalarList& cellIDs
         ),
-        (name, driveDict, source, srcProps, matrices)
+        (name, driveDict, source, cellIDs)
     );
 
     // Constructors
@@ -119,9 +107,8 @@ public:
         (
             const word& name,
             const dictionary& driveDict,
-            wellSource<RockType, nPhases>& source,
-            sourceProperties& srcProps,
-            HashPtrTable<fvScalarMatrix>& matrices
+            const wellSource<RockType, nPhases>& source,
+            const scalarList& cellIDs
         );
 
         //- Construct from copy
@@ -137,9 +124,8 @@ public:
         (
             const word& name,
             const dictionary& driveDict,
-            wellSource<RockType, nPhases>& source,
-            sourceProperties& srcProps,
-            HashPtrTable<fvScalarMatrix>& matrices
+            const wellSource<RockType, nPhases>& source,
+            const scalarList& cellIDs
         );
 
     // Member Functions
@@ -173,31 +159,30 @@ public:
 
 } // End namespace Foam
 
-#define makeWellDriveTemplatedModel\
-(baseType,childType,TargName,ns,nPhases,childTArg)                             \
+#define maketwoPhaseWellDriveTemplatedModel\
+(baseType,childType,TargName,ns,childTArg)                                     \
                                                                                \
     /* Define child type name */                                               \
     template<>                                                                 \
-    const ::Foam::word ns::childType<childTArg, nPhases>::                     \
-        typeName(ns::childType<childTArg, nPhases>::typeName_());              \
+    const ::Foam::word ns::childType<childTArg >::                             \
+        typeName(ns::childType<childTArg >::typeName_());                      \
                                                                                \
     /* Define child debug switch */                                            \
     template<>                                                                 \
-    int ns::childType<childTArg, nPhases>::debug                               \
+    int ns::childType<childTArg >::debug                                       \
     (                                                                          \
-        ::Foam::debug::debugSwitch                                             \
-        (ns::childType<childTArg, nPhases>::typeName_(), 0)                    \
+        ::Foam::debug::debugSwitch(ns::childType<childTArg >::typeName_(), 0)  \
     );                                                                         \
     /* Register the debug switch */                                            \
     template<>                                                                 \
-    const Foam::RegisterDebugSwitch<ns::childType<childTArg, nPhases>>         \
-    Foam::RegisterDebugSwitch<ns::childType<childTArg,nPhases>>                \
-        ::registerDebugSwitch(ns::childType<childTArg,nPhases>::typeName_());  \
+    const Foam::RegisterDebugSwitch<ns::childType<childTArg >>                 \
+    Foam::RegisterDebugSwitch<ns::childType<childTArg >>                       \
+        ::registerDebugSwitch(ns::childType<childTArg >::typeName_());         \
                                                                                \
     /* Add child to the base's run-time selection tabe */                      \
     namespace ns {                                                             \
-    baseType<childTArg, nPhases>::                                             \
-    adddictionaryConstructorToTable<childType<childTArg, nPhases>>             \
+    baseType<childTArg, 2>::                                                   \
+    adddictionaryConstructorToTable<childType<childTArg >>                     \
     add##phaseType##TargName##argNames##ConstructorTo##baseType##Targ##Table_; \
     }
 

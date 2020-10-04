@@ -25,7 +25,7 @@ Class
     Foam::sourceProperties
 
 Description
-    A class to hold template-invariant source-related well properties.
+    A class to hold source-related well properties.
 
 SourceFiles
     sourceProperties.C
@@ -35,10 +35,7 @@ SourceFiles
 #ifndef sourceProperties_H
 #define sourceProperties_H
 
-#include "volMesh.H"
 #include "fvMesh.H"
-#include "cellSet.H"
-#include "faceSet.H"
 #include "dimensionedScalar.H"
 #include "UniformDimensionedField.H"
 
@@ -46,9 +43,6 @@ SourceFiles
 
 namespace Foam
 {
-
-// Forward declare well class
-template<class RockType, int nPhases> class well;
 
 /*---------------------------------------------------------------------------*\
                        Class sourceProperties Declaration
@@ -58,46 +52,23 @@ class sourceProperties
 {
 
 public:
-    
-    // Public Data Members
-    
-        //- Enum for handling well operation modes
-        enum class operationHandling
-        {
-            production,
-            injection
-        };
 
         //- Enum for handling well orientation
         enum class orientationHandling
         {
-            vertical, horizontalX, horizontalY, generic
+            // TODO: Implement other directions
+            vertical, generic
         };
 
 protected:
 
     // Protected Data Members
     
-        //- Access to the mesh
-        const fvMesh& mesh_;
-    
         //- Gravitational acceleration
-        const UniformDimensionedField<vector>& g_;
+        const UniformDimensionedField<scalar>& g_;
 
         //- well orientation
         orientationHandling orientation_;
-
-        //- Well operation mode
-        operationHandling operation_;
-
-        //- Well cell IDs in this process
-        labelList cells_;
-
-        //- Internal faces for the well in this process
-        labelList faces_;
-
-        //- Global well volume
-        dimensionedScalar V_;
 
         //- Well radius
         dimensionedScalar radius_;
@@ -108,21 +79,6 @@ protected:
         //- Well index
         scalarList J_;
 
-        //- Injection phase name
-        word injPhase_;
-
-    // Protected Member Functions
-
-        //- Calculate total well cells volume across processes
-        inline void cellsVolume();
-
-        //- Update cells and faces from new cellSet and faces list
-        inline void updateMeshInfo
-        (
-            const cellSet& wellSet,
-            const faceSet& faces
-        );
-
 public:
 
     //- Runtime type information
@@ -131,28 +87,10 @@ public:
     // Constructors 
 
         //- Construct from dictionary and mesh
-        sourceProperties
-        (
-            const fvMesh& mesh,
-            const dictionary& wellDict,
-            const cellSet& wellSet,
-            const faceSet& faces
-        );
+        sourceProperties(const fvMesh& mesh, const dictionary& wellDict_);
 
     //- Destructor
     virtual ~sourceProperties() {}
-
-    //- Return operation handling as word
-    word opHandlingToWord(const operationHandling& op) const;
-
-    //- Return operation handling as enumeration
-    operationHandling wordToOpHandling(const word& op) const;
-
-    //- Return operation mode
-    const operationHandling& operation() const 
-    {
-        return operation_;
-    }
 
     //- Return orientation handling as word
     static word orientationHandlingToWord(const orientationHandling& ori);
@@ -166,28 +104,10 @@ public:
         return orientation_;
     }
 
-    //- Return cells Volume
-    const UniformDimensionedField<vector>& g() const
+    //- Return gravitational acceleration
+    const UniformDimensionedField<scalar>& g() const
     {
         return g_;
-    }
-
-    //- Return cells that belong to this process
-    const labelList& cells() const
-    {
-        return cells_;
-    }
-
-    //- Return internal faces that belong to this process
-    const labelList& faces() const
-    {
-        return faces_;
-    }
-
-    //- Return gravitational acceleration
-    const dimensionedScalar& V() const
-    {
-        return V_;
     }
 
     //- Return radius
@@ -213,32 +133,11 @@ public:
         return J_;
     }
 
-    //- Return injection phase name
-    const word& injPhase() const 
-    {
-        return injPhase_;
-    }
-
-    //- Operation mode sign to use in calculations
-    inline label operationSign() const;
-
-    //- Return lowest cell position and on which process it belongs to
-    //  (according to well orientation)
-    inline Tuple2<vector, label> gLowerCell() const;
-
-    ////- Return upper cell index (according to well orientation)
-    //label upperCell() const;
-
-    // Friend Classes
-    template<class RockType, int nPhases> friend class well;
-
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace Foam
-
-#include "sourcePropertiesI.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

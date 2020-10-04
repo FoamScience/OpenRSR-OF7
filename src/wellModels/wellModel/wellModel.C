@@ -23,7 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "volFieldsFwd.H"
+#include "ListOps.H"
 #include "wellModel.H"
 #include <set>
 
@@ -34,7 +34,6 @@ Foam::autoPtr<Foam::wellModel<RockType, nPhases>>
 Foam::wellModel<RockType, nPhases>::New
 (
     const word& name,
-    const dictionary& transportProperties,
     const dictionary& wellsProperties,
     const RockType& rock
 )
@@ -57,7 +56,7 @@ Foam::wellModel<RockType, nPhases>::New
     }
 
     return autoPtr<wellModel>
-    ( cstrIter()(name, transportProperties, wellsProperties, rock) );
+    ( cstrIter()(name, wellsProperties, rock) );
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
@@ -66,54 +65,17 @@ template<class RockType, int nPhases>
 Foam::wellModel<RockType, nPhases>::wellModel
 (
     const word& name,
-    const dictionary& transportProperties,
     const dictionary& wellsProperties,
     const RockType& rock
 )
 :
     name_(name),
-    phaseNames_(transportProperties.lookup("phases")),
     wellsProperties_(wellsProperties),
     rock_(rock),
-    p_(rock.mesh().template lookupObject<volScalarField>("p")),
     groups_(),
-    sources_(),
-    matTable_(),
-    wells_()
+    wells_(),
+    sources_(nPhases)
 {
-    // Initiate source describers
-    forAll(phaseNames_, pi)
-    {
-        sources_.insert
-        (
-            phaseNames_[pi],
-            wellSource<RockType, nPhases>::New
-            (
-                name+"."+phaseNames_[pi]+".sourceDescriber",
-                rock.mesh().template lookupObject<phase>(phaseNames_[pi]),
-                wellsProperties_.subDict("wellSourceConfigs"),
-                rock
-            )
-        );
-    }
-
-    // Initiate matrices for phases
-    if (phaseNames_.size() != nPhases)
-        FatalIOErrorInFunction(transportProperties)
-            << "Well model " << name << " expects " << nPhases
-            << " phase names but "
-            << phaseNames_.size() << " were supplied."
-            << nl << nl << exit(FatalIOError);
-    forAll(phaseNames_, pi)
-    {
-        matTable_.insert
-        (
-            phaseNames_[pi],
-            new fvScalarMatrix(p_,dimVolume/dimTime)
-        );
-    }
-
-    // Instantiate well objects (Should be last thing to do)
     createWells();
 }
 
@@ -190,62 +152,9 @@ void Foam::wellModel<RockType, nPhases>::createWells()
         wells_.set
         (
             wi,
-            well<RockType, nPhases>::New
-            (
-                wDict.dictName(), wDict, rock_, sources_, matTable_
-            )
+            well<RockType, nPhases>::New(wDict.dictName(), wDict, rock_)
         );
     }
-}
-
-template<class RockType, int nPhases>
-void Foam::wellModel<RockType, nPhases>::clearMatrices()
-{
-    forAll(phaseNames_, pi)
-    {
-        matTable_.set
-        (
-            phaseNames_[pi],
-            new fvScalarMatrix(p_,dimVolume/dimTime)
-        );
-    }
-}
-
-
-// * * * * * * * * * * * * * Public Member Functions  * * * * * * * * * * * * //
-
-template<class RockType, int nPhases>
-Foam::tmp<Foam::scalarField>
-Foam::wellModel<RockType, nPhases>::explicitSource
-(
-    const word& phase
-) const
-{
-    const fvScalarMatrix& mT = *matTable_[phase];
-    scalarField res;
-
-    if (!mT.hasDiag())
-    {
-        res = mT.source();
-        return res;
-    }
-
-    if (mT.diagonal())
-    {
-        res = mT.diag()*p_.internalField() + mT.source();
-        return res;
-    }
-    scalarField Ap(p_.mesh().nCells());
-    mT.Amul
-    (
-        Ap,
-        p_,
-        FieldField<Field, scalar>(0), // Ignote boundary conditions
-        p_.boundaryField().scalarInterfaces(),
-        0
-    );
-    res = Ap + mT.source();
-    return res;
 }
 
 // ************************************************************************* //

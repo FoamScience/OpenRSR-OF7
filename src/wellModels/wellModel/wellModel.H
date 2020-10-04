@@ -41,14 +41,12 @@ SourceFiles
 #ifndef wellModel_H
 #define wellModel_H
 
-#include "error.H"
 #include "fvMatricesFwd.H"
 #include "objectRegistry.H"
 #include "phase.H"
 #include "rock.H"
 #include "addToTemplatedRunTimeSelection.H"
 #include "volFieldsFwd.H"
-#include "HashPtrTable.H"
 #include "well.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -71,33 +69,21 @@ protected:
         //- Model name
         word name_;
 
-        //- Phase names
-        wordList phaseNames_;
-
         //- Model Dict
         dictionary wellsProperties_;
 
         //- Const access to the rock object
         const RockType& rock_;
 
-        //- Copy of the main pressure field
-        //  It looks like this would interfere with main equations
-        //  if it's a const ref
-        //const volScalarField& p_;
-        const volScalarField& p_;
-
         //- List of pointers to well groups
         PtrList<objectRegistry> groups_;
 
-        //- Per-phase source describers for all wells
-        HashTable<autoPtr<wellSource<RockType, nPhases>>> sources_;
-
-        //- Per-phase sources for all wells
-        HashPtrTable<fvScalarMatrix> matTable_;
-        
         //- List of poitners to wells
         PtrList<well<RockType, nPhases>> wells_;
 
+        //- Per-phase sources for all wells
+        HashTable<fvScalarMatrix> sources_;
+        
 
     // Protected Member Functions
 
@@ -106,9 +92,6 @@ protected:
 
         //- Create well objects
         void createWells();
-
-        //- Clear well matrices
-        void clearMatrices();
 
 public:
 
@@ -123,11 +106,10 @@ public:
         dictionary,
         (
             const word& name,
-            const dictionary& transportProperties,
             const dictionary& wellsProperties,
             const RockType& rock
         ),
-        (name, transportProperties, wellsProperties, rock)
+        (name, wellsProperties, rock)
     );
 
     // Constructors
@@ -136,7 +118,6 @@ public:
         wellModel
         (
             const word& name,
-            const dictionary& transportProperties,
             const dictionary& wellsProperties,
             const RockType& rock
         );
@@ -153,7 +134,6 @@ public:
         static autoPtr<wellModel> New
         (
             const word& name,
-            const dictionary& transportProperties,
             const dictionary& wellsProperties,
             const RockType& rock
         );
@@ -175,19 +155,14 @@ public:
             return rock_;
         }
 
-        //- Const-access to list of well pointers
-        const PtrList<well<RockType, nPhases>>& wells() const {
-            return wells_;
-        }
+        ////- Return explicit portion of the source for given phase
+        //const scalarField& sourceExplicitPart(const word& phase) const;
 
-        //- Return explicit representation of the phase matrix
-        tmp<scalarField> explicitSource(const word& phase) const;
+        ////- Return implicit portion of the source for given phase
+        //const scalarField& sourceImplicitPart(const word& phase) const;
 
-        //- Return Full source matrix for given phase
-        const fvScalarMatrix& source(const word& phase) const
-        {
-            return *matTable_[phase];
-        }
+        ////- Return Full source matrix for given phase
+        //tmp<fvScalarMatrix> source(const word& phase) const;
 
         //- Update well model sources
         virtual void correct() = 0;
@@ -203,31 +178,30 @@ public:
 
 } // End namespace Foam
 
-#define makeTemplatedWellModel\
-(baseType,childType,TargName,ns,nPhases,childTArg)                             \
+#define maketwoPhaseTemplatedWellModel\
+(baseType,childType,TargName,ns,childTArg)                                     \
                                                                                \
     /* Define child type name */                                               \
     template<>                                                                 \
-    const ::Foam::word ns::childType<childTArg, nPhases>::                     \
-        typeName(ns::childType<childTArg, nPhases>::typeName_());              \
+    const ::Foam::word ns::childType<childTArg >::                             \
+        typeName(ns::childType<childTArg >::typeName_());                      \
                                                                                \
     /* Define child debug switch */                                            \
     template<>                                                                 \
-    int ns::childType<childTArg, nPhases>::debug                               \
+    int ns::childType<childTArg >::debug                                       \
     (                                                                          \
-        ::Foam::debug::debugSwitch                                             \
-        (ns::childType<childTArg, nPhases>::typeName_(), 0)                    \
+        ::Foam::debug::debugSwitch(ns::childType<childTArg >::typeName_(), 0)  \
     );                                                                         \
     /* Register the debug switch */                                            \
     template<>                                                                 \
-    const Foam::RegisterDebugSwitch<ns::childType<childTArg, nPhases>>         \
-    Foam::RegisterDebugSwitch<ns::childType<childTArg, nPhases>>               \
-        ::registerDebugSwitch(ns::childType<childTArg, nPhases>::typeName_()); \
+    const Foam::RegisterDebugSwitch<ns::childType<childTArg >>                 \
+    Foam::RegisterDebugSwitch<ns::childType<childTArg >>                       \
+        ::registerDebugSwitch(ns::childType<childTArg >::typeName_());         \
                                                                                \
     /* Add child to the base's run-time selection tabe */                      \
     namespace ns {                                                             \
-    baseType<childTArg, nPhases>::                                             \
-    adddictionaryConstructorToTable<childType<childTArg, nPhases>>             \
+    baseType<childTArg, 2>::                                                   \
+    adddictionaryConstructorToTable<childType<childTArg >>                     \
     add##phaseType##TargName##argNames##ConstructorTo##baseType##Targ##Table_; \
     }
 

@@ -40,11 +40,8 @@ SourceFiles
 #include "phase.H"
 #include "rock.H"
 #include "cellSet.H"
-#include "faceSet.H"
-#include "wellSource.H"
 #include "regIOobject.H"
 #include "driveHandler.H"
-#include "HashPtrTable.H"
 #include "topoSetSource.H"
 #include "sourceProperties.H"
 #include "addToTemplatedRunTimeSelection.H"
@@ -83,6 +80,17 @@ class well
     public List<autoPtr<regIOobject>>
 {
 
+public:
+    
+    // Public Data Members
+    
+        //- Enum for handling well operation modes
+        enum class operationHandling
+        {
+            production,
+            injection
+        };
+
 protected:
 
     // Protected Data
@@ -99,26 +107,31 @@ protected:
         //- Well groups
         wordList wellGroups_;
 
+        //- Well operation mode
+        operationHandling operation_;
+
+        //- Well properties for source calculations
+        sourceProperties srcProps_;
+
+        //- Injection phase name
+        word injPhase_;
+
         //- Well perforation intervals
         PtrList<topoSetSource> perfos_;
+
+        //- Well topSet
+        cellSet wellSet_;
 
         //- Well total volume
         dimensionedScalar V_;
 
         //- Well drives
         PtrList<driveHandler<RockType, nPhases>> drives_;
-
-        //- Well cells topoSet
-        cellSet wellSet_;
-
-        //- Well faces topoSet to hold faces internal to the well.
-        faceSet faces_;
-
-        //- Well properties for source calculations
-        sourceProperties srcProps_;
-
         
     // Protected Member Functions
+
+        //- Calculate total cells volume (Across processors)
+        inline void cellsVolume();
 
         //- Operation mode sign to use in calculations
         inline label operationSign() const;
@@ -137,11 +150,9 @@ public:
         (
             const word& name,
             const dictionary& wellDict,
-            const RockType& rock,
-            HashTable<autoPtr<wellSource<RockType, nPhases>>>& sources,
-            HashPtrTable<fvScalarMatrix>& matTable
+            const RockType& rock
         ),
-        (name, wellDict, rock, sources, matTable)
+        (name, wellDict, rock)
     );
 
     // Constructors
@@ -151,9 +162,7 @@ public:
         (
             const word& name,
             const dictionary& wellDict,
-            const RockType& rock,
-            HashTable<autoPtr<wellSource<RockType, nPhases>>>& sources,
-            HashPtrTable<fvScalarMatrix>& matTable
+            const RockType& rock
         );
 
         //- Construct from copy
@@ -169,9 +178,7 @@ public:
         (
             const word& name,
             const dictionary& wellDict,
-            const RockType& rock,
-            HashTable<autoPtr<wellSource<RockType, nPhases>>>& sources,
-            HashPtrTable<fvScalarMatrix>& matTable
+            const RockType& rock
         );
 
     // Member Functions
@@ -191,16 +198,22 @@ public:
             return rock_;
         }
 
+        //- Return operation handling as word
+        word opHandlingToWord(const operationHandling& op) const;
+
+        //- Return operation handling as enumeration
+        operationHandling wordToOpHandling(const word& op) const;
+
         //- Return injection phase name
         const word& injPhase() const 
         {
-            return srcProps_.injPhase();
+            return injPhase_;
         }
 
         //- Return operation mode
-        const sourceProperties::operationHandling& operation() const 
+        const operationHandling& operation() const 
         {
-            return srcProps_.operation();
+            return operation_;
         }
 
         //- Return source-related properties
@@ -238,11 +251,6 @@ public:
             return wellSet_.toc();
         }
 
-        //- Return per-processor internal face IDs
-        labelList faceIDs() const {
-            return faces_.toc();
-        }
-
         //- Return total volume of well cells
         const dimensionedScalar& totalVolume() const
         {
@@ -256,21 +264,16 @@ public:
         void readPerforations();
 
         //- Read well drives
-        void readImposedDrives
-        (
-            HashTable<autoPtr<wellSource<RockType, nPhases>>>& sources,
-            HashPtrTable<fvScalarMatrix>& matTable
-        );
+        void readImposedDrives();
 
-        //- Update well sources
+        ////- Return lower cell index (according to well orientation)
+        //label lowerCell() const;
+
+        ////- Return upper cell index (according to well orientation)
+        //label upperCell() const;
+
+        //- Update well
         virtual void correct() = 0;
-        //void correct()
-        //{
-        //    forAll(drives_, di)
-        //    {
-        //        drives_[di].correct();
-        //    }
-        //};
 
     // Member Operators
 
@@ -283,31 +286,30 @@ public:
 
 } // End namespace Foam
 
-#define makeTemplatedWell\
-(baseType,childType,TargName,ns,nPhases,childTArg)                             \
+#define maketwoPhaseTemplatedWell\
+(baseType,childType,TargName,ns,childTArg)                                     \
                                                                                \
     /* Define child type name */                                               \
     template<>                                                                 \
-    const ::Foam::word ns::childType<childTArg, nPhases>::                     \
-        typeName(ns::childType<childTArg, nPhases>::typeName_());              \
+    const ::Foam::word ns::childType<childTArg >::                             \
+        typeName(ns::childType<childTArg >::typeName_());                      \
                                                                                \
     /* Define child debug switch */                                            \
     template<>                                                                 \
-    int ns::childType<childTArg, nPhases>::debug                               \
+    int ns::childType<childTArg >::debug                                       \
     (                                                                          \
-        ::Foam::debug::debugSwitch                                             \
-        (ns::childType<childTArg, nPhases>::typeName_(), 0)                    \
+        ::Foam::debug::debugSwitch(ns::childType<childTArg >::typeName_(), 0)  \
     );                                                                         \
     /* Register the debug switch */                                            \
     template<>                                                                 \
-    const Foam::RegisterDebugSwitch<ns::childType<childTArg, nPhases>>         \
-    Foam::RegisterDebugSwitch<ns::childType<childTArg, nPhases>>               \
-        ::registerDebugSwitch(ns::childType<childTArg, nPhases>::typeName_()); \
+    const Foam::RegisterDebugSwitch<ns::childType<childTArg >>                 \
+    Foam::RegisterDebugSwitch<ns::childType<childTArg >>                       \
+        ::registerDebugSwitch(ns::childType<childTArg >::typeName_());         \
                                                                                \
     /* Add child to the base's run-time selection tabe */                      \
     namespace ns {                                                             \
-    baseType<childTArg, nPhases>::                                             \
-    adddictionaryConstructorToTable<childType<childTArg, nPhases>>             \
+    baseType<childTArg, 2>::                                                   \
+    adddictionaryConstructorToTable<childType<childTArg >>                     \
     add##phaseType##TargName##argNames##ConstructorTo##baseType##Targ##Table_; \
     }
 

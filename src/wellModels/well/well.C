@@ -27,7 +27,6 @@ License
 #include "error.H"
 #include "regIOobject.H"
 #include "well.H"
-#include "faceToCell.H"
 
 // * * * * * * * * * * * *  Static Member Functions  * * * * * * * * * * * * //
 
@@ -37,12 +36,10 @@ Foam::well<RockType, nPhases>::New
 (
     const word& name,
     const dictionary& wellDict,
-    const RockType& rock,
-    HashTable<autoPtr<wellSource<RockType, nPhases>>>& sources,
-    HashPtrTable<fvScalarMatrix>& matTable
+    const RockType& rock
 )
 {
-    const word modelType = wellDict.lookupOrDefault<word>("type", "standard");
+    const word modelType = wellDict.lookup("type");
 
     Info<< tab << "Selecting well type " << modelType << " for "
         << name << endl;
@@ -61,7 +58,7 @@ Foam::well<RockType, nPhases>::New
     }
 
     return autoPtr<well>
-    ( cstrIter()(name, wellDict, rock, sources, matTable) );
+    ( cstrIter()(name, wellDict, rock) );
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
@@ -71,9 +68,7 @@ Foam::well<RockType, nPhases>::well
 (
     const word& name,
     const dictionary& wellDict,
-    const RockType& rock,
-    HashTable<autoPtr<wellSource<RockType, nPhases>>>& sources,
-    HashPtrTable<fvScalarMatrix>& matTable
+    const RockType& rock
 )
 :
     List<autoPtr<regIOobject> >(),
@@ -84,25 +79,22 @@ Foam::well<RockType, nPhases>::well
     (
         wellDict.lookupOrDefault<wordList>("groups", wordList(1, "defaultGrp"))
     ),
-    perfos_(),
-    drives_(),
-    wellSet_
+    operation_
     (
-        IOobject
-        (
-            name+".wellSet",
-            rock.mesh().time().constant(),
-            rock.mesh(),
-            IOobject::NO_READ,
-            IOobject::NO_WRITE
-        )
+        wordToOpHandling(wellDict.lookup("operationMode"))
     ),
-    faces_(rock.mesh(), name+".internalFaces", 10),
-    srcProps_(rock.mesh(), wellDict, wellSet_, faces_)
+    srcProps_(rock.mesh(), wellDict),
+    injPhase_
+    (
+     operation_ == operationHandling::injection
+     ? wellDict.lookupOrDefault<word>("injectedPhase", "water")
+     : "none"
+    ),
+    perfos_()
 {
     registerToGroups();
     readPerforations();
-    readImposedDrives(sources,matTable);
+    readImposedDrives();
 }
 
 
@@ -113,6 +105,54 @@ Foam::well<RockType, nPhases>::~well()
 {}
 
 // * * * * * * * * * * * * * Public Member Functions * * * * * * * * * * * * //
+
+template<class RockType, int nPhases>
+typename Foam::well<RockType, nPhases>::operationHandling 
+Foam::well<RockType, nPhases>::wordToOpHandling
+(
+    const word& op
+) const
+{
+    if (op == "production")
+    {
+        return operationHandling::production;
+    }
+    else if (op == "injection") 
+    {
+        return operationHandling::injection;
+    }
+    else 
+    {
+        WarningInFunction
+            << "Bad well operation mode specifier " << op
+            << ", using 'production'" << endl;
+    }
+    return operationHandling::production;
+}
+
+
+template<class RockType, int nPhases>
+Foam::word Foam::well<RockType, nPhases>::opHandlingToWord
+(
+    const operationHandling& op
+) const
+{
+    word enumName("production");
+    switch (op)
+    {
+        case operationHandling::production :
+        {
+            enumName = "production";
+            break;
+        }
+        case operationHandling::injection :
+        {
+            enumName = "injection";
+            break;
+        }
+    }
+    return enumName;
+}
 
 template<class RockType, int nPhases>
 void Foam::well<RockType, nPhases>::registerToGroups()
@@ -171,32 +211,7 @@ void Foam::well<RockType, nPhases>::readPerforations()
         );
         // Include selected cells in the well's cell set
         perfos_[perfi].applyToSet(topoSetSource::ADD, wellSet_);
-
-        // Write perforation interval to disk as a cell set
-        // Needed to extract internal faces by re-reading from disk
-        // TODO: Is there room for improvements
-        cellSet perfCells
-        (
-            rock_.mesh().time(),
-            name_+".perfInterval"+Foam::name(perfi),
-            20
-        );
-        perfos_[perfi].applyToSet(topoSetSource::ADD, perfCells);
-        perfCells.write();
-
-        // Internal Faces in the well
-        cellToFace fSetSource
-        (
-            rock_.mesh(),
-            name_+".perfInterval"+Foam::name(perfi),
-            cellToFace::BOTH // To extract only faces shared by two cells
-        );
-        // Include faces into the faces set of the well
-        fSetSource.applyToSet(topoSetSource::ADD, faces_);
     }
-
-    // Update cells and faces in srcProps member
-    srcProps_.updateMeshInfo(wellSet_, faces_);
 
     // Write well set to disk
     if (debug) wellSet_.write();
@@ -204,11 +219,7 @@ void Foam::well<RockType, nPhases>::readPerforations()
 
 
 template<class RockType, int nPhases>
-void Foam::well<RockType, nPhases>::readImposedDrives
-(
-    HashTable<autoPtr<wellSource<RockType, nPhases>>>& sources,
-    HashPtrTable<fvScalarMatrix>& matTable
-)
+void Foam::well<RockType, nPhases>::readImposedDrives()
 {
     Info << tab << "Constructing drives for well: " << name_ << nl;
 
@@ -230,19 +241,17 @@ void Foam::well<RockType, nPhases>::readImposedDrives
                 << " valid dictionary." << exit(FatalIOError);
         }
         // Set the pointer to the requested topoSetSource
-        word phaseName = driveInfo.dict().lookup("phase");
-        drives_.set
-        (
-            di,
-            driveHandler<RockType, nPhases>::New
-            (
-                wellDict_.dictName()+"."+driveInfo.keyword(),
-                driveInfo.dict(),
-                sources[phaseName](),
-                srcProps_,
-                matTable
-            )
-        );
+        // TODO: Probably use driveHandling::New
+        //perfos_.set
+        //(
+        //    di,
+        //    topoSetSource::New
+        //    (
+        //        driveInfo.keyword(),
+        //        rock_.mesh(),
+        //        driveInfo.dict()
+        //    )
+        //);
     }
 }
 // ************************************************************************* //

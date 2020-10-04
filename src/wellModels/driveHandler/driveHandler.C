@@ -33,14 +33,13 @@ Foam::driveHandler<RockType, nPhases>::New
 (
     const word& name,
     const dictionary& driveDict,
-    wellSource<RockType, nPhases>& source,
-    sourceProperties& srcProps,
-    HashPtrTable<fvScalarMatrix>& matrices
+    const wellSource<RockType, nPhases>& source,
+    const scalarList& cellIDs
 )
 {
     const word modelType = driveDict.dictName();
 
-    Info<< "Selecting well imposed drive handler type " << modelType << endl;
+    Info<< tab << "Selecting drive handler type " << modelType << endl;
 
     typename dictionaryConstructorTable::iterator cstrIter =
         dictionaryConstructorTablePtr_->find(modelType);
@@ -48,15 +47,15 @@ Foam::driveHandler<RockType, nPhases>::New
     if (cstrIter == dictionaryConstructorTablePtr_->end())
     {
         FatalErrorInFunction
-            << "Unknown Well Drive Handler type "
+            << "Unknown Drive Handler type"
             << modelType << nl << nl
-            << "Valid well drive handler types:" << endl
+            << "Valid drive handler types:" << endl
             << dictionaryConstructorTablePtr_->sortedToc()
             << exit(FatalError);
     }
 
     return autoPtr<driveHandler>
-    ( cstrIter()(name, driveDict, source, srcProps, matrices) );
+    ( cstrIter()(name, driveDict, source, cellIDs) );
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
@@ -66,19 +65,15 @@ Foam::driveHandler<RockType, nPhases>::driveHandler
 (
     const word& name,
     const dictionary& driveDict,
-    wellSource<RockType, nPhases>& source,
-    sourceProperties& srcProps,
-    HashPtrTable<fvScalarMatrix>& matrices
+    const wellSource<RockType, nPhases>& source,
+    const scalarList& cellIDs
 )
 :
     name_(name),
     driveDict_(driveDict),
     wellSource_(source),
-    srcProps_(srcProps),
-    matrices_(matrices),
-    cells_(srcProps.cells()),
-    driveSeries_
-    (
+    cells_(cellIDs),
+    driveSeries_(
         basicInterpolationTable<scalar>::New(driveDict_)
     ),
     coeffs_(3, scalarList(cells_.size(), 0.0))
