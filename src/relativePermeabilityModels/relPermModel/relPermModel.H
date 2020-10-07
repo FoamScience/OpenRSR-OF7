@@ -36,6 +36,7 @@ SourceFiles
 #define relPermModel_H
 
 #include "DimensionedField.H"
+#include "UList.H"
 #include "phase.H"
 #include "surfaceMesh.H"
 #include "rock.H"
@@ -44,6 +45,7 @@ SourceFiles
 #include "singleCellFvMesh.H"
 #include "addToTemplatedRunTimeSelection.H"
 #include "volMesh.H"
+#include "HashTable.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -94,6 +96,14 @@ public:
             return phaseName+".dkrdS("+canonicalPhase+")";
         }
 
+        //- Pick the first model of a list which calculates some kr for
+        //  the given phase
+        static const relPermModel& getKrModel
+        (
+            const word& phaseName,
+            const fvMesh& mesh
+        );
+
 protected:
 
     // Protected Data
@@ -117,8 +127,6 @@ protected:
         //  in respect to the canonical phases.
         HashTable<DimensionedField<scalar, volMesh>> krTable_;
 
-    // Protected Member Members
-        
 public:
 
     //- Runtime type information
@@ -184,6 +192,11 @@ public:
         //- Return canonical phases
         const wordList& canonicalPhases() const {
             return canonicalPhases_;
+        }
+
+        //- Return phase names list
+        const wordList& phases() const {
+            return phaseNames_;
         }
 
         //- Write Kr data to Ostream
