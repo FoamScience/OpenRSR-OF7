@@ -82,7 +82,7 @@ Foam::phase::phase
     const mixtureType& mT
 )
 :
-    regIOobject
+    objectRegistry
     (
         IOobject
         (
@@ -234,7 +234,17 @@ Foam::phase::phase
     const phase& ph
 )
 :
-    regIOobject(ph),
+    objectRegistry
+    (
+        IOobject
+        (
+            ph.name_,
+            ph.mesh_.time().timeName(),
+            ph.mesh_,
+            IOobject::NO_READ,
+            IOobject::NO_WRITE
+        )
+    ),
     name_(ph.name_),
     phaseDict_(ph.phaseDict_),
     mesh_(ph.mesh_),
