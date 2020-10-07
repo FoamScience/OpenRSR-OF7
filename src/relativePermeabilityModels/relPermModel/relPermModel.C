@@ -109,6 +109,38 @@ Foam::relPermModel<RockType, nPhases>::New
     ( cstrIter()(name, transportProperties, rock) );
 }
 
+
+template<class RockType, int nPhases>
+const Foam::relPermModel<RockType, nPhases>&
+Foam::relPermModel<RockType, nPhases>::getKrModel
+(
+    const word& phaseName,
+    const fvMesh& mesh
+)
+{
+    word modelName = "";
+    HashTable<const relPermModel*> candidates
+        = mesh.lookupClass<relPermModel>();
+    forAllIter(typename HashTable<const relPermModel*>, candidates, it)
+    {
+        if (findIndex((*it)->phases(), phaseName) != -1)
+        {
+            modelName = (*it)->name(); 
+        }
+    }
+    
+    if (modelName == "")
+    {
+        // Make sure the phase exists first
+        mesh.lookupObject<phase>(phaseName);
+        FatalErrorInFunction
+            << "No Kr model for phase " + phaseName + " of type "
+            << relPermModel::typeName_() << " was found."
+            << exit(FatalError);
+    }
+    return mesh.lookupObject<relPermModel>(modelName);
+}
+
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 template<class RockType, int nPhases>
@@ -130,7 +162,7 @@ Foam::relPermModel<RockType, nPhases>::relPermModel
             IOobject::NO_WRITE
         )
     ),
-    name_(parseModelName(name).first()),
+    name_(name),
     krDict_(transportProperties.subDict(name)),
     rock_(rock),
     phaseNames_
