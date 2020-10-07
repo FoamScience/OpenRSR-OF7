@@ -53,6 +53,7 @@ SourceFiles
 #include "FVFModel.H"
 #include "UniformityTypes.H"
 #include "singleCellFvMesh.H"
+#include "objectRegistry.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -68,7 +69,7 @@ enum class mixtureType { singlePhase, multiPhase };
 
 class phase
 :
-    public regIOobject
+    public objectRegistry
 {
 protected:
 
