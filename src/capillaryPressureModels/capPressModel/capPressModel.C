@@ -161,7 +161,7 @@ Foam::capPressModel<RockType, nPhases>::capPressModel
             IOobject::NO_WRITE
         )
     ),
-    name_(parseModelName(name).first()),
+    name_(name),
     pcDict_(transportProperties.subDict(name)),
     rock_(rock),
     phaseNames_
