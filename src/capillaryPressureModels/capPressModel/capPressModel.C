@@ -109,6 +109,37 @@ Foam::capPressModel<RockType, nPhases>::New
     ( cstrIter()(name, transportProperties, rock) );
 }
 
+template<class RockType, int nPhases>
+const Foam::capPressModel<RockType, nPhases>&
+Foam::capPressModel<RockType, nPhases>::getPcModel
+(
+    const word& phaseName,
+    const fvMesh& mesh
+)
+{
+    word modelName = "";
+    HashTable<const capPressModel*> candidates
+        = mesh.lookupClass<capPressModel>();
+    forAllIter(typename HashTable<const capPressModel*>, candidates, it)
+    {
+        if (findIndex((*it)->phases(), phaseName) != -1)
+        {
+            modelName = (*it)->name(); 
+        }
+    }
+    
+    if (modelName == "")
+    {
+        // Make sure the phase exists first
+        mesh.lookupObject<phase>(phaseName);
+        FatalErrorInFunction
+            << "No Pc model for phase " + phaseName + " of type "
+            << capPressModel::typeName_() << " was found."
+            << exit(FatalError);
+    }
+    return mesh.lookupObject<capPressModel>(modelName);
+}
+
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 template<class RockType, int nPhases>
