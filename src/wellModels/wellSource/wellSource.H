@@ -169,24 +169,24 @@ public:
         (
             scalarList& coeff0,
             sourceProperties& srcProps,
-            const labelList cellIDs
-        ) const = 0;
+            const labelList& cellIDs
+        ) = 0;
 
         //- How to calculate coeff1 in q = coeff0 p + coeff1 BHP + coeff2
         virtual void calculateCoeff1
         (
             scalarList& coeff1,
             sourceProperties& srcProps,
-            const labelList cellIDs
-        ) const = 0;
+            const labelList& cellIDs
+        ) = 0;
 
         //- How to calculate coeff2 in q = coeff0 p + coeff1 BHP + coeff2
         virtual void calculateCoeff2
         (
             scalarList& coeff2,
             sourceProperties& srcProps,
-            const labelList cellIDs
-        ) const = 0;
+            const labelList& cellIDs
+        ) = 0;
 
     // Member Operators
 

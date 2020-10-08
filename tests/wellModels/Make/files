@@ -1,0 +1,4 @@
+wellSources/peacemanWellSource/peacemanWellSourceTest.C
+wellModelsTestDriver.C
+
+EXE = wellModelsTestDriver

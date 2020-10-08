@@ -65,7 +65,7 @@ protected:
     // Protected Data Members
     
         //- Gravitational acceleration
-        const UniformDimensionedField<scalar>& g_;
+        const UniformDimensionedField<vector>& g_;
 
         //- well orientation
         orientationHandling orientation_;
@@ -105,7 +105,7 @@ public:
     }
 
     //- Return gravitational acceleration
-    const UniformDimensionedField<scalar>& g() const
+    const UniformDimensionedField<vector>& g() const
     {
         return g_;
     }
