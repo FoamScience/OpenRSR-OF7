@@ -139,7 +139,7 @@ Foam::rock<PermeabilityType>::rock
                 : IOobject::READ_IF_PRESENT,
             IOobject::AUTO_WRITE
         ),
-        poroInit_.value() == -1 ? mesh : oneCellMesh_(),
+        mesh,
         poroInit_
     ),
     K_
@@ -154,7 +154,7 @@ Foam::rock<PermeabilityType>::rock
                 : IOobject::READ_IF_PRESENT,
             IOobject::AUTO_WRITE
         ),
-        permInit_.value() == static_cast<KcmptType>(Zero) ? mesh : oneCellMesh_(),
+        mesh,
         permInit_
     ),
     c_
