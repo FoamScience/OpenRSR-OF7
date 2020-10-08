@@ -36,7 +36,7 @@ Foam::sourceProperties::sourceProperties
 :
     g_
     (
-        mesh.lookupObject<UniformDimensionedField<scalar>>("g")
+        mesh.lookupObject<UniformDimensionedField<vector>>("g")
     ),
     orientation_
     (
