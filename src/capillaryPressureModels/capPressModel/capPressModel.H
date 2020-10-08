@@ -93,6 +93,14 @@ public:
             return phaseName+".dpcdS("+canonicalPhase+")";
         }
 
+        //- Pick the first model of a list which calculates some pc for
+        //  the given phase
+        static const capPressModel& getPcModel
+        (
+            const word& phaseName,
+            const fvMesh& mesh
+        );
+
 protected:
 
     // Protected Data
@@ -176,6 +184,11 @@ public:
         //- Return const-access to the rock
         const RockType& rock() const {
             return rock_;
+        }
+
+        //- Return phase names list
+        const wordList& phases() const {
+            return phaseNames_;
         }
 
         //- Return canonical phases

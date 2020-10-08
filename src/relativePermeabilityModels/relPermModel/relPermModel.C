@@ -130,7 +130,7 @@ Foam::relPermModel<RockType, nPhases>::relPermModel
             IOobject::NO_WRITE
         )
     ),
-    name_(parseModelName(name).first()),
+    name_(name),
     krDict_(transportProperties.subDict(name)),
     rock_(rock),
     phaseNames_
