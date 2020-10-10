@@ -23,22 +23,13 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef wellI_H
-#define wellI_H
+#include "flowRateDrive.H"
 
-#include "well.H"
-#include "Pstream.H"
+namespace Foam {
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-template<class RockType, int nPhases>
-inline Foam::label Foam::well<RockType, nPhases>::operationSign() const
-{
-    return  operation_ == operationHandling::production ? 1 : -1;
+maketwoPhaseWellDriveTemplatedModel
+    (driveHandler, flowRateDrive, Iso2, driveHandlers, iRock);
 }
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-#endif
 
 // ************************************************************************* //

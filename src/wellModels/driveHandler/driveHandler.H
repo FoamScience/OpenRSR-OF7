@@ -42,6 +42,8 @@ SourceFiles
 
 #include "scalarList.H"
 #include "wellSource.H"
+#include "cellToFace.H"
+#include "sourceProperties.H"
 #include "basicInterpolationTable.H"
 #include "addToTemplatedRunTimeSelection.H"
 
@@ -69,10 +71,16 @@ protected:
         dictionary driveDict_;
 
         //- Well source describer
-        const wellSource<RockType, nPhases>& wellSource_;
+        wellSource<RockType, nPhases>& wellSource_;
+
+        //- Access to Source-related part of the well
+        sourceProperties& srcProps_;
+
+        //- Access to per-phase source matrices
+        HashTable<fvScalarMatrix>& matrices_;
 
         //- Well cells IDs (global)
-        const scalarList& cells_;
+        const labelList& cells_;
 
         //- Time series of drive values vs simulation time
         autoPtr<basicInterpolationTable<scalar>> driveSeries_;
@@ -94,10 +102,11 @@ public:
         (
             const word& name,
             const dictionary& driveDict,
-            const wellSource<RockType, nPhases>& source,
-            const scalarList& cellIDs
+            wellSource<RockType, nPhases>& source,
+            sourceProperties& srcProps,
+            HashTable<fvScalarMatrix>& matrices
         ),
-        (name, driveDict, source, cellIDs)
+        (name, driveDict, source, srcProps, matrices)
     );
 
     // Constructors
@@ -107,8 +116,9 @@ public:
         (
             const word& name,
             const dictionary& driveDict,
-            const wellSource<RockType, nPhases>& source,
-            const scalarList& cellIDs
+            wellSource<RockType, nPhases>& source,
+            sourceProperties& srcProps,
+            HashTable<fvScalarMatrix>& matrices
         );
 
         //- Construct from copy
@@ -124,8 +134,9 @@ public:
         (
             const word& name,
             const dictionary& driveDict,
-            const wellSource<RockType, nPhases>& source,
-            const scalarList& cellIDs
+            wellSource<RockType, nPhases>& source,
+            sourceProperties& srcProps,
+            HashTable<fvScalarMatrix>& matrices
         );
 
     // Member Functions

@@ -40,6 +40,7 @@ SourceFiles
 #include "phase.H"
 #include "rock.H"
 #include "cellSet.H"
+#include "faceSet.H"
 #include "regIOobject.H"
 #include "driveHandler.H"
 #include "topoSetSource.H"
@@ -119,14 +120,18 @@ protected:
         //- Well perforation intervals
         PtrList<topoSetSource> perfos_;
 
-        //- Well topSet
-        cellSet wellSet_;
-
         //- Well total volume
         dimensionedScalar V_;
 
         //- Well drives
         PtrList<driveHandler<RockType, nPhases>> drives_;
+
+        //- Well cells topoSet
+        cellSet wellSet_;
+
+        //- Well faces topoSet to hold faces internal to the well.
+        faceSet faces_;
+
         
     // Protected Member Functions
 
@@ -265,12 +270,6 @@ public:
 
         //- Read well drives
         void readImposedDrives();
-
-        ////- Return lower cell index (according to well orientation)
-        //label lowerCell() const;
-
-        ////- Return upper cell index (according to well orientation)
-        //label upperCell() const;
 
         //- Update well
         virtual void correct() = 0;

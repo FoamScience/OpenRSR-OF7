@@ -25,7 +25,7 @@ Class
     Foam::sourceProperties
 
 Description
-    A class to hold source-related well properties.
+    A class to hold template-invariant source-related well properties.
 
 SourceFiles
     sourceProperties.C
@@ -35,7 +35,10 @@ SourceFiles
 #ifndef sourceProperties_H
 #define sourceProperties_H
 
+#include "volMesh.H"
 #include "fvMesh.H"
+#include "cellSet.H"
+#include "faceSet.H"
 #include "dimensionedScalar.H"
 #include "UniformDimensionedField.H"
 
@@ -64,11 +67,23 @@ protected:
 
     // Protected Data Members
     
+        //- Access to the mesh
+        const fvMesh& mesh_;
+    
         //- Gravitational acceleration
         const UniformDimensionedField<vector>& g_;
 
         //- well orientation
         orientationHandling orientation_;
+
+        //- Well cell IDs in this process
+        labelList cells_;
+
+        //- Internal faces for the well in this process
+        labelList faces_;
+
+        //- Global well volume
+        dimensionedScalar V_;
 
         //- Well radius
         dimensionedScalar radius_;
@@ -79,6 +94,11 @@ protected:
         //- Well index
         scalarList J_;
 
+    // Protected Member Functions
+
+        //- Calculate total well cells volume across processes
+        inline void cellsVolume();
+
 public:
 
     //- Runtime type information
@@ -87,7 +107,13 @@ public:
     // Constructors 
 
         //- Construct from dictionary and mesh
-        sourceProperties(const fvMesh& mesh, const dictionary& wellDict_);
+        sourceProperties
+        (
+            const fvMesh& mesh,
+            const dictionary& wellDict,
+            const cellSet& wellSet,
+            const faceSet& faces
+        );
 
     //- Destructor
     virtual ~sourceProperties() {}
@@ -104,10 +130,28 @@ public:
         return orientation_;
     }
 
-    //- Return gravitational acceleration
+    //- Return cells Volume
     const UniformDimensionedField<vector>& g() const
     {
         return g_;
+    }
+
+    //- Return cells that belong to this process
+    const labelList& cells() const
+    {
+        return cells_;
+    }
+
+    //- Return internal faces that belong to this process
+    const labelList& faces() const
+    {
+        return faces_;
+    }
+
+    //- Return gravitational acceleration
+    const dimensionedScalar& V() const
+    {
+        return V_;
     }
 
     //- Return radius
@@ -133,11 +177,20 @@ public:
         return J_;
     }
 
+    //- Return lowest cell index and on which process it belongs to
+    //  (according to well orientation)
+    inline Tuple2<label, label> gLowerCell() const;
+
+    ////- Return upper cell index (according to well orientation)
+    //label upperCell() const;
+
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace Foam
+
+#include "sourcePropertiesI.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

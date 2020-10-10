@@ -31,9 +31,12 @@ License
 Foam::sourceProperties::sourceProperties
 (
     const fvMesh& mesh,
-    const dictionary& wellDict
+    const dictionary& wellDict,
+    const cellSet& wellSet,
+    const faceSet& faces
 )
 :
+    mesh_(mesh),
     g_
     (
         mesh.lookupObject<UniformDimensionedField<vector>>("g")
@@ -45,6 +48,9 @@ Foam::sourceProperties::sourceProperties
             wellDict.lookupOrDefault<word>("orientation", "vertical")
         )
     ),
+    cells_(wellSet.toc()),
+    faces_(faces.toc()),
+    V_(wellDict.dictName()+".V", dimVolume, 0.0),
     radius_
     (
         wellDict.dictName()+".radius",
@@ -56,6 +62,13 @@ Foam::sourceProperties::sourceProperties
     ),
     J_()
 {
+    cellsVolume();
+    if (cells_.empty())
+    {
+        WarningInFunction
+            << "No cells in well set " << wellSet.name()
+            << ". If a segfault occurs this is the cause." << nl << endl;
+    }
 }
 
 // * * * * * * * * * * * * * Public Member Functions * * * * * * * * * * * * //
