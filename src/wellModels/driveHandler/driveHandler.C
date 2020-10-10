@@ -33,13 +33,14 @@ Foam::driveHandler<RockType, nPhases>::New
 (
     const word& name,
     const dictionary& driveDict,
-    const wellSource<RockType, nPhases>& source,
-    const scalarList& cellIDs
+    wellSource<RockType, nPhases>& source,
+    sourceProperties& srcProps,
+    HashTable<fvScalarMatrix>& matrices
 )
 {
     const word modelType = driveDict.dictName();
 
-    Info<< tab << "Selecting drive handler type " << modelType << endl;
+    Info<< "Selecting well imposed drive handler type " << modelType << endl;
 
     typename dictionaryConstructorTable::iterator cstrIter =
         dictionaryConstructorTablePtr_->find(modelType);
@@ -47,15 +48,15 @@ Foam::driveHandler<RockType, nPhases>::New
     if (cstrIter == dictionaryConstructorTablePtr_->end())
     {
         FatalErrorInFunction
-            << "Unknown Drive Handler type"
+            << "Unknown Well Drive Handler type "
             << modelType << nl << nl
-            << "Valid drive handler types:" << endl
+            << "Valid well drive handler types:" << endl
             << dictionaryConstructorTablePtr_->sortedToc()
             << exit(FatalError);
     }
 
     return autoPtr<driveHandler>
-    ( cstrIter()(name, driveDict, source, cellIDs) );
+    ( cstrIter()(name, driveDict, source, srcProps, matrices) );
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
@@ -65,15 +66,19 @@ Foam::driveHandler<RockType, nPhases>::driveHandler
 (
     const word& name,
     const dictionary& driveDict,
-    const wellSource<RockType, nPhases>& source,
-    const scalarList& cellIDs
+    wellSource<RockType, nPhases>& source,
+    sourceProperties& srcProps,
+    HashTable<fvScalarMatrix>& matrices
 )
 :
     name_(name),
     driveDict_(driveDict),
     wellSource_(source),
-    cells_(cellIDs),
-    driveSeries_(
+    srcProps_(srcProps),
+    matrices_(matrices),
+    cells_(srcProps.cells()),
+    driveSeries_
+    (
         basicInterpolationTable<scalar>::New(driveDict_)
     ),
     coeffs_(3, scalarList(cells_.size(), 0.0))

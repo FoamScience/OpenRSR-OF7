@@ -32,17 +32,17 @@ namespace driveHandlers
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-template<class RockType, int nPhases>
-flowRateDrive<RockType, nPhases>::flowRateDrive
+template<class RockType>
+flowRateDrive<RockType>::flowRateDrive
 (
     const word& name,
     const dictionary& driveDict,
-    wellSource<RockType, nPhases>& source,
+    wellSource<RockType, 2>& source,
     sourceProperties& srcProps,
-    HashPtrTable<fvScalarMatrix>& matrices
+    HashTable<fvScalarMatrix>& matrices
 )
 :
-    driveHandler<RockType,nPhases>(name, driveDict, source, srcProps, matrices),
+    driveHandler<RockType, 2>(name, driveDict, source, srcProps, matrices),
     phase_ (driveDict.lookup("phase"))
 {
     if(phase_ != source.phaseName())
@@ -56,42 +56,19 @@ flowRateDrive<RockType, nPhases>::flowRateDrive
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-template<class RockType, int nPhases>
-flowRateDrive<RockType, nPhases>::~flowRateDrive() {}
+template<class RockType>
+flowRateDrive<RockType>::~flowRateDrive() {}
 
 // * * * * * * * * * * * * * Public Member Functions * * * * * * * * * * * * //
 
-template<class RockType, int nPhases>
-void flowRateDrive<RockType, nPhases>::correct()
+template<class RockType>
+void flowRateDrive<RockType>::correct()
 {
-    // Do nothing if this is an injector working on the wrong phase
-    if
-    (
-        this->srcProps_.operation() 
-        == sourceProperties::operationHandling::injection
-        and
-        this->srcProps_.injPhase() != phase_
-    )
-    {
-        return;
-    }
-
     // Get refs to mesh, time, pressure and phase matrix
     const fvMesh& mesh = this->wellSource_.rock().mesh();
     const scalar& timeValue = mesh.time().timeOutputValue();
     const volScalarField& p = mesh.lookupObject<volScalarField>("p");
-    fvScalarMatrix& phEqn = *(this->matrices_[phase_]);
-    const label& opSign = this->srcProps_.operationSign();
-
-    // Get interpolated value for imposed phase flowrate
-    scalar qt = opSign*this->driveSeries_->interpolate(timeValue)[0];
-
-    // If well has one cell
-    if (this->cells_.size() == 1)
-    {
-        phEqn.source()[this->cells_[0]] += qt;
-        return;
-    }
+    fvScalarMatrix& phEqn = this->matrices_[phase_];
 
     // Get well equation coefficients from well source describer
     this->wellSource_.calculateCoeff0
@@ -128,12 +105,15 @@ void flowRateDrive<RockType, nPhases>::correct()
     reduce(cSum, sumOp<scalar>());
     Pstream::scatter(cSum);
 
+    // Get interpolated value for imposed phase flowrate
+    scalar qt = this->driveSeries_->interpolate(timeValue)[0];
+
     // Loop through cells and add diagonal coeffs and matrix source
     forAll(this->cells_, ci)
     {
         const label cellID = this->cells_[ci];
         phEqn.diag()[cellID] += a[ci]*(1-b[ci]);
-        phEqn.source()[cellID] += c[ci] + b[ci]*(qt-cSum);
+        phEqn.source()[cellID] += c[ci] + b[ci]*qt - b[ci]*cSum;
         forAll(this->cells_, cj)
         {
             const label cellj = this->cells_[cj];
@@ -141,8 +121,7 @@ void flowRateDrive<RockType, nPhases>::correct()
                            ? true : false;
             if (cellj != cellID and notNeiCell)
             {
-                phEqn.source()[cellID] += 
-                    -b[ci]*a[cj]*p[this->cells_[cj]];
+                phEqn.source()[cellID] += -b[ci]*a[cj]*p[this->cells_[cj]];
             }
         }
     }
@@ -153,16 +132,9 @@ void flowRateDrive<RockType, nPhases>::correct()
         const label faceID = iFaces[fi];
         label in = findIndex(this->cells_, mesh.lduAddr().lowerAddr()[faceID]);
         label jn = findIndex(this->cells_, mesh.lduAddr().upperAddr()[faceID]);
-        phEqn.upper()[faceID] += -b[jn]*a[in];
-        if (phEqn.asymmetric()) phEqn.lower()[faceID] += -b[in]*a[jn];
+        phEqn.lower()[faceID] += -b[in] * a[jn];
+        if (phEqn.hasUpper()) phEqn.upper()[faceID] += -b[jn] * a[in];
     }
-    
-    //// Flip source terms for injection operations
-    //forAll(this->cells_, ci)
-    //{
-    //    const label cellID = this->cells_[ci];
-    //    phEqn.source()[cellID] *= opSign;
-    //}
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

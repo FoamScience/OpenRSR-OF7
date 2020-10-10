@@ -34,15 +34,6 @@ License
 namespace Foam
 {
 
-// Public Inline member functions
-
-inline Foam::label Foam::sourceProperties::operationSign() const
-{
-    return  operation_ == operationHandling::production ? -1 : 1;
-}
-
-// Protected Inline member functions
-
 inline void Foam::sourceProperties::cellsVolume()
 {
     V_.value() = 0;
@@ -56,28 +47,8 @@ inline void Foam::sourceProperties::cellsVolume()
     Pstream::scatter(V_.value());
 }
 
-inline void Foam::sourceProperties::updateMeshInfo
-(
-    const cellSet& wellSet,
-    const faceSet& faces
-)
+inline Tuple2<label, label> Foam::sourceProperties::gLowerCell() const
 {
-    cells_ = wellSet.toc();
-    faces_ = faces.toc();
-    cellsVolume();
-}
-
-inline Tuple2<vector, label> Foam::sourceProperties::gLowerCell() const
-{
-    // Return the cell center position if a single cell well
-    Tuple2<vector,label> res;
-    if (cells_.size() == 1)
-    {
-        res.first() = mesh_.C()[cells_[0]];
-        res.second()= 0;
-        return res;
-    }
-
     // Find lowest cell in this process
     label fCell = cells_[0];
     forAll(cells_, ci)
@@ -87,6 +58,7 @@ inline Tuple2<vector, label> Foam::sourceProperties::gLowerCell() const
         fCell = (cg >= base) ? cells_[ci] : fCell;
     }
     // Find lowest cell for all processes
+    Tuple2<label,label> res;
     if (Pstream::parRun())
     {
         List<Tuple2<label,vector>> candidates(Pstream::nProcs());
@@ -103,7 +75,7 @@ inline Tuple2<vector, label> Foam::sourceProperties::gLowerCell() const
                 scalar base = (gfPos && g_).value();
                 if (cg >= base)
                 {
-                    res.first() = candidates[ci].second();
+                    res.first() = candidates[ci].first();
                     gfPos = candidates[ci].second();
                     res.second() = ci;
                 } 
@@ -111,7 +83,7 @@ inline Tuple2<vector, label> Foam::sourceProperties::gLowerCell() const
             Pstream::scatter(res);
         }
     } else {
-        res.first() = mesh_.C()[fCell];
+        res.first() = fCell;
         res.second()= 0;
     }
     return res;

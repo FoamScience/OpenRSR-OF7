@@ -134,9 +134,12 @@ SCENARIO("Peaceman's description of well source", "[Virtual]")
         srcPropsDict.add<scalar>("skin", 2);
         srcPropsDict.add<word>("orientation", "vertical");
 
-        sourceProperties wellProps(mesh, srcPropsDict);
+        cellSet cSet(mesh, "cSet", 0);
+        faceSet fSet(mesh, "fSet", 0);
 
-        WHEN("A set of cell IDs is passed to calculateCoeff0()")
+        sourceProperties wellProps(mesh, srcPropsDict, cSet, fSet);
+
+        WHEN("A set of cell IDs is passed to calculateCoeff*()")
         {
             forAll(mesh.C(), ci)
             {

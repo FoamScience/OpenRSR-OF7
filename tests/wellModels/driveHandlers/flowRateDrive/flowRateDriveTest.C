@@ -7,8 +7,6 @@
 #include "volFieldsFwd.H"
 #include "driveHandler.H"
 #include "IOmanip.H"
-#include "relPermModel.H"
-#include "capPressModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -45,20 +43,15 @@ matrix lduMatrixToSparse(const fvMesh& mesh, fvScalarMatrix& mat)
         label jj = upperAddr[facei];
         fmat[jj][ii] = mat.upper()[facei];
     }
-    //Info << setprecision(3);
-    //for(int ii=0;ii<mesh.nCells();ii++)
-    //{
-    //    for(int jj=0;jj<mesh.nCells();jj++)
-    //    {
-    //        Info << fmat[ii][jj] << setw(10);
-    //    }
-    //    Info << nl ;
-    //}
-    //Info << nl;
-    //for (unsigned i = 0; i < mesh.nCells(); ++i) {
-    //Info << mat.source()[i] << setw(10);
-    //}
-    Info << nl << endl;
+    Info << setprecision(3);
+    for(int ii=0;ii<mesh.nCells();ii++)
+    {
+        for(int jj=0;jj<mesh.nCells();jj++)
+        {
+            Info << fmat[ii][jj] << setw(10);
+        }
+        Info << nl ;
+    }
     return fmat;
 }
 };
@@ -188,8 +181,6 @@ SCENARIO("Imposed Phase-flowrate for a well", "[Virtual]")
         );
         srcPropsDict.add<scalar>("skin", 2);
         srcPropsDict.add<word>("orientation", "vertical");
-        srcPropsDict.add<word>("operationMode", "injection");
-        srcPropsDict.add<word>("injectedPhase", "water");
 
         // The cell and face sets
         cellSet cSet(mesh, "cSet", 8);
@@ -200,9 +191,9 @@ SCENARIO("Imposed Phase-flowrate for a well", "[Virtual]")
         fSrc.applyToSet(topoSetSource::ADD, fSet);
 
         sourceProperties wellProps(mesh, srcPropsDict, cSet, fSet);
-        HashPtrTable<fvScalarMatrix> matTable;
-        matTable.insert("water", new fvScalarMatrix(p, dimless));
-        matTable.insert("oil", new fvScalarMatrix(p, dimless));
+        HashTable<fvScalarMatrix> matTable;
+        matTable.insert("water", fvScalarMatrix(p, dimless));
+        matTable.insert("oil", fvScalarMatrix(p, dimless));
 
         WHEN("Phase flowRate driveHandler is constructed and calls correct()")
         {
@@ -223,9 +214,9 @@ SCENARIO("Imposed Phase-flowrate for a well", "[Virtual]")
             krModel->correct();
             pcModel->correct();
             dH->correct();
-            matrix mat = lduMatrixToSparse(mesh, *matTable["water"]);
+            matrix mat = lduMatrixToSparse(mesh, matTable["water"]);
 
-            THEN("Well Matrix for a phase must be consistent with expected one")
+            THEN("coeff0 values must be consistent with peaceman's expression")
             {
                 // Construct the reference matrix
                 matrix expectedMat
@@ -264,19 +255,18 @@ SCENARIO("Imposed Phase-flowrate for a well", "[Virtual]")
                         }
                     }
                 }
-                //Info << setprecision(3) ;
-                //for (unsigned i = 0; i < expectedMat.size(); ++i) {
-                //for (unsigned j = 0; j < expectedMat.size(); ++j)
-                //    Info << expectedMat[i][j] << setw(10);
-                //Info << nl;
-                //}
-                //for (unsigned i = 0; i < expectedMat.size(); ++i) {
-                //Info << expectedMatSource[i] << setw(10);
-                //}
+                Info << setprecision(3) ;
+                for (unsigned i = 0; i < expectedMat.size(); ++i) {
+                for (unsigned j = 0; j < expectedMat.size(); ++j)
+                    Info << expectedMat[i][j] << setw(10);
+                Info << nl;
+                }
+                for (unsigned i = 0; i < expectedMat.size(); ++i) {
+                Info << expectedMatSource[i] << setw(10);
+                }
                 Info << nl;
 
                 // Test equality of expected and calculated matrices
-                Info << (*matTable["water"]).source() << endl;
                 REQUIRE_THAT
                 (
                     expectedMatSource, 
@@ -284,8 +274,8 @@ SCENARIO("Imposed Phase-flowrate for a well", "[Virtual]")
                     (
                         std::vector<scalar>
                         ( 
-                            (*matTable["water"]).source().begin(),
-                            (*matTable["water"]).source().end()
+                            matTable["water"].source().begin(),
+                            matTable["water"].source().end()
                         )
                     )
                 );

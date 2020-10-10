@@ -27,6 +27,7 @@ License
 #include "error.H"
 #include "regIOobject.H"
 #include "well.H"
+#include "faceToCell.H"
 
 // * * * * * * * * * * * *  Static Member Functions  * * * * * * * * * * * * //
 
@@ -83,18 +84,31 @@ Foam::well<RockType, nPhases>::well
     (
         wordToOpHandling(wellDict.lookup("operationMode"))
     ),
-    srcProps_(rock.mesh(), wellDict),
     injPhase_
     (
      operation_ == operationHandling::injection
      ? wellDict.lookupOrDefault<word>("injectedPhase", "water")
      : "none"
     ),
-    perfos_()
+    perfos_(),
+    drives_(),
+    wellSet_
+    (
+        IOobject
+        (
+            name+".wellSet",
+            rock.mesh().time().constant(),
+            rock.mesh(),
+            IOobject::NO_READ,
+            IOobject::NO_WRITE
+        )
+    ),
+    faces_(rock.mesh(), name+".internalFaces", 10)
 {
     registerToGroups();
     readPerforations();
     readImposedDrives();
+    srcProps_ = sourceProperties(rock.mesh(), wellDict, wellSet_, faces_);
 }
 
 
@@ -211,6 +225,28 @@ void Foam::well<RockType, nPhases>::readPerforations()
         );
         // Include selected cells in the well's cell set
         perfos_[perfi].applyToSet(topoSetSource::ADD, wellSet_);
+
+        // Write perforation interval to disk as a cell set
+        // Needed to extract internal faces by re-reading from disk
+        // TODO: Is there room for improvements
+        cellSet perfCells
+        (
+            rock_.mesh().time(),
+            name_+".perfInterval"+name(perfi),
+            20
+        );
+        perfos_[perfi].applyToSet(topoSetSource::ADD, perfCells);
+        perfCells.write();
+
+        // Internal Faces in the well
+        cellToFace fSetSource
+        (
+            rock_.mesh(),
+            name_+".perfInterval"+name(perfi),
+            cellToFace::BOTH // To extract only faces shared by two cells
+        );
+        // Include faces into the faces set of the well
+        fSetSource.applyToSet(topoSetSource::ADD, faces_);
     }
 
     // Write well set to disk

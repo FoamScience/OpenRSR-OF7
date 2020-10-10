@@ -32,24 +32,11 @@ License
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 template<class RockType, int nPhases>
-inline void Foam::well<RockType, nPhases>::cellsVolume()
-{
-    V_.value() = 0;
-    forAll(wellSet_.toc(), ci)
-    {
-        V_ += rock_.mesh().V()[wellSet_.toc()[ci]];
-    }
-    //- V_ is now the well cells volume managed by this processor.
-    //- Reduce and scatter V_ to send the true total value to all processors
-    reduce(V_, sumOp<scalar>());
-    Pstream::scatter(V_);
-}
-
-template<class RockType, int nPhases>
 inline Foam::label Foam::well<RockType, nPhases>::operationSign() const
 {
     return  operation_ == operationHandling::production ? 1 : -1;
 }
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #endif

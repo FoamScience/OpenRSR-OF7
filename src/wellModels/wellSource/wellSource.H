@@ -159,6 +159,11 @@ public:
             return wellSourceDict_;
         }
 
+        //- Return phase name
+        const word& phaseName() const {
+            return phase_.name();
+        }
+
         //- Return const-access to the rock
         const RockType& rock() const {
             return rock_;

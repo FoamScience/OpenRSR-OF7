@@ -130,7 +130,8 @@ void peacemanWellSource<RockType>::calculateCoeff0
     coeff0.resize(srcProps.wellIndex().size());
     forAll(coeff0, ci)
     {
-        coeff0[ci] = - srcProps.wellIndex()[ci] * kr[ci] / mu[ci];
+        const label cellID = cellIDs[ci];
+        coeff0[ci] = - srcProps.wellIndex()[ci] * kr[cellID] / mu[cellID];
     }
 }
 
@@ -150,7 +151,8 @@ void peacemanWellSource<RockType>::calculateCoeff1
     coeff1.resize(srcProps.wellIndex().size());
     forAll(coeff1, ci)
     {
-        coeff1[ci] = srcProps.wellIndex()[ci] * kr[ci] / mu[ci];
+        const label cellID = cellIDs[ci];
+        coeff1[ci] = srcProps.wellIndex()[ci] * kr[cellID] / mu[cellID];
     }
 }
 

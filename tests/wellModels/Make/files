@@ -1,3 +1,4 @@
+driveHandlers/flowRateDrive/flowRateDriveTest.C
 wellSources/peacemanWellSource/peacemanWellSourceTest.C
 wellModelsTestDriver.C
 
