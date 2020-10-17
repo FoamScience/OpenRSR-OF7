@@ -3,8 +3,6 @@
 #include "fvCFD.H"
 #include "wellModel.H"
 #include "volFieldsFwd.H"
-#include "relPermModel.H"
-#include "capPressModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -115,6 +113,8 @@ SCENARIO("Peaceman model for well source calculation", "[Virtual]")
             transportProperties,
             rkPtr()
         );
+
+        //FatalError.dontThrowExceptions();
 
         Info<< "Reading wellsProperties\n" << endl;
         IOdictionary wellsProperties

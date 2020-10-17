@@ -34,7 +34,7 @@ License
 template<class RockType, int nPhases>
 inline Foam::label Foam::well<RockType, nPhases>::operationSign() const
 {
-    return  operation_ == operationHandling::production ? 1 : -1;
+    return  srcProps_.operationSign();
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

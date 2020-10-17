@@ -31,7 +31,6 @@ wells
     {
         orientation         vertical;
         operationMode       injection;
-        injectedPhase       water;
         radius              0.3;
         skin                2;
         perforations

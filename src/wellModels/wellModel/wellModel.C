@@ -34,6 +34,7 @@ Foam::autoPtr<Foam::wellModel<RockType, nPhases>>
 Foam::wellModel<RockType, nPhases>::New
 (
     const word& name,
+    const dictionary& transportProperties,
     const dictionary& wellsProperties,
     const RockType& rock
 )
@@ -56,7 +57,7 @@ Foam::wellModel<RockType, nPhases>::New
     }
 
     return autoPtr<wellModel>
-    ( cstrIter()(name, wellsProperties, rock) );
+    ( cstrIter()(name, transportProperties, wellsProperties, rock) );
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
@@ -65,17 +66,49 @@ template<class RockType, int nPhases>
 Foam::wellModel<RockType, nPhases>::wellModel
 (
     const word& name,
+    const dictionary& transportProperties,
     const dictionary& wellsProperties,
     const RockType& rock
 )
 :
     name_(name),
+    phaseNames_(transportProperties.lookup("phases")),
     wellsProperties_(wellsProperties),
     rock_(rock),
+    p_(rock.mesh().template lookupObject<volScalarField>("p")),
     groups_(),
-    wells_(),
-    sources_(nPhases)
+    sources_(),
+    matTable_(),
+    wells_()
 {
+    // Initiate source describers
+    forAll(phaseNames_, pi)
+    {
+        sources_.insert
+        (
+            phaseNames_[pi],
+            wellSource<RockType, 2>::New
+            (
+                name+"."+phaseNames_[pi]+".sourceDescriber",
+                rock.mesh().template lookupObject<phase>(phaseNames_[pi]),
+                wellsProperties_.subDict("wellSourceConfigs"),
+                rock
+            )
+        );
+    }
+
+    // Initiate matrices for phases
+    if (phaseNames_.size() != nPhases)
+        FatalErrorInFunction
+            << "Well model " << name << " expects two phase names but "
+            << phaseNames_.size() << " were supplied."
+            << nl << nl << exit(FatalError);
+    forAll(phaseNames_, pi)
+    {
+        matTable_.insert(phaseNames_[pi], fvScalarMatrix(p_, dimless));
+    }
+
+    // Instantiate well objects (Should be last thing to do)
     createWells();
 }
 
@@ -152,7 +185,10 @@ void Foam::wellModel<RockType, nPhases>::createWells()
         wells_.set
         (
             wi,
-            well<RockType, nPhases>::New(wDict.dictName(), wDict, rock_)
+            well<RockType, nPhases>::New
+            (
+                wDict.dictName(), wDict, rock_, sources_, matTable_
+            )
         );
     }
 }

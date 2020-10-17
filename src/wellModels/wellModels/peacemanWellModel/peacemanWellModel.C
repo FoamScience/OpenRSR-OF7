@@ -23,7 +23,6 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "error.H"
 #include "peacemanWellModel.H"
 
 namespace Foam 
@@ -33,8 +32,8 @@ namespace wellModels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-template<class RockType, int nPhases>
-peacemanWellModel<RockType, nPhases>::peacemanWellModel
+template<class RockType>
+peacemanWellModel<RockType>::peacemanWellModel
 (
     const word& name,
     const dictionary& transportProperties,
@@ -42,25 +41,20 @@ peacemanWellModel<RockType, nPhases>::peacemanWellModel
     const RockType& rock
 )
 :
-    wellModel<RockType,nPhases>(name,transportProperties,wellsProperties,rock)
+    wellModel<RockType, 2>(name, transportProperties, wellsProperties, rock)
 {
 }
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-template<class RockType, int nPhases>
-peacemanWellModel<RockType, nPhases>::~peacemanWellModel() {}
+template<class RockType>
+peacemanWellModel<RockType>::~peacemanWellModel() {}
 
 // * * * * * * * * * * * * * Public Member Functions * * * * * * * * * * * * //
 
-template<class RockType, int nPhases>
-void peacemanWellModel<RockType, nPhases>::correct()
+template<class RockType>
+void peacemanWellModel<RockType>::correct()
 {
-    if (this->wells_.size() == 0)
-    {
-        return;
-    }
-    this->clearMatrices();
     forAll(this->wells_, wi)
     {
         this->wells_[wi].correct();

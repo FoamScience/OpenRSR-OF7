@@ -45,8 +45,12 @@ Foam::sourceProperties::sourceProperties
     (
         wordToOrientationHandling
         (
-            wellDict.lookupOrDefault<word>("orientation", "vertical")
+            wellDict.lookup("orientation")
         )
+    ),
+    operation_
+    (
+        wordToOpHandling(wellDict.lookup("operationMode"))
     ),
     cells_(wellSet.toc()),
     faces_(faces.toc()),
@@ -54,9 +58,7 @@ Foam::sourceProperties::sourceProperties
     radius_
     (
         wellDict.dictName()+".radius",
-        dimensionedScalar("radius", dimLength, wellDict)
-    ),
-    skin_
+        dimensionedScalar("radius", dimLength, wellDict)), skin_
     (
         readScalar(wellDict.lookup("skin"))
     ),
@@ -109,6 +111,52 @@ Foam::word Foam::sourceProperties::orientationHandlingToWord
         case orientationHandling::generic :
         {
             enumName = "generic";
+            break;
+        }
+    }
+    return enumName;
+}
+
+Foam::sourceProperties::operationHandling 
+Foam::sourceProperties::wordToOpHandling
+(
+    const word& op
+) const
+{
+    if (op == "production")
+    {
+        return operationHandling::production;
+    }
+    else if (op == "injection") 
+    {
+        return operationHandling::injection;
+    }
+    else 
+    {
+        WarningInFunction
+            << "Bad well operation mode specifier " << op
+            << ", using 'production'" << endl;
+    }
+    return operationHandling::production;
+}
+
+
+Foam::word Foam::sourceProperties::opHandlingToWord
+(
+    const operationHandling& op
+) const
+{
+    word enumName("production");
+    switch (op)
+    {
+        case operationHandling::production :
+        {
+            enumName = "production";
+            break;
+        }
+        case operationHandling::injection :
+        {
+            enumName = "injection";
             break;
         }
     }

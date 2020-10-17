@@ -133,6 +133,7 @@ SCENARIO("Peaceman's description of well source", "[Virtual]")
         );
         srcPropsDict.add<scalar>("skin", 2);
         srcPropsDict.add<word>("orientation", "vertical");
+        srcPropsDict.add<word>("operationMode", "production");
 
         cellSet cSet(mesh, "cSet", 0);
         faceSet fSet(mesh, "fSet", 0);

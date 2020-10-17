@@ -49,10 +49,10 @@ namespace wells
                         Class standardWell Declaration
 \*---------------------------------------------------------------------------*/
 
-template<class RockType, int nPhases>
+template<class RockType>
 class standardWell
 :
-    public well<RockType, nPhases>
+    public well<RockType, 2>
 {
 public:
 
@@ -67,8 +67,8 @@ public:
             const word& name,
             const dictionary& wellDict,
             const RockType& rock,
-            HashTable<autoPtr<wellSource<RockType, nPhases>>>& sources,
-            HashPtrTable<fvScalarMatrix>& matTable
+            HashTable<autoPtr<wellSource<RockType, 2>>>& sources,
+            HashTable<fvScalarMatrix>& matTable
         );
 
         // Construct from copy

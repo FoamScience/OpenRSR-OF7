@@ -27,10 +27,8 @@ License
 
 namespace Foam {
 
-makeTemplatedWellModel
-    (wellModel, peacemanWellModel, Iso1, wellModels, 1, iRock);
-makeTemplatedWellModel
-    (wellModel, peacemanWellModel, Iso2, wellModels, 2, iRock);
+maketwoPhaseTemplatedWellModel
+    (wellModel, peacemanWellModel, Iso2, wellModels, iRock);
 }
 
 
