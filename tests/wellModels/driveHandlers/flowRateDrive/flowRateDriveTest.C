@@ -43,15 +43,15 @@ matrix lduMatrixToSparse(const fvMesh& mesh, fvScalarMatrix& mat)
         label jj = upperAddr[facei];
         fmat[jj][ii] = mat.upper()[facei];
     }
-    Info << setprecision(3);
-    for(int ii=0;ii<mesh.nCells();ii++)
-    {
-        for(int jj=0;jj<mesh.nCells();jj++)
-        {
-            Info << fmat[ii][jj] << setw(10);
-        }
-        Info << nl ;
-    }
+    //Info << setprecision(3);
+    //for(int ii=0;ii<mesh.nCells();ii++)
+    //{
+    //    for(int jj=0;jj<mesh.nCells();jj++)
+    //    {
+    //        Info << fmat[ii][jj] << setw(10);
+    //    }
+    //    Info << nl ;
+    //}
     return fmat;
 }
 };
@@ -181,6 +181,7 @@ SCENARIO("Imposed Phase-flowrate for a well", "[Virtual]")
         );
         srcPropsDict.add<scalar>("skin", 2);
         srcPropsDict.add<word>("orientation", "vertical");
+        srcPropsDict.add<word>("operationMode", "production");
 
         // The cell and face sets
         cellSet cSet(mesh, "cSet", 8);
@@ -255,15 +256,15 @@ SCENARIO("Imposed Phase-flowrate for a well", "[Virtual]")
                         }
                     }
                 }
-                Info << setprecision(3) ;
-                for (unsigned i = 0; i < expectedMat.size(); ++i) {
-                for (unsigned j = 0; j < expectedMat.size(); ++j)
-                    Info << expectedMat[i][j] << setw(10);
-                Info << nl;
-                }
-                for (unsigned i = 0; i < expectedMat.size(); ++i) {
-                Info << expectedMatSource[i] << setw(10);
-                }
+                //Info << setprecision(3) ;
+                //for (unsigned i = 0; i < expectedMat.size(); ++i) {
+                //for (unsigned j = 0; j < expectedMat.size(); ++j)
+                //    Info << expectedMat[i][j] << setw(10);
+                //Info << nl;
+                //}
+                //for (unsigned i = 0; i < expectedMat.size(); ++i) {
+                //Info << expectedMatSource[i] << setw(10);
+                //}
                 Info << nl;
 
                 // Test equality of expected and calculated matrices

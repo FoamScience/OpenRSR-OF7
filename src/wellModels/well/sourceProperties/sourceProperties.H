@@ -47,6 +47,9 @@ SourceFiles
 namespace Foam
 {
 
+// Forward declare well class
+template<class RockType, int nPhases> class well;
+
 /*---------------------------------------------------------------------------*\
                        Class sourceProperties Declaration
 \*---------------------------------------------------------------------------*/
@@ -55,6 +58,15 @@ class sourceProperties
 {
 
 public:
+    
+    // Public Data Members
+    
+        //- Enum for handling well operation modes
+        enum class operationHandling
+        {
+            production,
+            injection
+        };
 
         //- Enum for handling well orientation
         enum class orientationHandling
@@ -76,6 +88,9 @@ protected:
         //- well orientation
         orientationHandling orientation_;
 
+        //- Well operation mode
+        operationHandling operation_;
+
         //- Well cell IDs in this process
         labelList cells_;
 
@@ -96,8 +111,18 @@ protected:
 
     // Protected Member Functions
 
+        //- Operation mode sign to use in calculations
+        inline label operationSign() const;
+
         //- Calculate total well cells volume across processes
         inline void cellsVolume();
+
+        //- Update cells and faces from new cellSet and faces list
+        inline void updateMeshInfo
+        (
+            const cellSet& wellSet,
+            const faceSet& faces
+        );
 
 public:
 
@@ -117,6 +142,18 @@ public:
 
     //- Destructor
     virtual ~sourceProperties() {}
+
+    //- Return operation handling as word
+    word opHandlingToWord(const operationHandling& op) const;
+
+    //- Return operation handling as enumeration
+    operationHandling wordToOpHandling(const word& op) const;
+
+    //- Return operation mode
+    const operationHandling& operation() const 
+    {
+        return operation_;
+    }
 
     //- Return orientation handling as word
     static word orientationHandlingToWord(const orientationHandling& ori);
@@ -183,6 +220,9 @@ public:
 
     ////- Return upper cell index (according to well orientation)
     //label upperCell() const;
+
+    // Friend Classes
+    template<class RockType, int nPhases> friend class well;
 
 };
 

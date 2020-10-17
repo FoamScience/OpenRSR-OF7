@@ -69,21 +69,30 @@ protected:
         //- Model name
         word name_;
 
+        //- Phase names
+        wordList phaseNames_;
+
         //- Model Dict
         dictionary wellsProperties_;
 
         //- Const access to the rock object
         const RockType& rock_;
 
+        //- Const access to main pressure field
+        const volScalarField& p_;
+
         //- List of pointers to well groups
         PtrList<objectRegistry> groups_;
 
+        //- Per-phase source describers for all wells
+        HashTable<autoPtr<wellSource<RockType, nPhases>>> sources_;
+
+        //- Per-phase sources for all wells
+        HashTable<fvScalarMatrix> matTable_;
+        
         //- List of poitners to wells
         PtrList<well<RockType, nPhases>> wells_;
 
-        //- Per-phase sources for all wells
-        HashTable<fvScalarMatrix> sources_;
-        
 
     // Protected Member Functions
 
@@ -106,10 +115,11 @@ public:
         dictionary,
         (
             const word& name,
+            const dictionary& transportProperties,
             const dictionary& wellsProperties,
             const RockType& rock
         ),
-        (name, wellsProperties, rock)
+        (name, transportProperties, wellsProperties, rock)
     );
 
     // Constructors
@@ -118,6 +128,7 @@ public:
         wellModel
         (
             const word& name,
+            const dictionary& transportProperties,
             const dictionary& wellsProperties,
             const RockType& rock
         );
@@ -134,6 +145,7 @@ public:
         static autoPtr<wellModel> New
         (
             const word& name,
+            const dictionary& transportProperties,
             const dictionary& wellsProperties,
             const RockType& rock
         );
@@ -153,6 +165,11 @@ public:
         //- Return const-access to the rock
         const RockType& rock() const {
             return rock_;
+        }
+
+        //- Const-access to list of well pointers
+        const PtrList<well<RockType, nPhases>>& wells() const {
+            return wells_;
         }
 
         ////- Return explicit portion of the source for given phase

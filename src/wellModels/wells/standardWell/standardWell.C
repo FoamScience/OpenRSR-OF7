@@ -23,22 +23,38 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef wellI_H
-#define wellI_H
+#include "standardWell.H"
 
-#include "well.H"
-#include "Pstream.H"
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-template<class RockType, int nPhases>
-inline Foam::label Foam::well<RockType, nPhases>::operationSign() const
+namespace Foam 
 {
-    return  srcProps_.operationSign();
+namespace wells
+{
+
+// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
+
+template<class RockType>
+standardWell<RockType>::standardWell
+(
+    const word& name,
+    const dictionary& wellDict,
+    const RockType& rock,
+    HashTable<autoPtr<wellSource<RockType, 2>>>& sources,
+    HashTable<fvScalarMatrix>& matTable
+)
+:
+    well<RockType, 2>(name, wellDict, rock, sources, matTable)
+{
 }
 
+// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
+
+template<class RockType>
+standardWell<RockType>::~standardWell() {}
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#endif
+} // End namespace wells
+
+} // End namespace Foam
 
 // ************************************************************************* //

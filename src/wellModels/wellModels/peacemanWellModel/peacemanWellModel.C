@@ -23,22 +23,48 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef wellI_H
-#define wellI_H
+#include "peacemanWellModel.H"
 
-#include "well.H"
-#include "Pstream.H"
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-template<class RockType, int nPhases>
-inline Foam::label Foam::well<RockType, nPhases>::operationSign() const
+namespace Foam 
 {
-    return  srcProps_.operationSign();
+namespace wellModels
+{
+
+// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
+
+template<class RockType>
+peacemanWellModel<RockType>::peacemanWellModel
+(
+    const word& name,
+    const dictionary& transportProperties,
+    const dictionary& wellsProperties,
+    const RockType& rock
+)
+:
+    wellModel<RockType, 2>(name, transportProperties, wellsProperties, rock)
+{
+}
+
+// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
+
+template<class RockType>
+peacemanWellModel<RockType>::~peacemanWellModel() {}
+
+// * * * * * * * * * * * * * Public Member Functions * * * * * * * * * * * * //
+
+template<class RockType>
+void peacemanWellModel<RockType>::correct()
+{
+    forAll(this->wells_, wi)
+    {
+        this->wells_[wi].correct();
+    }
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#endif
+} // End namespace wellModels
+
+} // End namespace Foam
 
 // ************************************************************************* //

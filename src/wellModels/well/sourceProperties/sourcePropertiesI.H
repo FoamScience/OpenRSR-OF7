@@ -34,6 +34,11 @@ License
 namespace Foam
 {
 
+inline Foam::label Foam::sourceProperties::operationSign() const
+{
+    return  operation_ == operationHandling::production ? 1 : -1;
+}
+
 inline void Foam::sourceProperties::cellsVolume()
 {
     V_.value() = 0;
@@ -45,6 +50,17 @@ inline void Foam::sourceProperties::cellsVolume()
     //- Reduce and scatter V_ to send the true total value to all processors
     reduce(V_.value(), sumOp<scalar>());
     Pstream::scatter(V_.value());
+}
+
+inline void Foam::sourceProperties::updateMeshInfo
+(
+    const cellSet& wellSet,
+    const faceSet& faces
+)
+{
+    cells_ = wellSet.toc();
+    faces_ = faces.toc();
+    cellsVolume();
 }
 
 inline Tuple2<label, label> Foam::sourceProperties::gLowerCell() const

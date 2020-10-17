@@ -23,22 +23,13 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef wellI_H
-#define wellI_H
+#include "standardWell.H"
 
-#include "well.H"
-#include "Pstream.H"
+namespace Foam {
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-template<class RockType, int nPhases>
-inline Foam::label Foam::well<RockType, nPhases>::operationSign() const
-{
-    return  srcProps_.operationSign();
+maketwoPhaseTemplatedWell
+    (well, standardWell, Iso2, wells, iRock);
 }
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-#endif
 
 // ************************************************************************* //

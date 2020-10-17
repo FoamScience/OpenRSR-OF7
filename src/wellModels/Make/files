@@ -1,5 +1,6 @@
 well/sourceProperties/sourceProperties.C
 well/wells.C
+wells/standardWell/standardWells.C
 
 wellSource/wellSources.C
 wellSources/peacemanWellSource/peacemanWellSources.C
@@ -9,6 +10,7 @@ driveHandlers/flowRateDrive/flowRateDrives.C
 
 
 wellModel/wellModels.C
+wellModels/peacemanWellModel/peacemanWellModels.C
 
 
 LIB = $(FOAM_USER_LIBBIN)/libwellModels

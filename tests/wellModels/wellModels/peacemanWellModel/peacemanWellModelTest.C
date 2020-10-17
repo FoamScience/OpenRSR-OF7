@@ -1,27 +1,24 @@
 #include "IsotropyTypes.H"
-#include "capPressModel.H"
 #include "catch.H"
-#include "autoPtr.H"
 #include "fvCFD.H"
-#include "wellSource.H"
+#include "wellModel.H"
 #include "volFieldsFwd.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-
 using namespace Foam;
 
-SCENARIO("Peaceman's description of well source", "[Virtual]")
+SCENARIO("Peaceman model for well source calculation", "[Virtual]")
 {
-    GIVEN("Valid mesh, kr and pc models, and a valid sourceProperties object")
+    GIVEN("Valid mesh, kr and pc models, and a wellsProperties dictionary")
     {
-        FatalError.dontThrowExceptions();
         #include "createTestTimeAndMesh.H"
         #include "createTestBlackoilPhase.H"
         #include "createTestIsoRock.H"
         #include "readGravitationalAcceleration.H"
 
         dictionary transportProperties;
+        transportProperties.add<wordList>("phases", {"water", "oil"});
         dictionary rockProperties;
 
         volScalarField p
@@ -117,63 +114,42 @@ SCENARIO("Peaceman's description of well source", "[Virtual]")
             rkPtr()
         );
 
-        dictionary wSrcDict("wellSourceDict");
-        wSrcDict.add<word>("wellSourceType", "Peaceman");
+        //FatalError.dontThrowExceptions();
 
-        auto wSource = wellSource<iRock, 2>::New
+        Info<< "Reading wellsProperties\n" << endl;
+        IOdictionary wellsProperties
         (
-            "source", waterPtr(), wSrcDict, rkPtr()
-        );
-
-        dictionary srcPropsDict;
-        srcPropsDict.add<dimensionedScalar>
-        (
-            "radius",
-            dimensionedScalar("radius", dimLength, 0.3)
-        );
-        srcPropsDict.add<scalar>("skin", 2);
-        srcPropsDict.add<word>("orientation", "vertical");
-        srcPropsDict.add<word>("operationMode", "production");
-
-        cellSet cSet(mesh, "cSet", 0);
-        faceSet fSet(mesh, "fSet", 0);
-
-        sourceProperties wellProps(mesh, srcPropsDict, cSet, fSet);
-
-        WHEN("A set of cell IDs is passed to calculateCoeff*()")
-        {
-            forAll(mesh.C(), ci)
-            {
-                waterPtr->alpha()[ci] = 0.2 + ci*(1-0.1-0.2)/(mesh.nCells()-1);
-            }
-            scalarField coeff0(mesh.nCells(), 0);
-
-            krModel->correct();
-            pcModel->correct();
-
-            labelList cellIDs(mesh.nCells(), 0);
-            std::generate
+            IOobject
             (
-                cellIDs.begin(), cellIDs.end(),
-                [n = 0] () mutable { return n++; }
+                "wellsProperties",
+                runTime.constant(),
+                mesh,
+                IOobject::MUST_READ_IF_MODIFIED,
+                IOobject::NO_WRITE
+            )
+        );
+        WHEN("Peaceman's well model is instantiated")
+        {
+            auto wModel = wellModel<iRock, 2>::New
+            (
+                "wModel", transportProperties, wellsProperties, rkPtr()
             );
-            wSource->calculateCoeff0(coeff0, wellProps, cellIDs);
 
-            THEN("coeff0 values must be consistent with peaceman's expression")
+            THEN("Well Cells and cell faces are selected correctly")
             {
-                std::vector<scalar> expectedCoeff0 = {
-                    0, -2.1879e-11, -8.75159e-11, -1.96911e-10,
-                    -3.50064e-10, -5.46975e-10, -7.87643e-10, -1.07207e-09,
-                    -1.40025e-09, -1.7722e-09
-                };
-                REQUIRE_THAT
-                (
-                    expectedCoeff0, 
-                    Catch::Matchers::Approx
+                forAll(wModel->wells(), wi)
+                {
+                    CHECK
                     (
-                        std::vector<scalar> ( coeff0.begin(), coeff0.end() )
-                    )
-                );
+                        wModel->wells()[wi].cellIDs() 
+                        == labelList{1,2,3,4,5,6,7,8}
+                    );
+                    CHECK
+                    (
+                        wModel->wells()[wi].faceIDs()
+                        == labelList{1,2,3,4,5,6,7}
+                    );
+                }
             }
         }
     }

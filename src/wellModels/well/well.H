@@ -41,6 +41,7 @@ SourceFiles
 #include "rock.H"
 #include "cellSet.H"
 #include "faceSet.H"
+#include "wellSource.H"
 #include "regIOobject.H"
 #include "driveHandler.H"
 #include "topoSetSource.H"
@@ -81,17 +82,6 @@ class well
     public List<autoPtr<regIOobject>>
 {
 
-public:
-    
-    // Public Data Members
-    
-        //- Enum for handling well operation modes
-        enum class operationHandling
-        {
-            production,
-            injection
-        };
-
 protected:
 
     // Protected Data
@@ -107,12 +97,6 @@ protected:
 
         //- Well groups
         wordList wellGroups_;
-
-        //- Well operation mode
-        operationHandling operation_;
-
-        //- Well properties for source calculations
-        sourceProperties srcProps_;
 
         //- Injection phase name
         word injPhase_;
@@ -132,11 +116,11 @@ protected:
         //- Well faces topoSet to hold faces internal to the well.
         faceSet faces_;
 
+        //- Well properties for source calculations
+        sourceProperties srcProps_;
+
         
     // Protected Member Functions
-
-        //- Calculate total cells volume (Across processors)
-        inline void cellsVolume();
 
         //- Operation mode sign to use in calculations
         inline label operationSign() const;
@@ -155,9 +139,11 @@ public:
         (
             const word& name,
             const dictionary& wellDict,
-            const RockType& rock
+            const RockType& rock,
+            HashTable<autoPtr<wellSource<RockType, nPhases>>>& sources,
+            HashTable<fvScalarMatrix>& matTable
         ),
-        (name, wellDict, rock)
+        (name, wellDict, rock, sources, matTable)
     );
 
     // Constructors
@@ -167,7 +153,9 @@ public:
         (
             const word& name,
             const dictionary& wellDict,
-            const RockType& rock
+            const RockType& rock,
+            HashTable<autoPtr<wellSource<RockType, nPhases>>>& sources,
+            HashTable<fvScalarMatrix>& matTable
         );
 
         //- Construct from copy
@@ -183,7 +171,9 @@ public:
         (
             const word& name,
             const dictionary& wellDict,
-            const RockType& rock
+            const RockType& rock,
+            HashTable<autoPtr<wellSource<RockType, nPhases>>>& sources,
+            HashTable<fvScalarMatrix>& matTable
         );
 
     // Member Functions
@@ -203,12 +193,6 @@ public:
             return rock_;
         }
 
-        //- Return operation handling as word
-        word opHandlingToWord(const operationHandling& op) const;
-
-        //- Return operation handling as enumeration
-        operationHandling wordToOpHandling(const word& op) const;
-
         //- Return injection phase name
         const word& injPhase() const 
         {
@@ -216,9 +200,9 @@ public:
         }
 
         //- Return operation mode
-        const operationHandling& operation() const 
+        const sourceProperties::operationHandling& operation() const 
         {
-            return operation_;
+            return srcProps_.operation();
         }
 
         //- Return source-related properties
@@ -256,6 +240,11 @@ public:
             return wellSet_.toc();
         }
 
+        //- Return per-processor internal face IDs
+        labelList faceIDs() const {
+            return faces_.toc();
+        }
+
         //- Return total volume of well cells
         const dimensionedScalar& totalVolume() const
         {
@@ -269,10 +258,21 @@ public:
         void readPerforations();
 
         //- Read well drives
-        void readImposedDrives();
+        void readImposedDrives
+        (
+            HashTable<autoPtr<wellSource<RockType, nPhases>>>& sources,
+            HashTable<fvScalarMatrix>& matTable
+        );
 
-        //- Update well
+        //- Update well sources
         virtual void correct() = 0;
+        //void correct()
+        //{
+        //    forAll(drives_, di)
+        //    {
+        //        drives_[di].correct();
+        //    }
+        //};
 
     // Member Operators
 
