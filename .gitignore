@@ -39,3 +39,7 @@
 
 # All kinds of log files
 *.log
+
+# mesh sets and zones
+**/sets/**
+**/zones/**
