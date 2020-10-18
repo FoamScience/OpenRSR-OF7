@@ -23,6 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+#include "error.H"
 #include "peacemanWellModel.H"
 
 namespace Foam 
@@ -55,10 +56,11 @@ peacemanWellModel<RockType>::~peacemanWellModel() {}
 template<class RockType>
 void peacemanWellModel<RockType>::correct()
 {
-    forAll(this->wells_, wi)
-    {
-        this->wells_[wi].correct();
-    }
+    if (!this->wells_.empty())
+        forAll(this->wells_, wi)
+        {
+            this->wells_[wi].correct();
+        }
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
