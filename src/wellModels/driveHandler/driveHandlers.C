@@ -28,6 +28,8 @@ License
 
 namespace Foam {
 
+// Define Types for single-phase drive handlers
+defineVariadicTemplatedRunTimeSelectionTable(driveHandler, iRock, 1);
 // Define Types for two-phase drive handlers
 defineVariadicTemplatedRunTimeSelectionTable(driveHandler, iRock, 2);
 defineVariadicTemplatedRunTimeSelectionTable(driveHandler, dRock, 2);

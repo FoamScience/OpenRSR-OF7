@@ -32,17 +32,17 @@ namespace driveHandlers
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-template<class RockType>
-flowRateDrive<RockType>::flowRateDrive
+template<class RockType, int nPhases>
+flowRateDrive<RockType, nPhases>::flowRateDrive
 (
     const word& name,
     const dictionary& driveDict,
-    wellSource<RockType, 2>& source,
+    wellSource<RockType, nPhases>& source,
     sourceProperties& srcProps,
     HashTable<fvScalarMatrix>& matrices
 )
 :
-    driveHandler<RockType, 2>(name, driveDict, source, srcProps, matrices),
+    driveHandler<RockType,nPhases>(name, driveDict, source, srcProps, matrices),
     phase_ (driveDict.lookup("phase"))
 {
     if(phase_ != source.phaseName())
@@ -56,13 +56,13 @@ flowRateDrive<RockType>::flowRateDrive
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-template<class RockType>
-flowRateDrive<RockType>::~flowRateDrive() {}
+template<class RockType, int nPhases>
+flowRateDrive<RockType, nPhases>::~flowRateDrive() {}
 
 // * * * * * * * * * * * * * Public Member Functions * * * * * * * * * * * * //
 
-template<class RockType>
-void flowRateDrive<RockType>::correct()
+template<class RockType, int nPhases>
+void flowRateDrive<RockType, nPhases>::correct()
 {
     // Get refs to mesh, time, pressure and phase matrix
     const fvMesh& mesh = this->wellSource_.rock().mesh();

@@ -58,10 +58,10 @@ namespace driveHandlers
                         Class flowRateDrive Declaration
 \*---------------------------------------------------------------------------*/
 
-template<class RockType>
+template<class RockType, int nPhases>
 class flowRateDrive
 :
-    public driveHandler<RockType, 2>
+    public driveHandler<RockType, nPhases>
 {
 protected:
 
@@ -82,7 +82,7 @@ public:
         (
             const word& name,
             const dictionary& driveDict,
-            wellSource<RockType, 2>& source,
+            wellSource<RockType, nPhases>& source,
             sourceProperties& srcProps,
             HashTable<fvScalarMatrix>& matrices
         );

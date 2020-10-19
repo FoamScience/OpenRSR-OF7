@@ -27,8 +27,10 @@ License
 
 namespace Foam {
 
-maketwoPhaseWellDriveTemplatedModel
-    (driveHandler, flowRateDrive, Iso2, driveHandlers, iRock);
+makeWellDriveTemplatedModel
+    (driveHandler, flowRateDrive, Iso1, driveHandlers, 1, iRock);
+makeWellDriveTemplatedModel
+    (driveHandler, flowRateDrive, Iso2, driveHandlers, 2, iRock);
 }
 
 
