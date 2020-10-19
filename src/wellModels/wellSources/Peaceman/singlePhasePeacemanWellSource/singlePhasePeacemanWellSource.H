@@ -26,7 +26,7 @@ Class
 
 Description
     Peaceman's description for the relationship q = f(p) in a square grid
-    for single phase flow in a producer:
+    for single phase flow:
     q_ = J/mu(BHP - p_ - gamma (BHZ - z))
 
 SourceFiles
@@ -78,10 +78,7 @@ public:
         );
 
         // Construct from copy
-        singlePhasePeacemanWellSource
-        (
-            const singlePhasePeacemanWellSource&
-        ) = delete;
+        singlePhasePeacemanWellSource(const singlePhasePeacemanWellSource&) = delete;
 
 	// Destructor
 	virtual ~singlePhasePeacemanWellSource();

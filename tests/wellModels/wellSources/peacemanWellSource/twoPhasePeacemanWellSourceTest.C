@@ -17,6 +17,7 @@ SCENARIO("Peaceman's description of well source", "[Virtual]")
 {
     GIVEN("Valid mesh, kr and pc models, and a valid sourceProperties object")
     {
+        FatalError.dontThrowExceptions();
         #include "createTestTimeAndMesh.H"
         #include "createTestBlackoilPhase.H"
         #include "createTestIsoRock.H"

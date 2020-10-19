@@ -120,23 +120,14 @@ void twoPhasePeacemanWellSource<RockType>::calculateCoeff2
     const labelList& cellIDs
 )
 {
-    const auto& rho = this->phase_.rho();
-    const auto& g = srcProps.g();
-    scalar gg = (g && g).value()/(mag(g).value() + vSmall);
-    scalar ZBH =
-        (gg == 0) ? 0 : ((srcProps.gLowerCell().first() && g)/gg).value();
+    //const auto& rho = this->phase_.rho();
 
     this->calculateWellIndex(cellIDs, srcProps);
     coeff2.resize(srcProps.wellIndex().size());
-
+    // TODO: Add gravity support
     forAll(coeff2, ci)
     {
-        const label cellID = cellIDs[ci];
-        scalar cellZ = 
-            (gg == 0) ? 0 : ((rho.mesh().C()[cellID] && g)/gg).value();
-        // TODO: Consider adding capillary pressure support
-        coeff2[ci] = - srcProps.wellIndex()[ci] * rho[cellID] * gg
-            * (ZBH - cellZ);
+        coeff2[ci] = 0;
     }
 }
 

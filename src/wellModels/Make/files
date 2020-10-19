@@ -3,7 +3,7 @@ well/wells.C
 wells/standardWell/standardWells.C
 
 wellSource/wellSources.C
-wellSources/peacemanWellSource/peacemanWellSources.C
+wellSources/Peaceman/peacemanWellSources.C
 
 driveHandler/driveHandlers.C
 driveHandlers/flowRateDrive/flowRateDrives.C

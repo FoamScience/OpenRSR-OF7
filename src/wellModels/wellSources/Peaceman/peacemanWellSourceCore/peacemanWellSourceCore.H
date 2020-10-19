@@ -117,10 +117,7 @@ public:
     // Member operators
 
         //- Disallow default bitwise assignment
-        peacemanWellSourceCore& operator=
-        (
-            const peacemanWellSourceCore&
-        ) = delete;
+        peacemanWellSourceCore& operator=(const peacemanWellSourceCore&) = delete;
 };
 
 

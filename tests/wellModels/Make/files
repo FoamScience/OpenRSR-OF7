@@ -1,6 +1,6 @@
 wellModels/peacemanWellModel/peacemanWellModelTest.C
 driveHandlers/flowRateDrive/flowRateDriveTest.C
-wellSources/peacemanWellSource/peacemanWellSourceTest.C
+wellSources/peacemanWellSource/twoPhasePeacemanWellSourceTest.C
 wellModelsTestDriver.C
 
 EXE = wellModelsTestDriver

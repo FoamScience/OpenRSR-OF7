@@ -52,8 +52,6 @@ SourceFiles
 #include "sourceProperties.H"
 #include "fvScalarMatrix.H"
 #include "fvMesh.H"
-#include "relPermModel.H"
-#include "capPressModel.H"
 #include "addToTemplatedRunTimeSelection.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -93,12 +91,6 @@ protected:
         //- Canonical Pressure Field
         const volScalarField& p_;
 
-        //- Const-access to Kr model which is directly responsible for phase kr
-        const relPermModel<RockType, nPhases>& krModel_;
-
-        //- Const-access to Pc model which is directly responsible for pc
-        const capPressModel<RockType, nPhases>& pcModel_;
-        
 public:
 
     //- Runtime type information
@@ -204,8 +196,8 @@ public:
 
 } // End namespace Foam
 
-#define maketwoPhaseTemplatedWellSource\
-(baseType,childType,TargName,ns,childTArg)                                     \
+#define makeTemplatedWellSource\
+(baseType,childType,TargName,ns,nPhases,childTArg)                             \
                                                                                \
     /* Define child type name */                                               \
     template<>                                                                 \
@@ -226,7 +218,7 @@ public:
                                                                                \
     /* Add child to the base's run-time selection tabe */                      \
     namespace ns {                                                             \
-    baseType<childTArg, 2>::                                                   \
+    baseType<childTArg, nPhases>::                                             \
     adddictionaryConstructorToTable<childType<childTArg >>                     \
     add##phaseType##TargName##argNames##ConstructorTo##baseType##Targ##Table_; \
     }
