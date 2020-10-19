@@ -28,6 +28,8 @@ License
 
 namespace Foam {
 
+// Define Types for single-phase well models
+defineVariadicTemplatedRunTimeSelectionTable(wellModel, iRock, 1);
 // Define Types for two-phase well models
 defineVariadicTemplatedRunTimeSelectionTable(wellModel, iRock, 2);
 defineVariadicTemplatedRunTimeSelectionTable(wellModel, dRock, 2);

@@ -51,10 +51,10 @@ namespace wellModels
                         Class peacemanWellModel Declaration
 \*---------------------------------------------------------------------------*/
 
-template<class RockType>
+template<class RockType, int nPhases>
 class peacemanWellModel
 :
-    public wellModel<RockType, 2>
+    public wellModel<RockType, nPhases>
 {
 public:
 

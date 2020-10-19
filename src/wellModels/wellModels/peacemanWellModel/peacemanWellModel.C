@@ -33,8 +33,8 @@ namespace wellModels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-template<class RockType>
-peacemanWellModel<RockType>::peacemanWellModel
+template<class RockType, int nPhases>
+peacemanWellModel<RockType, nPhases>::peacemanWellModel
 (
     const word& name,
     const dictionary& transportProperties,
@@ -42,19 +42,19 @@ peacemanWellModel<RockType>::peacemanWellModel
     const RockType& rock
 )
 :
-    wellModel<RockType, 2>(name, transportProperties, wellsProperties, rock)
+    wellModel<RockType,nPhases>(name,transportProperties,wellsProperties,rock)
 {
 }
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-template<class RockType>
-peacemanWellModel<RockType>::~peacemanWellModel() {}
+template<class RockType, int nPhases>
+peacemanWellModel<RockType, nPhases>::~peacemanWellModel() {}
 
 // * * * * * * * * * * * * * Public Member Functions * * * * * * * * * * * * //
 
-template<class RockType>
-void peacemanWellModel<RockType>::correct()
+template<class RockType, int nPhases>
+void peacemanWellModel<RockType, nPhases>::correct()
 {
     if (!this->wells_.empty())
         forAll(this->wells_, wi)
