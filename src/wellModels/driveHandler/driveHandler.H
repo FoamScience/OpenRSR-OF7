@@ -170,30 +170,31 @@ public:
 
 } // End namespace Foam
 
-#define maketwoPhaseWellDriveTemplatedModel\
-(baseType,childType,TargName,ns,childTArg)                                     \
+#define makeWellDriveTemplatedModel\
+(baseType,childType,TargName,ns,nPhases,childTArg)                             \
                                                                                \
     /* Define child type name */                                               \
     template<>                                                                 \
-    const ::Foam::word ns::childType<childTArg >::                             \
-        typeName(ns::childType<childTArg >::typeName_());                      \
+    const ::Foam::word ns::childType<childTArg, nPhases>::                     \
+        typeName(ns::childType<childTArg, nPhases>::typeName_());              \
                                                                                \
     /* Define child debug switch */                                            \
     template<>                                                                 \
-    int ns::childType<childTArg >::debug                                       \
+    int ns::childType<childTArg, nPhases>::debug                               \
     (                                                                          \
-        ::Foam::debug::debugSwitch(ns::childType<childTArg >::typeName_(), 0)  \
+        ::Foam::debug::debugSwitch                                             \
+        (ns::childType<childTArg, nPhases>::typeName_(), 0)                    \
     );                                                                         \
     /* Register the debug switch */                                            \
     template<>                                                                 \
-    const Foam::RegisterDebugSwitch<ns::childType<childTArg >>                 \
-    Foam::RegisterDebugSwitch<ns::childType<childTArg >>                       \
-        ::registerDebugSwitch(ns::childType<childTArg >::typeName_());         \
+    const Foam::RegisterDebugSwitch<ns::childType<childTArg, nPhases>>         \
+    Foam::RegisterDebugSwitch<ns::childType<childTArg,nPhases>>                \
+        ::registerDebugSwitch(ns::childType<childTArg,nPhases>::typeName_());  \
                                                                                \
     /* Add child to the base's run-time selection tabe */                      \
     namespace ns {                                                             \
-    baseType<childTArg, 2>::                                                   \
-    adddictionaryConstructorToTable<childType<childTArg >>                     \
+    baseType<childTArg, nPhases>::                                             \
+    adddictionaryConstructorToTable<childType<childTArg, nPhases>>             \
     add##phaseType##TargName##argNames##ConstructorTo##baseType##Targ##Table_; \
     }
 
