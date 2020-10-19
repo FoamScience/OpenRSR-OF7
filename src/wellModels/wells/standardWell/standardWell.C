@@ -32,24 +32,24 @@ namespace wells
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-template<class RockType>
-standardWell<RockType>::standardWell
+template<class RockType, int nPhases>
+standardWell<RockType, nPhases>::standardWell
 (
     const word& name,
     const dictionary& wellDict,
     const RockType& rock,
-    HashTable<autoPtr<wellSource<RockType, 2>>>& sources,
+    HashTable<autoPtr<wellSource<RockType, nPhases>>>& sources,
     HashTable<fvScalarMatrix>& matTable
 )
 :
-    well<RockType, 2>(name, wellDict, rock, sources, matTable)
+    well<RockType, nPhases>(name, wellDict, rock, sources, matTable)
 {
 }
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-template<class RockType>
-standardWell<RockType>::~standardWell() {}
+template<class RockType, int nPhases>
+standardWell<RockType, nPhases>::~standardWell() {}
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

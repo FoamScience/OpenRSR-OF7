@@ -87,7 +87,7 @@ Foam::wellModel<RockType, nPhases>::wellModel
         sources_.insert
         (
             phaseNames_[pi],
-            wellSource<RockType, 2>::New
+            wellSource<RockType, nPhases>::New
             (
                 name+"."+phaseNames_[pi]+".sourceDescriber",
                 rock.mesh().template lookupObject<phase>(phaseNames_[pi]),
@@ -99,13 +99,14 @@ Foam::wellModel<RockType, nPhases>::wellModel
 
     // Initiate matrices for phases
     if (phaseNames_.size() != nPhases)
-        FatalErrorInFunction
-            << "Well model " << name << " expects two phase names but "
+        FatalIOErrorInFunction(transportProperties)
+            << "Well model " << name << " expects " << nPhases
+            << " phase names but "
             << phaseNames_.size() << " were supplied."
-            << nl << nl << exit(FatalError);
+            << nl << nl << exit(FatalIOError);
     forAll(phaseNames_, pi)
     {
-        matTable_.insert(phaseNames_[pi], fvScalarMatrix(p_, dimless));
+        matTable_.insert(phaseNames_[pi], fvScalarMatrix(p_,dimVolume/dimTime));
     }
 
     // Instantiate well objects (Should be last thing to do)
