@@ -23,7 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "peacemanWellSource.H"
+#include "peacemanWellSourceCore.H"
 #include "sourceProperties.H"
 
 namespace Foam 
@@ -34,7 +34,7 @@ namespace wellSources
 // * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * * //
 
 template<>
-void peacemanWellSource<iRock>::estimateEquivRadius
+inline void peacemanWellSourceCore<iRock>::estimateEquivRadius
 (
     const labelList& cellIDs,
     sourceProperties& srcProps
@@ -63,7 +63,7 @@ void peacemanWellSource<iRock>::estimateEquivRadius
 }
 
 template<>
-void peacemanWellSource<iRock>::calculateWellIndex
+inline void peacemanWellSourceCore<iRock>::calculateWellIndex
 (
     const labelList& cellIDs,
     sourceProperties& srcProps
@@ -80,7 +80,7 @@ void peacemanWellSource<iRock>::calculateWellIndex
     {
         label cellID = cellIDs[ci];
         J[ci] =
-           2 * constant::mathematical::pi * this->rock_.K()[cellID] 
+           2 * constant::mathematical::pi * rock_.K()[cellID] 
            * h_[ci][id]
            / (log(re_[ci]/srcProps.radius().value()) + srcProps.skin());
     }

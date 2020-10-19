@@ -7,6 +7,8 @@
 #include "volFieldsFwd.H"
 #include "driveHandler.H"
 #include "IOmanip.H"
+#include "relPermModel.H"
+#include "capPressModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

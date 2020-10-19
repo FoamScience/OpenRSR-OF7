@@ -23,12 +23,19 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "peacemanWellSource.H"
+#include "peacemanWellSourceCore.H"
+#include "singlePhasePeacemanWellSource.H"
+#include "twoPhasePeacemanWellSource.H"
+#include "wellSource.H"
 
 namespace Foam {
 
-maketwoPhaseTemplatedWellSource
-    (wellSource, peacemanWellSource, Iso2, wellSources, iRock);
+template class wellSources::peacemanWellSourceCore<iRock>;
+
+makeTemplatedWellSource
+    (wellSource, singlePhasePeacemanWellSource, Iso1, wellSources, 1, iRock);
+makeTemplatedWellSource
+    (wellSource, twoPhasePeacemanWellSource, Iso2, wellSources, 2, iRock);
 }
 
 

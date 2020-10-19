@@ -22,23 +22,27 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::wellSources::peacemanWellSource
+    Foam::wellSources::twoPhasePeacemanWellSource
 
 Description
-    Peaceman's description for the relationship q = f(p) in a square grid:
-    q_ = J*kr/mu(BHP - p_ - gamma (BHZ - z))
+    Peaceman's description for the relationship q = f(p) in a square grid
+    for two phase flow:
+    q_ = kr*J/mu(BHP - p_ - gamma (BHZ - z))
 
 SourceFiles
-    peacemanWellSource.C
+    twoPhasePeacemanWellSource.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef peacemanWellSource_H
-#define peacemanWellSource_H
+#ifndef twoPhasePeacemanWellSource_H
+#define twoPhasePeacemanWellSource_H
 
 #include "dimensionedScalarFwd.H"
 #include "sourceProperties.H"
 #include "wellSource.H"
+#include "peacemanWellSourceCore.H"
+#include "relPermModel.H"
+#include "capPressModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -49,47 +53,25 @@ namespace wellSources
 {
 
 /*---------------------------------------------------------------------------*\
-                        Class peacemanWellSource Declaration
+                        Class twoPhasePeacemanWellSource Declaration
 \*---------------------------------------------------------------------------*/
 
 template<class RockType>
-class peacemanWellSource
+class twoPhasePeacemanWellSource
 :
-    public wellSource<RockType, 2>
+    public wellSource<RockType, 2>,
+    public peacemanWellSourceCore<RockType>
 {
-
 protected:
 
-    // Protected data members
+    // Protected Data Members
 
-        //- Cell size in the 3 directions
-        mutable List<vector> h_;
+        //- Const-access to Kr model which is directly responsible for phase kr
+        const relPermModel<RockType, 2>& krModel_;
 
-        //- Cell sizes already estimated ?
-        mutable bool estimatedH_;
-
-        //- Equivalent radius
-        mutable scalarList re_; 
-
-    // Protected Member functions
-
-        //- Estimate cell sizes
-        void estimateCellSizes( const labelList& cellIDs );
-
-        //- Estimate requivalent radius
-        void estimateEquivRadius
-        (
-            const labelList& cellIDs,
-            sourceProperties& srcProps
-        );
-
-        //- Calculate Well index
-        void calculateWellIndex
-        (
-            const labelList& cellIDs,
-            sourceProperties& srcProps
-        );
-
+        //- Const-access to Pc model which is directly responsible for pc
+        const capPressModel<RockType, 2>& pcModel_;
+        
 
 public:
 
@@ -99,7 +81,7 @@ public:
     // Constructors
 
         // Construct from components
-        peacemanWellSource
+        twoPhasePeacemanWellSource
         (
             const word& name,
             const phase& attachedPhase,
@@ -108,10 +90,10 @@ public:
         );
 
         // Construct from copy
-        peacemanWellSource(const peacemanWellSource&) = delete;
+        twoPhasePeacemanWellSource(const twoPhasePeacemanWellSource&) = delete;
 
 	// Destructor
-	virtual ~peacemanWellSource();
+	virtual ~twoPhasePeacemanWellSource();
 
     // Member Functions
 
@@ -143,7 +125,10 @@ public:
     // Member operators
 
         //- Disallow default bitwise assignment
-        peacemanWellSource& operator=(const peacemanWellSource&) = delete;
+        twoPhasePeacemanWellSource& operator=
+        (
+            const twoPhasePeacemanWellSource&
+        ) = delete;
 };
 
 
@@ -156,7 +141,7 @@ public:
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #ifdef NoRepository
-    #include "peacemanWellSource.C"
+    #include "twoPhasePeacemanWellSource.C"
 #endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

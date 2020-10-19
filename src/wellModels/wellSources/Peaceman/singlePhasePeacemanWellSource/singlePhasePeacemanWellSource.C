@@ -25,7 +25,7 @@ License
 
 #include "error.H"
 #include "mathematicalConstants.H"
-#include "peacemanWellSource.H"
+#include "singlePhasePeacemanWellSource.H"
 #include "sourceProperties.H"
 
 namespace Foam 
@@ -36,7 +36,7 @@ namespace wellSources
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 template<class RockType>
-peacemanWellSource<RockType>::peacemanWellSource
+singlePhasePeacemanWellSource<RockType>::singlePhasePeacemanWellSource
 (
     const word& name,
     const phase& attachedPhase,
@@ -44,120 +44,58 @@ peacemanWellSource<RockType>::peacemanWellSource
     const RockType& rock
 )
 :
-    wellSource<RockType, 2>(name, attachedPhase, wellSourceDict, rock),
-    h_(),
-    estimatedH_(false),
-    re_()
+    wellSource<RockType, 1>(name, attachedPhase, wellSourceDict, rock),
+    peacemanWellSourceCore<RockType>(name, attachedPhase, wellSourceDict, rock)
 {
 }
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
 template<class RockType>
-peacemanWellSource<RockType>::~peacemanWellSource() {}
-
-// * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * * //
-
-template<class RockType>
-void peacemanWellSource<RockType>::estimateCellSizes(const labelList& cellIDs)
-{
-    h_.resize(cellIDs.size());
-    // First estimate cell sizes
-    forAll(h_, ci)
-    {
-        const label& cellID = cellIDs[ci];
-        const fvMesh& mesh = this->rock_.mesh();
-        const labelList& cellEdges = mesh.cellEdges()[cellID];
-
-        scalarList dEdgesAlongX(cellEdges.size());
-        scalarList dEdgesAlongY(cellEdges.size());
-        scalarList dEdgesAlongZ(cellEdges.size());
-
-        forAll(cellEdges, edgei){
-            dEdgesAlongX[edgei] = 
-                mag( mesh.edges()[cellEdges[edgei]].vec(mesh.points()).x() );
-            dEdgesAlongY[edgei] = 
-                mag( mesh.edges()[cellEdges[edgei]].vec(mesh.points()).y() );
-            dEdgesAlongZ[edgei] = 
-                mag( mesh.edges()[cellEdges[edgei]].vec(mesh.points()).z() );
-        }
-        h_[ci].x() = gMax(dEdgesAlongX);
-        h_[ci].y() = gMax(dEdgesAlongY);
-        h_[ci].z() = gMax(dEdgesAlongZ);
-    }
-    estimatedH_ = true;
-}
-
-template<class RockType>
-void peacemanWellSource<RockType>::estimateEquivRadius
-(
-    const labelList& cellIDs,
-    sourceProperties& srcProps
-)
-{
-    // Equivalent radius depends on Rock Type and well direction;
-    // So, do not implement the generale case and rely on partial
-    // specializations
-    NotImplemented;
-}
-
-template<class RockType>
-void peacemanWellSource<RockType>::calculateWellIndex
-(
-    const labelList& cellIDs,
-    sourceProperties& srcProps
-)
-{
-    // Well index depends on equivalent radius
-    NotImplemented;
-}
+singlePhasePeacemanWellSource<RockType>::~singlePhasePeacemanWellSource() {}
 
 // * * * * * * * * * * * * * Public Member Functions * * * * * * * * * * * * //
 
 template<class RockType>
-void peacemanWellSource<RockType>::calculateCoeff0
+void singlePhasePeacemanWellSource<RockType>::calculateCoeff0
 (
     scalarList &coeff0,
     sourceProperties& srcProps,
     const labelList& cellIDs
 )
 {
-    word krName = relPermModel<RockType,2>::krName(this->phase_.name());
-    const auto& kr = this->krModel_[krName];
     const auto& mu = this->phase_.mu();
 
-    calculateWellIndex(cellIDs, srcProps);
+    this->calculateWellIndex(cellIDs, srcProps);
     coeff0.resize(srcProps.wellIndex().size());
     forAll(coeff0, ci)
     {
         const label cellID = cellIDs[ci];
-        coeff0[ci] = - srcProps.wellIndex()[ci] * kr[cellID] / mu[cellID];
+        coeff0[ci] = - srcProps.wellIndex()[ci] / mu[cellID];
     }
 }
 
 template<class RockType>
-void peacemanWellSource<RockType>::calculateCoeff1
+void singlePhasePeacemanWellSource<RockType>::calculateCoeff1
 (
     scalarList &coeff1,
     sourceProperties& srcProps,
     const labelList& cellIDs
 )
 {
-    word krName = relPermModel<RockType,2>::krName(this->phase_.name());
-    const auto& kr = this->krModel_[krName];
     const auto& mu = this->phase_.mu();
 
-    calculateWellIndex(cellIDs, srcProps);
+    this->calculateWellIndex(cellIDs, srcProps);
     coeff1.resize(srcProps.wellIndex().size());
     forAll(coeff1, ci)
     {
         const label cellID = cellIDs[ci];
-        coeff1[ci] = srcProps.wellIndex()[ci] * kr[cellID] / mu[cellID];
+        coeff1[ci] = srcProps.wellIndex()[ci] / mu[cellID];
     }
 }
 
 template<class RockType>
-void peacemanWellSource<RockType>::calculateCoeff2
+void singlePhasePeacemanWellSource<RockType>::calculateCoeff2
 (
     scalarList &coeff2,
     sourceProperties& srcProps,
@@ -166,7 +104,7 @@ void peacemanWellSource<RockType>::calculateCoeff2
 {
     //const auto& rho = this->phase_.rho();
 
-    calculateWellIndex(cellIDs, srcProps);
+    this->calculateWellIndex(cellIDs, srcProps);
     coeff2.resize(srcProps.wellIndex().size());
     // TODO: Add gravity support
     forAll(coeff2, ci)
@@ -180,7 +118,5 @@ void peacemanWellSource<RockType>::calculateCoeff2
 } // End namespace wellSources
 
 } // End namespace Foam
-
-#include "peacemanWellSourceIsoSpec.C"
 
 // ************************************************************************* //

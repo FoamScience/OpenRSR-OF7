@@ -3,6 +3,8 @@
 #include "fvCFD.H"
 #include "wellModel.H"
 #include "volFieldsFwd.H"
+#include "relPermModel.H"
+#include "capPressModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

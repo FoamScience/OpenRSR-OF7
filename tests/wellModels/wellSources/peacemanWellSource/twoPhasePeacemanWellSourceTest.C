@@ -5,6 +5,8 @@
 #include "fvCFD.H"
 #include "wellSource.H"
 #include "volFieldsFwd.H"
+#include "relPermModel.H"
+#include "capPressModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
