@@ -37,6 +37,7 @@ SourceFiles
 #define rock_H
 
 #include "DimensionedField.H"
+#include "VolatileDimensionedField.H"
 #include "GeometricField.H"
 #include "regIOobject.H"
 #include "IsotropyTypes.H"
@@ -77,29 +78,25 @@ protected:
         //- Const access to the mesh
         const fvMesh& mesh_;
 
-        //- Initial porosity
-        dimensionedScalar poroInit_;
-
-        //- Initial Permeability
-        dimensioned<KcmptType> permInit_;
-
-        //- Initial Compressibility
-        dimensionedScalar compInit_;
-
         //- Is the rock compressible
         bool isIncompressible_;
 
-        //- Mesh for viscosity field
+        //- scalar values for rock properties (Used Internally)
+        dimensionedScalar poroInit_;
+        dimensionedScalar compInit_;
+        dimensioned<KcmptType> permInit_;
+
+        //- A pointer to a single-cell mesh
         autoPtr<singleCellFvMesh> oneCellMesh_;
 
         //- Rock porosity field
-        DimensionedField<scalar, volMesh> porosity_;
+        VolatileDimensionedField<scalar, volMesh> porosity_;
+
+        //- Rock Compressibility field
+        VolatileDimensionedField<scalar, volMesh> c_;
 
         //- Rock absolute-permeability field
         PermeabilityType K_;
-
-        //- Rock Compressibility field
-        DimensionedField<scalar, volMesh> c_;
 
 public:
 
