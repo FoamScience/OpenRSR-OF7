@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     | Website:  https://openfoam.orgfavorable texture is depicted by favorable texture is depicted by packaging of packaging of
+   \\    /   O peration     | Website:  https://openfoam.org
     \\  /    A nd           | Copyright (C) 2011-2019 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
@@ -41,7 +41,6 @@ SourceFiles
 #include "GeometricField.H"
 #include "regIOobject.H"
 #include "IsotropyTypes.H"
-#include "singleCellFvMesh.H"
 #include "volFieldsFwd.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -86,14 +85,11 @@ protected:
         dimensionedScalar compInit_;
         dimensioned<KcmptType> permInit_;
 
-        //- A pointer to a single-cell mesh
-        autoPtr<singleCellFvMesh> oneCellMesh_;
-
         //- Rock porosity field
-        VolatileDimensionedField<scalar, volMesh> porosity_;
+        volScalarField porosity_;
 
         //- Rock Compressibility field
-        VolatileDimensionedField<scalar, volMesh> c_;
+        volScalarField c_;
 
         //- Rock absolute-permeability field
         PermeabilityType K_;
