@@ -109,10 +109,10 @@ protected:
         //- Well index
         scalarList J_;
 
-    // Protected Member Functions
+        //- Injection phase name
+        word injPhase_;
 
-        //- Operation mode sign to use in calculations
-        inline label operationSign() const;
+    // Protected Member Functions
 
         //- Calculate total well cells volume across processes
         inline void cellsVolume();
@@ -213,6 +213,15 @@ public:
     scalarList& wellIndex() {
         return J_;
     }
+
+    //- Return injection phase name
+    const word& injPhase() const 
+    {
+        return injPhase_;
+    }
+
+    //- Operation mode sign to use in calculations
+    inline label operationSign() const;
 
     //- Return lowest cell index and on which process it belongs to
     //  (according to well orientation)

@@ -98,9 +98,6 @@ protected:
         //- Well groups
         wordList wellGroups_;
 
-        //- Injection phase name
-        word injPhase_;
-
         //- Well perforation intervals
         PtrList<topoSetSource> perfos_;
 
@@ -196,7 +193,7 @@ public:
         //- Return injection phase name
         const word& injPhase() const 
         {
-            return injPhase_;
+            return srcProps_.injPhase();
         }
 
         //- Return operation mode

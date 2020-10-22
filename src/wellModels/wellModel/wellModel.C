@@ -24,6 +24,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ListOps.H"
+#include "fvMatricesFwd.H"
 #include "wellModel.H"
 #include <set>
 
@@ -192,6 +193,35 @@ void Foam::wellModel<RockType, nPhases>::createWells()
             )
         );
     }
+}
+
+// * * * * * * * * * * * * * Public Member Functions  * * * * * * * * * * * * //
+
+template<class RockType, int nPhases>
+Foam::tmp<Foam::scalarField>
+Foam::wellModel<RockType, nPhases>::explicitSource
+(
+    const word& phase
+) const
+{
+    const fvScalarMatrix& mT = matTable_[phase];
+    if (mT.diagonal())
+    {
+        return mT.diag()*p_.internalField() + mT.source();
+    }
+    //NOTE: Need to const_cast because mT.boundaryCoeffs is not const
+    //      for some reason
+    mT.residual();
+    scalarField Ap(p_.mesh().nCells());
+    mT.Amul
+    (
+        Ap,
+        p_,
+        const_cast<fvScalarMatrix&>(mT).boundaryCoeffs(),
+        p_.boundaryField().scalarInterfaces(),
+        0
+    );
+    return Ap + mT.source();
 }
 
 // ************************************************************************* //

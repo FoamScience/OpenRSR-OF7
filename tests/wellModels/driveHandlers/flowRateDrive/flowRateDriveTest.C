@@ -54,6 +54,11 @@ matrix lduMatrixToSparse(const fvMesh& mesh, fvScalarMatrix& mat)
     //    }
     //    Info << nl ;
     //}
+    //Info << nl;
+    //for (unsigned i = 0; i < mesh.nCells(); ++i) {
+    //Info << mat.source()[i] << setw(10);
+    //}
+    Info << nl << endl;
     return fmat;
 }
 };
@@ -183,7 +188,8 @@ SCENARIO("Imposed Phase-flowrate for a well", "[Virtual]")
         );
         srcPropsDict.add<scalar>("skin", 2);
         srcPropsDict.add<word>("orientation", "vertical");
-        srcPropsDict.add<word>("operationMode", "production");
+        srcPropsDict.add<word>("operationMode", "injection");
+        srcPropsDict.add<word>("injectedPhase", "water");
 
         // The cell and face sets
         cellSet cSet(mesh, "cSet", 8);
@@ -219,7 +225,7 @@ SCENARIO("Imposed Phase-flowrate for a well", "[Virtual]")
             dH->correct();
             matrix mat = lduMatrixToSparse(mesh, matTable["water"]);
 
-            THEN("coeff0 values must be consistent with peaceman's expression")
+            THEN("Well Matrix for a phase must be consistent with expected one")
             {
                 // Construct the reference matrix
                 matrix expectedMat

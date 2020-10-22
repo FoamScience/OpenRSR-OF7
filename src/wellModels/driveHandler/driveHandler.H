@@ -31,6 +31,7 @@ Description
     - Figure out the coefficients a, b and c in the relationship:
       $\f q = ap + b BHP + c\f$ for each phase (p is the canonical pressure)
       for a well *when* a parameter is imposed.
+    - Take into account the well's operation mode
 
 SourceFiles
     driveHandler.C

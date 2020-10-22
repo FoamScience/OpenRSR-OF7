@@ -84,12 +84,6 @@ Foam::well<RockType, nPhases>::well
     (
         wellDict.lookupOrDefault<wordList>("groups", wordList(1, "defaultGrp"))
     ),
-    injPhase_
-    (
-     operation() == sourceProperties::operationHandling::injection
-     ? wellDict.lookupOrDefault<word>("injectedPhase", "water")
-     : "none"
-    ),
     perfos_(),
     drives_(),
     wellSet_

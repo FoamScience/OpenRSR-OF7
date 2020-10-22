@@ -34,10 +34,14 @@ License
 namespace Foam
 {
 
+// Public Inline member functions
+
 inline Foam::label Foam::sourceProperties::operationSign() const
 {
-    return  operation_ == operationHandling::production ? 1 : -1;
+    return  operation_ == operationHandling::production ? -1 : 1;
 }
+
+// Protected Inline member functions
 
 inline void Foam::sourceProperties::cellsVolume()
 {
