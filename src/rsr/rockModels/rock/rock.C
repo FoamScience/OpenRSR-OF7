@@ -87,13 +87,13 @@ Foam::rock<PermeabilityType>::rock
     (
         rockDict_.found("porosity")
         ? dimensionedScalar("porosity", dimless, rockDict_)
-        : dimensionedScalar("porosity", dimless, -1)
+        : dimensionedScalar("porosity", dimless, 1)
     ),
     compInit_
     (
         rockDict_.found("compressibility")
         ? dimensionedScalar("compressibility", dimless/dimPressure, rockDict_)
-        : dimensionedScalar("compressibility", dimless/dimPressure, -1)
+        : dimensionedScalar("compressibility", dimless/dimPressure, 0)
     ),
     permInit_
     (
@@ -102,128 +102,47 @@ Foam::rock<PermeabilityType>::rock
         : dimensioned<KcmptType>
           ("permeability", dimArea, static_cast<KcmptType>(Zero))
     ),
-    oneCellMesh_
-    (
-        ( compInit_.value() == 0 and poroInit_.value() == 0 )
-        ? nullptr
-        : new singleCellFvMesh
-        (
-            IOobject
-            (
-                name+".oneCellMesh",
-                mesh.polyMesh::instance(),
-                mesh.time(),
-                IOobject::NO_READ,
-                IOobject::NO_WRITE
-            ),
-            mesh
-        )
-    ),
     porosity_
     (
-        poroInit_.value() == -1
-        ?   // If no single value is provided in dict
-            std::move
-            (
-             VolatileDimensionedField<scalar,volMesh>
-                (
-                    IOobject
-                    (
-                        name+".porosity",
-                        mesh.time().timeName(),
-                        mesh,
-                        IOobject::MUST_READ,
-                        IOobject::AUTO_WRITE
-                    ),
-                    mesh
-                )
-            )
-        :   // If a single value is provided
-            std::move
-            (
-             VolatileDimensionedField<scalar,volMesh>
-                (
-                    IOobject
-                    (
-                        name+".porosity",
-                        mesh.time().timeName(),
-                        mesh,
-                        IOobject::READ_IF_PRESENT,
-                        IOobject::AUTO_WRITE
-                    ),
-                    oneCellMesh_,
-                    poroInit_
-                )
-            )
+        IOobject
+        (
+            name+".porosity",
+            mesh.time().timeName(),
+            mesh,
+            IOobject::READ_IF_PRESENT,
+            IOobject::AUTO_WRITE
+        ),
+        mesh_,
+        poroInit_,
+        "zeroGradient"
     ),
     c_
     (
-        compInit_.value() == -1
-        ?   // If no single value is provided in dict
-            std::move
-            (
-             VolatileDimensionedField<scalar,volMesh>
-                (
-                    IOobject
-                    (
-                        name+".compressibility",
-                        mesh.time().timeName(),
-                        mesh,
-                        IOobject::MUST_READ,
-                        IOobject::AUTO_WRITE
-                    ),
-                    mesh
-                )
-            )
-        :   // If a single value is provided
-            std::move
-            (
-             VolatileDimensionedField<scalar,volMesh>
-                (
-                    IOobject
-                    (
-                        name+".compressibility",
-                        mesh.time().timeName(),
-                        mesh,
-                        IOobject::READ_IF_PRESENT,
-                        IOobject::AUTO_WRITE
-                    ),
-                    oneCellMesh_,
-                    compInit_
-                )
-            )
+        IOobject
+        (
+            name+".compressibility",
+            mesh.time().timeName(),
+            mesh,
+            IOobject::READ_IF_PRESENT,
+            IOobject::AUTO_WRITE
+        ),
+        mesh_,
+        compInit_,
+        "zeroGradient"
     ),
     K_
     (
-        permInit_.value() == static_cast<KcmptType>(Zero)
-        ?
-            PermeabilityType
-            (
-                IOobject
-                (
-                    name+".permeability",
-                    mesh.time().timeName(),
-                    mesh,
-                    IOobject::MUST_READ,
-                    IOobject::AUTO_WRITE
-                ),
-                mesh
-            )
-        :
-            PermeabilityType
-            (
-                IOobject
-                (
-                    name+".permeability",
-                    mesh.time().timeName(),
-                    mesh,
-                    IOobject::READ_IF_PRESENT,
-                    IOobject::AUTO_WRITE
-                ),
-                mesh_,
-                permInit_,
-                "zeroGradient"
-            )
+        IOobject
+        (
+            name+".permeability",
+            mesh.time().timeName(),
+            mesh,
+            IOobject::READ_IF_PRESENT,
+            IOobject::AUTO_WRITE
+        ),
+        mesh_,
+        permInit_,
+        "zeroGradient"
     )
 {
 }
@@ -243,7 +162,6 @@ Foam::rock<PermeabilityType>::rock
     poroInit_(rk.poroInit_),
     compInit_(rk.compInit_),
     permInit_(rk.permInit_),
-    oneCellMesh_(rk.oneCellMesh_),
     porosity_(rk.porosity_),
     c_(rk.c_),
     K_(rk.K_)
