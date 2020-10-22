@@ -62,7 +62,13 @@ Foam::sourceProperties::sourceProperties
     (
         readScalar(wellDict.lookup("skin"))
     ),
-    J_()
+    J_(),
+    injPhase_
+    (
+     operation_ == operationHandling::injection
+     ? word(wellDict.lookup("injectedPhase"))
+     : "none"
+    )
 {
     cellsVolume();
     if (cells_.empty())

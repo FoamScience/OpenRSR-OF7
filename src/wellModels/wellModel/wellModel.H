@@ -172,14 +172,11 @@ public:
             return wells_;
         }
 
-        ////- Return explicit portion of the source for given phase
-        //const scalarField& sourceExplicitPart(const word& phase) const;
-
-        ////- Return implicit portion of the source for given phase
-        //const scalarField& sourceImplicitPart(const word& phase) const;
+        //- Return explicit representation of the phase matrix
+        tmp<scalarField> explicitSource(const word& phase) const;
 
         //- Return Full source matrix for given phase
-        tmp<fvScalarMatrix> source(const word& phase) const
+        const fvScalarMatrix& source(const word& phase) const
         {
             return matTable_[phase];
         }

@@ -26,7 +26,7 @@ Class
 
 Description
     Peaceman's description for the relationship q = f(p) in a square grid
-    for single phase flow:
+    for single phase flow in a producer:
     q_ = J/mu(BHP - p_ - gamma (BHZ - z))
 
 SourceFiles
