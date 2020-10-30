@@ -73,11 +73,15 @@ Foam::phases::blackoilPhase::~blackoilPhase()
 
 void Foam::phases::blackoilPhase::correct()
 {
+    if (BModel_->isIncompressible()) return;
     // Correct FVFModel
     BModel_->correct();
 
     // Update current density
-    rho_ = rhoSc_*BModel_->rFVF();
+    forAll(rho_.internalField(), ci)
+    {
+        rho_[ci] = rhoSc_.value()*BModel_->rFVF()[ci];
+    }
 
     // Reconstruct velocity to reflect flux
     U_ = fvc::reconstruct(phi());
