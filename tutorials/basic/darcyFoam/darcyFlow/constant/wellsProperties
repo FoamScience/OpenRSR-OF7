@@ -1,0 +1,48 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  7
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      transportProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+wellModel           Peaceman;
+wellSourceConfigs
+{
+    wellSourceType  $wellModel;
+}
+
+wells
+(
+    PROD0
+    {
+        orientation         vertical;
+        operationMode       production;
+        injectedPhase       water;
+        radius              0.3;
+        skin                2;
+        perforations
+        (
+            labelToCell { value (230 280 330 /*380 430 480*/); }
+        );
+        imposedDrives
+        (
+            flowRate
+            {
+                phase "water";
+                file  "water.rate.dat";
+            }
+        );
+    }
+);
+
+// ************************************************************************* //
