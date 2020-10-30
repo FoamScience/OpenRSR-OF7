@@ -78,21 +78,21 @@ krBrooksCorey<RockType>::krBrooksCorey
     ),
     Scr0_
     (
-        this->canonicalPhases_[0]+".alphaIrr",
-        this->krDict_.template lookupOrAddDefault<dimensionedScalar>
+        this->krDict_.found(this->canonicalPhases_[0]+".alphaIrr")
+        ? dimensionedScalar
         (
-            this->canonicalPhases_[0]+".alphaIrr",
-            dimensionedScalar(this->canonicalPhases_[0]+".alphaIrr", -1)
+            this->canonicalPhases_[0]+".alphaIrr", dimless, this->krDict_
         )
+        : dimensionedScalar(this->canonicalPhases_[0]+".alphaIrr", dimless, -1)
     ),
     Sor0_
     (
-        otherPhase_+".alphaRes",
-        this->krDict_.template lookupOrAddDefault<dimensionedScalar>
+        this->krDict_.found(otherPhase_+".alphaRes")
+        ? dimensionedScalar
         (
-            otherPhase_+".alphaRes",
-            dimensionedScalar(otherPhase_+".alphaRes", -1)
+            otherPhase_+".alphaRes", dimless, this->krDict_
         )
+        : dimensionedScalar(otherPhase_+".alphaRes", dimless, -1)
     ),
     Scr_
     (
@@ -126,21 +126,21 @@ krBrooksCorey<RockType>::krBrooksCorey
     ),
     mc0_
     (
-        this->canonicalPhases_[0]+".m",
-        this->krDict_.template lookupOrAddDefault<dimensionedScalar>
+        this->krDict_.found(this->canonicalPhases_[0]+".m")
+        ? dimensionedScalar
         (
-            this->canonicalPhases_[0]+".m",
-            dimensionedScalar(this->canonicalPhases_[0]+".m", -1)
+            this->canonicalPhases_[0]+".m", dimless, this->krDict_
         )
+        : dimensionedScalar(this->canonicalPhases_[0]+".m", dimless, -1)
     ),
     mo0_
     (
-        otherPhase_+".m",
-        this->krDict_.template lookupOrAddDefault<dimensionedScalar>
+        this->krDict_.found(otherPhase_+".m")
+        ? dimensionedScalar
         (
-            otherPhase_+".m",
-            dimensionedScalar(otherPhase_+".m", -1)
+        otherPhase_+".m", dimless, this->krDict_
         )
+        : dimensionedScalar(otherPhase_+".m", dimless, -1)
     ),
     mc_
     (
@@ -174,21 +174,21 @@ krBrooksCorey<RockType>::krBrooksCorey
     ),
     krcMax0_
     (
-        this->canonicalPhases_[0]+".krMax",
-        this->krDict_.template lookupOrAddDefault<dimensionedScalar>
+        this->krDict_.found(this->canonicalPhases_[0]+".krMax")
+        ? dimensionedScalar
         (
-            this->canonicalPhases_[0]+".krMax",
-            dimensionedScalar(this->canonicalPhases_[0]+".krMax", -1)
+            this->canonicalPhases_[0]+".krMax", dimless, this->krDict_
         )
+        : dimensionedScalar(this->canonicalPhases_[0]+".krMax", dimless, -1)
     ),
     kroMax0_
     (
-        otherPhase_+".krMax",
-        this->krDict_.template lookupOrAddDefault<dimensionedScalar>
+        this->krDict_.found(otherPhase_+".krMax")
+        ? dimensionedScalar
         (
-            otherPhase_+".krMax",
-            dimensionedScalar(otherPhase_+".krMax", -1)
+        otherPhase_+".krMax", dimless, this->krDict_
         )
+        : dimensionedScalar(otherPhase_+".krMax", dimless, -1)
     ),
     krcMax_
     (
@@ -236,12 +236,12 @@ template<class RockType>
 void krBrooksCorey<RockType>::correct()
 {
     // Refs to kr fields
-    auto& kr1 = this->krTable_[this->krName(this->canonicalPhases_[0])];
-    auto& kr2 = this->krTable_[this->krName(otherPhase_)];
-    auto& dkr1 = this->krTable_
-        [this->dkrName(this->canonicalPhases_[0], this->canonicalPhases_[0])];
-    auto& dkr2 = this->krTable_
-        [this->dkrName(otherPhase_, this->canonicalPhases_[0])];
+    auto& kr1 = this->operator[](this->krName(this->canonicalPhases_[0]));
+    auto& kr2 = this->operator[](this->krName(otherPhase_));
+    auto& dkr1 = this->operator[]
+        (this->dkrName(this->canonicalPhases_[0], this->canonicalPhases_[0]));
+    auto& dkr2 = this->operator[]
+        (this->dkrName(otherPhase_, this->canonicalPhases_[0]));
 
     forAll(alpha_.internalField(), ci)
     {

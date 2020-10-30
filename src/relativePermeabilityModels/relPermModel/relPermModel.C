@@ -23,6 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+#include "error.H"
 #include "regIOobject.H"
 #include "relPermModel.H"
 
@@ -196,7 +197,7 @@ Foam::relPermModel<RockType, nPhases>::relPermModel
         krTable_.insert
         (
             krName(phaseNames_[pi]),
-            DimensionedField<scalar, volMesh>
+            new volScalarField
             (
                 IOobject
                 (
@@ -204,10 +205,11 @@ Foam::relPermModel<RockType, nPhases>::relPermModel
                     rock.mesh().time().timeName(),
                     rock.mesh(),
                     IOobject::READ_IF_PRESENT,
-                    IOobject::NO_WRITE
+                    IOobject::AUTO_WRITE
                 ),
                 rock.mesh(),
-                dimensionedScalar("kr", 1)
+                dimensionedScalar("kr", dimless, 1),
+                "zeroGradient"
             )
         );
         forAll(canonicalPhases_, ci)
@@ -215,7 +217,7 @@ Foam::relPermModel<RockType, nPhases>::relPermModel
             krTable_.insert
             (
                 dkrName(phaseNames_[pi], canonicalPhases_[ci]),
-                DimensionedField<scalar, volMesh>
+                new volScalarField
                 (
                     IOobject
                     (
@@ -226,7 +228,8 @@ Foam::relPermModel<RockType, nPhases>::relPermModel
                         IOobject::NO_WRITE
                     ),
                     rock.mesh(),
-                    dimensionedScalar("kr", 0)
+                    dimensionedScalar("kr", dimless, 0),
+                    "zeroGradient"
                 )
             );
         }
