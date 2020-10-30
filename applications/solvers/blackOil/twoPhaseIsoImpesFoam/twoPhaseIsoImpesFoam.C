@@ -25,12 +25,18 @@ Application
     impesFoam
 
 Description
-    Transient solver for two-phase flow in isotropic porous media using the
-    IMPES method 
+    Transient solver for incompressible two-phase flow (Darcy's law) in porous media
+    using the IMPES method (IMplicit Pressure Explicit Saturation).
+    Permeability is isotropic (K == volScalarField)
+
+Developers
+    P. Horgue, C. Soulaine, J. Franc, R. Guibert and G. Debenest
+    "An open-source toolbox for multiphase flow in porous media"
 
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
+#include "harmonic.H"
 #include "relPermModel.H"
 #include "capPressModel.H"
 #include "wellModel.H"
@@ -70,6 +76,7 @@ int main(int argc, char *argv[])
                     impes.deltaTFromAlphaEquation
                     (
                         phic,
+                        //scalarField(mesh.nCells(), 0),
                         wModel->explicitSource(canPhasePtr->name()),
                         porosity
                     ),
