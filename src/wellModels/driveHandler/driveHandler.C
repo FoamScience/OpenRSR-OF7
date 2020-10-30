@@ -35,7 +35,7 @@ Foam::driveHandler<RockType, nPhases>::New
     const dictionary& driveDict,
     wellSource<RockType, nPhases>& source,
     sourceProperties& srcProps,
-    HashTable<fvScalarMatrix>& matrices
+    HashPtrTable<fvScalarMatrix>& matrices
 )
 {
     const word modelType = driveDict.dictName();
@@ -68,7 +68,7 @@ Foam::driveHandler<RockType, nPhases>::driveHandler
     const dictionary& driveDict,
     wellSource<RockType, nPhases>& source,
     sourceProperties& srcProps,
-    HashTable<fvScalarMatrix>& matrices
+    HashPtrTable<fvScalarMatrix>& matrices
 )
 :
     name_(name),

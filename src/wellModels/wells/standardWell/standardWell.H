@@ -68,7 +68,7 @@ public:
             const dictionary& wellDict,
             const RockType& rock,
             HashTable<autoPtr<wellSource<RockType, nPhases>>>& sources,
-            HashTable<fvScalarMatrix>& matTable
+            HashPtrTable<fvScalarMatrix>& matTable
         );
 
         // Construct from copy

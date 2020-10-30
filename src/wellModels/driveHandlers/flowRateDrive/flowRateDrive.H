@@ -84,7 +84,7 @@ public:
             const dictionary& driveDict,
             wellSource<RockType, nPhases>& source,
             sourceProperties& srcProps,
-            HashTable<fvScalarMatrix>& matrices
+            HashPtrTable<fvScalarMatrix>& matrices
         );
 
         // Construct from copy

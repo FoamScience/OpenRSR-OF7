@@ -39,7 +39,7 @@ standardWell<RockType, nPhases>::standardWell
     const dictionary& wellDict,
     const RockType& rock,
     HashTable<autoPtr<wellSource<RockType, nPhases>>>& sources,
-    HashTable<fvScalarMatrix>& matTable
+    HashPtrTable<fvScalarMatrix>& matTable
 )
 :
     well<RockType, nPhases>(name, wellDict, rock, sources, matTable)

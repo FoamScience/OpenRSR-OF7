@@ -39,7 +39,7 @@ flowRateDrive<RockType, nPhases>::flowRateDrive
     const dictionary& driveDict,
     wellSource<RockType, nPhases>& source,
     sourceProperties& srcProps,
-    HashTable<fvScalarMatrix>& matrices
+    HashPtrTable<fvScalarMatrix>& matrices
 )
 :
     driveHandler<RockType,nPhases>(name, driveDict, source, srcProps, matrices),
@@ -64,7 +64,6 @@ flowRateDrive<RockType, nPhases>::~flowRateDrive() {}
 template<class RockType, int nPhases>
 void flowRateDrive<RockType, nPhases>::correct()
 {
-
     // Do nothing if this is an injector working on the wrong phase
     if
     (
@@ -81,8 +80,18 @@ void flowRateDrive<RockType, nPhases>::correct()
     const fvMesh& mesh = this->wellSource_.rock().mesh();
     const scalar& timeValue = mesh.time().timeOutputValue();
     const volScalarField& p = mesh.lookupObject<volScalarField>("p");
-    fvScalarMatrix& phEqn = this->matrices_[phase_];
+    fvScalarMatrix& phEqn = *(this->matrices_[phase_]);
     const label& opSign = this->srcProps_.operationSign();
+
+    // Get interpolated value for imposed phase flowrate
+    scalar qt = opSign*this->driveSeries_->interpolate(timeValue)[0];
+
+    // If well has one cell
+    if (this->cells_.size() == 1)
+    {
+        phEqn.source()[this->cells_[0]] += qt;
+        return;
+    }
 
     // Get well equation coefficients from well source describer
     this->wellSource_.calculateCoeff0
@@ -118,9 +127,6 @@ void flowRateDrive<RockType, nPhases>::correct()
     scalar cSum = sum(c);
     reduce(cSum, sumOp<scalar>());
     Pstream::scatter(cSum);
-
-    // Get interpolated value for imposed phase flowrate
-    scalar qt = opSign*this->driveSeries_->interpolate(timeValue)[0];
 
     // Loop through cells and add diagonal coeffs and matrix source
     forAll(this->cells_, ci)

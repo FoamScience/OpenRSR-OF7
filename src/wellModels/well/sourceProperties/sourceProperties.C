@@ -26,6 +26,11 @@ License
 #include "UniformDimensionedField.H"
 #include "sourceProperties.H"
 
+namespace Foam
+{
+    defineTypeNameAndDebug(sourceProperties, 0);
+}
+
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 Foam::sourceProperties::sourceProperties
@@ -71,7 +76,7 @@ Foam::sourceProperties::sourceProperties
     )
 {
     cellsVolume();
-    if (cells_.empty())
+    if (debug and cells_.empty())
     {
         WarningInFunction
             << "No cells in well set " << wellSet.name()
