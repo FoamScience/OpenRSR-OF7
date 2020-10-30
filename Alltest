@@ -15,6 +15,7 @@ check_errs()
 libs="rsr\
     relativePermeabilityModels\
     capillaryPressureModels\
+    wellModels\
     "
 root=$PWD
 

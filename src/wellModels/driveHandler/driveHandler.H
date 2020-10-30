@@ -41,9 +41,11 @@ SourceFiles
 #ifndef driveHandler_H
 #define driveHandler_H
 
+#include "fvMatricesFwd.H"
 #include "scalarList.H"
 #include "wellSource.H"
 #include "cellToFace.H"
+#include "HashPtrTable.H"
 #include "sourceProperties.H"
 #include "basicInterpolationTable.H"
 #include "addToTemplatedRunTimeSelection.H"
@@ -78,7 +80,7 @@ protected:
         sourceProperties& srcProps_;
 
         //- Access to per-phase source matrices
-        HashTable<fvScalarMatrix>& matrices_;
+        HashPtrTable<fvScalarMatrix>& matrices_;
 
         //- Well cells IDs (global)
         const labelList& cells_;
@@ -105,7 +107,7 @@ public:
             const dictionary& driveDict,
             wellSource<RockType, nPhases>& source,
             sourceProperties& srcProps,
-            HashTable<fvScalarMatrix>& matrices
+            HashPtrTable<fvScalarMatrix>& matrices
         ),
         (name, driveDict, source, srcProps, matrices)
     );
@@ -119,7 +121,7 @@ public:
             const dictionary& driveDict,
             wellSource<RockType, nPhases>& source,
             sourceProperties& srcProps,
-            HashTable<fvScalarMatrix>& matrices
+            HashPtrTable<fvScalarMatrix>& matrices
         );
 
         //- Construct from copy
@@ -137,7 +139,7 @@ public:
             const dictionary& driveDict,
             wellSource<RockType, nPhases>& source,
             sourceProperties& srcProps,
-            HashTable<fvScalarMatrix>& matrices
+            HashPtrTable<fvScalarMatrix>& matrices
         );
 
     // Member Functions

@@ -41,12 +41,14 @@ SourceFiles
 #ifndef wellModel_H
 #define wellModel_H
 
+#include "error.H"
 #include "fvMatricesFwd.H"
 #include "objectRegistry.H"
 #include "phase.H"
 #include "rock.H"
 #include "addToTemplatedRunTimeSelection.H"
 #include "volFieldsFwd.H"
+#include "HashPtrTable.H"
 #include "well.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -78,7 +80,10 @@ protected:
         //- Const access to the rock object
         const RockType& rock_;
 
-        //- Const access to main pressure field
+        //- Copy of the main pressure field
+        //  It looks like this would interfere with main equations
+        //  if it's a const ref
+        //const volScalarField& p_;
         const volScalarField& p_;
 
         //- List of pointers to well groups
@@ -88,7 +93,7 @@ protected:
         HashTable<autoPtr<wellSource<RockType, nPhases>>> sources_;
 
         //- Per-phase sources for all wells
-        HashTable<fvScalarMatrix> matTable_;
+        HashPtrTable<fvScalarMatrix> matTable_;
         
         //- List of poitners to wells
         PtrList<well<RockType, nPhases>> wells_;
@@ -101,6 +106,9 @@ protected:
 
         //- Create well objects
         void createWells();
+
+        //- Clear well matrices
+        void clearMatrices();
 
 public:
 
@@ -178,7 +186,7 @@ public:
         //- Return Full source matrix for given phase
         const fvScalarMatrix& source(const word& phase) const
         {
-            return matTable_[phase];
+            return *matTable_[phase];
         }
 
         //- Update well model sources

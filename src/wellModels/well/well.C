@@ -39,7 +39,7 @@ Foam::well<RockType, nPhases>::New
     const dictionary& wellDict,
     const RockType& rock,
     HashTable<autoPtr<wellSource<RockType, nPhases>>>& sources,
-    HashTable<fvScalarMatrix>& matTable
+    HashPtrTable<fvScalarMatrix>& matTable
 )
 {
     const word modelType = wellDict.lookupOrDefault<word>("type", "standard");
@@ -73,7 +73,7 @@ Foam::well<RockType, nPhases>::well
     const dictionary& wellDict,
     const RockType& rock,
     HashTable<autoPtr<wellSource<RockType, nPhases>>>& sources,
-    HashTable<fvScalarMatrix>& matTable
+    HashPtrTable<fvScalarMatrix>& matTable
 )
 :
     List<autoPtr<regIOobject> >(),
@@ -207,7 +207,7 @@ template<class RockType, int nPhases>
 void Foam::well<RockType, nPhases>::readImposedDrives
 (
     HashTable<autoPtr<wellSource<RockType, nPhases>>>& sources,
-    HashTable<fvScalarMatrix>& matTable
+    HashPtrTable<fvScalarMatrix>& matTable
 )
 {
     Info << tab << "Constructing drives for well: " << name_ << nl;

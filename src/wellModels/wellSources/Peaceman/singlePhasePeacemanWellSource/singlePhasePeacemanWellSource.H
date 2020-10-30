@@ -78,7 +78,10 @@ public:
         );
 
         // Construct from copy
-        singlePhasePeacemanWellSource(const singlePhasePeacemanWellSource&) = delete;
+        singlePhasePeacemanWellSource
+        (
+            const singlePhasePeacemanWellSource&
+        ) = delete;
 
 	// Destructor
 	virtual ~singlePhasePeacemanWellSource();

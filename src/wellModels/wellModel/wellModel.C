@@ -23,8 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "ListOps.H"
-#include "fvMatricesFwd.H"
+#include "volFieldsFwd.H"
 #include "wellModel.H"
 #include <set>
 
@@ -82,6 +81,7 @@ Foam::wellModel<RockType, nPhases>::wellModel
     matTable_(),
     wells_()
 {
+    Info << rock.mesh().template lookupClass<volScalarField>() << endl;
     // Initiate source describers
     forAll(phaseNames_, pi)
     {
@@ -105,11 +105,17 @@ Foam::wellModel<RockType, nPhases>::wellModel
             << " phase names but "
             << phaseNames_.size() << " were supplied."
             << nl << nl << exit(FatalIOError);
+    Info << p_.mesh().time().template lookupClass<volScalarField>() << endl;
     forAll(phaseNames_, pi)
     {
-        matTable_.insert(phaseNames_[pi], fvScalarMatrix(p_,dimVolume/dimTime));
+        matTable_.insert
+        (
+            phaseNames_[pi],
+            new fvScalarMatrix(p_,dimVolume/dimTime)
+        );
     }
 
+    Info << rock.mesh().template lookupClass<volScalarField>() << endl;
     // Instantiate well objects (Should be last thing to do)
     createWells();
 }
@@ -195,6 +201,20 @@ void Foam::wellModel<RockType, nPhases>::createWells()
     }
 }
 
+template<class RockType, int nPhases>
+void Foam::wellModel<RockType, nPhases>::clearMatrices()
+{
+    forAll(phaseNames_, pi)
+    {
+        matTable_.set
+        (
+            phaseNames_[pi],
+            new fvScalarMatrix(p_,dimVolume/dimTime)
+        );
+    }
+}
+
+
 // * * * * * * * * * * * * * Public Member Functions  * * * * * * * * * * * * //
 
 template<class RockType, int nPhases>
@@ -204,24 +224,31 @@ Foam::wellModel<RockType, nPhases>::explicitSource
     const word& phase
 ) const
 {
-    const fvScalarMatrix& mT = matTable_[phase];
+    const fvScalarMatrix& mT = *matTable_[phase];
+    scalarField res;
+
+    if (!mT.hasDiag())
+    {
+        res = mT.source();
+        return res;
+    }
+
     if (mT.diagonal())
     {
-        return mT.diag()*p_.internalField() + mT.source();
+        res = mT.diag()*p_.internalField() + mT.source();
+        return res;
     }
-    //NOTE: Need to const_cast because mT.boundaryCoeffs is not const
-    //      for some reason
-    mT.residual();
     scalarField Ap(p_.mesh().nCells());
     mT.Amul
     (
         Ap,
         p_,
-        const_cast<fvScalarMatrix&>(mT).boundaryCoeffs(),
+        FieldField<Field, scalar>(0), // Ignote boundary
         p_.boundaryField().scalarInterfaces(),
         0
     );
-    return Ap + mT.source();
+    res = Ap + mT.source();
+    return res;
 }
 
 // ************************************************************************* //

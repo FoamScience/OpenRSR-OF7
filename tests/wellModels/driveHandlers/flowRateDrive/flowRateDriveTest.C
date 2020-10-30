@@ -200,9 +200,9 @@ SCENARIO("Imposed Phase-flowrate for a well", "[Virtual]")
         fSrc.applyToSet(topoSetSource::ADD, fSet);
 
         sourceProperties wellProps(mesh, srcPropsDict, cSet, fSet);
-        HashTable<fvScalarMatrix> matTable;
-        matTable.insert("water", fvScalarMatrix(p, dimless));
-        matTable.insert("oil", fvScalarMatrix(p, dimless));
+        HashPtrTable<fvScalarMatrix> matTable;
+        matTable.insert("water", new fvScalarMatrix(p, dimless));
+        matTable.insert("oil", new fvScalarMatrix(p, dimless));
 
         WHEN("Phase flowRate driveHandler is constructed and calls correct()")
         {
@@ -223,7 +223,7 @@ SCENARIO("Imposed Phase-flowrate for a well", "[Virtual]")
             krModel->correct();
             pcModel->correct();
             dH->correct();
-            matrix mat = lduMatrixToSparse(mesh, matTable["water"]);
+            matrix mat = lduMatrixToSparse(mesh, *matTable["water"]);
 
             THEN("Well Matrix for a phase must be consistent with expected one")
             {
@@ -283,8 +283,8 @@ SCENARIO("Imposed Phase-flowrate for a well", "[Virtual]")
                     (
                         std::vector<scalar>
                         ( 
-                            matTable["water"].source().begin(),
-                            matTable["water"].source().end()
+                            (*matTable["water"]).source().begin(),
+                            (*matTable["water"]).source().end()
                         )
                     )
                 );

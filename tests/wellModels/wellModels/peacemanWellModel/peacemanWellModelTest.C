@@ -116,8 +116,6 @@ SCENARIO("Peaceman model for well source calculation", "[Virtual]")
             rkPtr()
         );
 
-        //FatalError.dontThrowExceptions();
-
         Info<< "Reading wellsProperties\n" << endl;
         IOdictionary wellsProperties
         (

@@ -56,11 +56,15 @@ peacemanWellModel<RockType, nPhases>::~peacemanWellModel() {}
 template<class RockType, int nPhases>
 void peacemanWellModel<RockType, nPhases>::correct()
 {
-    if (!this->wells_.empty())
-        forAll(this->wells_, wi)
-        {
-            this->wells_[wi].correct();
-        }
+    if (this->wells_.size() == 0)
+    {
+        return;
+    }
+    this->clearMatrices();
+    forAll(this->wells_, wi)
+    {
+        this->wells_[wi].correct();
+    }
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

@@ -44,6 +44,7 @@ SourceFiles
 #include "wellSource.H"
 #include "regIOobject.H"
 #include "driveHandler.H"
+#include "HashPtrTable.H"
 #include "topoSetSource.H"
 #include "sourceProperties.H"
 #include "addToTemplatedRunTimeSelection.H"
@@ -138,7 +139,7 @@ public:
             const dictionary& wellDict,
             const RockType& rock,
             HashTable<autoPtr<wellSource<RockType, nPhases>>>& sources,
-            HashTable<fvScalarMatrix>& matTable
+            HashPtrTable<fvScalarMatrix>& matTable
         ),
         (name, wellDict, rock, sources, matTable)
     );
@@ -152,7 +153,7 @@ public:
             const dictionary& wellDict,
             const RockType& rock,
             HashTable<autoPtr<wellSource<RockType, nPhases>>>& sources,
-            HashTable<fvScalarMatrix>& matTable
+            HashPtrTable<fvScalarMatrix>& matTable
         );
 
         //- Construct from copy
@@ -170,7 +171,7 @@ public:
             const dictionary& wellDict,
             const RockType& rock,
             HashTable<autoPtr<wellSource<RockType, nPhases>>>& sources,
-            HashTable<fvScalarMatrix>& matTable
+            HashPtrTable<fvScalarMatrix>& matTable
         );
 
     // Member Functions
@@ -258,7 +259,7 @@ public:
         void readImposedDrives
         (
             HashTable<autoPtr<wellSource<RockType, nPhases>>>& sources,
-            HashTable<fvScalarMatrix>& matTable
+            HashPtrTable<fvScalarMatrix>& matTable
         );
 
         //- Update well sources
