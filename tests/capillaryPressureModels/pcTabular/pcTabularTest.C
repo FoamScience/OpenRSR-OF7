@@ -17,7 +17,6 @@ SCENARIO("Capillary pressure curve in tabular form", "[Virtual]")
         #include "createTestTimeAndMesh.H"
         #include "createTestBlackoilPhase.H"
         #include "createTestIsoRock.H"
-        FatalError.dontThrowExceptions();
 
         dictionary transportProperties;
         dictionary rockProperties;

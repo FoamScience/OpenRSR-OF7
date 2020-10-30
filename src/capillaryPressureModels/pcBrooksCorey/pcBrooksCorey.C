@@ -70,30 +70,30 @@ pcBrooksCorey<RockType>::pcBrooksCorey
     ),
     pcSmin0_
     (
-        alpha_.name()+".PcMin",
-        this->pcDict_.template lookupOrAddDefault<dimensionedScalar>
+        this->pcDict_.found(alpha_.name()+".PcMin")
+        ? dimensionedScalar
         (
-            alpha_.name()+".PcMin",
-            dimensionedScalar(alpha_.name()+".PcMin", -1)
+            alpha_.name()+".PcMin", dimless, this->pcDict_
         )
+        : dimensionedScalar(alpha_.name()+".PcMin", dimless, -1)
     ),
     pcSmax0_
     (
-        alpha_.name()+".PcMax",
-        this->pcDict_.template lookupOrAddDefault<dimensionedScalar>
+        this->pcDict_.found(alpha_.name()+".PcMax")
+        ? dimensionedScalar
         (
-            alpha_.name()+".PcMax",
-            dimensionedScalar(alpha_.name()+".PcMax", -1)
+            alpha_.name()+".PcMax", dimless, this->pcDict_
         )
+        : dimensionedScalar(alpha_.name()+".PcMax", dimless, -1)
     ),
     pc00_
     (
-        name + ".pc0",
-        this->pcDict_.template lookupOrAddDefault<dimensionedScalar>
+        this->pcDict_.found("pc0")
+        ? dimensionedScalar
         (
-            "pc0",
-            dimensionedScalar(name + "pc0", dimPressure, -1)
+            "pc0", dimPressure, this->pcDict_
         )
+        : dimensionedScalar("pc0", dimPressure, -1)
     ),
     pcSmin_
     (
@@ -142,12 +142,12 @@ pcBrooksCorey<RockType>::pcBrooksCorey
     ),
     n0_
     (
-        name+".n",
-        this->pcDict_.template lookupOrAddDefault<dimensionedScalar>
+        this->pcDict_.found("n")
+        ? dimensionedScalar
         (
-            "n",
-            dimensionedScalar(name+".n", -1)
+            "n", dimless, this->pcDict_
         )
+        : dimensionedScalar("n", dimless, -1)
     ),
     n_
     (

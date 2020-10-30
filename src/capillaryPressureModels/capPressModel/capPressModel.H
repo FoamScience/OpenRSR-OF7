@@ -122,7 +122,7 @@ protected:
 
         //- Phase relative permeabilities and their derivatives
         //  in respect to the canonical phases.
-        HashTable<DimensionedField<scalar, volMesh>> pcTable_;
+        HashTable<volScalarField> pcTable_;
 
 public:
 
@@ -209,7 +209,7 @@ public:
     // Member Operators
 
         //- Write-Access to pc fields from table
-        DimensionedField<scalar, volMesh>& operator[]
+        volScalarField& operator[]
         (
             const word& fieldName
         )
@@ -226,7 +226,7 @@ public:
         }
 
         //- Const-access to pc fields from table
-        const DimensionedField<scalar, volMesh>& operator[]
+        const volScalarField& operator[]
         (
             const word& fieldName
         ) const

@@ -193,7 +193,7 @@ Foam::capPressModel<RockType, nPhases>::capPressModel
         pcTable_.insert
         (
             pcName(canonicalPhases_[pi]),
-            DimensionedField<scalar, volMesh>
+            volScalarField
             (
                 IOobject
                 (
@@ -204,13 +204,14 @@ Foam::capPressModel<RockType, nPhases>::capPressModel
                     IOobject::NO_WRITE
                 ),
                 rock.mesh(),
-                dimensionedScalar("pc", dimPressure, 0)
+                dimensionedScalar("pc", dimPressure, 0),
+                "zeroGradient"
             )
         );
         pcTable_.insert
         (
             dpcName(canonicalPhases_[pi], canonicalPhases_[pi]),
-            DimensionedField<scalar, volMesh>
+            volScalarField
             (
                 IOobject
                 (
@@ -221,7 +222,8 @@ Foam::capPressModel<RockType, nPhases>::capPressModel
                     IOobject::NO_WRITE
                 ),
                 rock.mesh(),
-                dimensionedScalar("pc", dimPressure, 0)
+                dimensionedScalar("pc", dimPressure, 0),
+                "zeroGradient"
             )
         );
     }
