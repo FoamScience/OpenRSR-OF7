@@ -99,9 +99,6 @@ protected:
         //- Initial viscosity
         dimensionedScalar mu0_;
 
-        //- Mesh for viscosity field
-        autoPtr<singleCellFvMesh> muMesh_;
-
         //- Phase flux
         autoPtr<surfaceScalarField> phiPtr_;
 
@@ -109,10 +106,10 @@ protected:
         autoPtr<FVFModel> BModel_;
 
         //- Phase density
-        VolatileDimensionedField<scalar,volMesh> rho_;
+        volScalarField rho_;
 
         //- Phase viscosity
-        VolatileDimensionedField<scalar,volMesh> mu_;
+        volScalarField mu_;
 
 public:
 
@@ -240,12 +237,12 @@ public:
         }
 
         //- Return const-ref to density field
-        const VolatileDimensionedField<scalar, volMesh>& rho() const {
+        const volScalarField& rho() const {
             return rho_;
         }
 
         //- Return const-ref to viscosity field
-        const VolatileDimensionedField<scalar, volMesh>& mu() const {
+        const volScalarField& mu() const {
             return mu_;
         }
 

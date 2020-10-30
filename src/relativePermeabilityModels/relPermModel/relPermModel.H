@@ -41,11 +41,10 @@ SourceFiles
 #include "surfaceMesh.H"
 #include "rock.H"
 #include "fvMesh.H"
-#include "HashTable.H"
+#include "HashPtrTable.H"
 #include "singleCellFvMesh.H"
 #include "addToTemplatedRunTimeSelection.H"
 #include "volMesh.H"
-#include "HashTable.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -125,7 +124,7 @@ protected:
 
         //- Phase relative permeabilities and their derivatives
         //  in respect to the canonical phases.
-        HashTable<DimensionedField<scalar, volMesh>> krTable_;
+        HashPtrTable<volScalarField> krTable_;
 
 public:
 
@@ -212,7 +211,7 @@ public:
     // Member Operators
 
         //- Write-Access to kr fields from table
-        DimensionedField<scalar, volMesh>& operator[]
+        volScalarField& operator[]
         (
             const word& fieldName
         )
@@ -225,11 +224,11 @@ public:
                     << endl << "Valid fields are "
                     << krTable_.sortedToc();
             }
-            return krTable_[fieldName];
+            return *krTable_[fieldName];
         }
 
         //- Const-access to kr fields from table
-        const DimensionedField<scalar, volMesh>& operator[]
+        const volScalarField& operator[]
         (
             const word& fieldName
         ) const
@@ -242,7 +241,7 @@ public:
                     << endl << "Valid fields are "
                     << krTable_.sortedToc();
             }
-            return krTable_[fieldName];
+            return *krTable_[fieldName];
         }
 
         //- Disallow default bitwise assignment

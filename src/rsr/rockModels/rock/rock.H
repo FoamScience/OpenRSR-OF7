@@ -159,7 +159,7 @@ public:
         }
 
         //- Return const-ref to porosity field
-        const DimensionedField<scalar, volMesh>& porosity() {
+        const volScalarField& porosity() const {
             return porosity_;
         }
 
@@ -169,7 +169,7 @@ public:
         }
 
         //- Return const-ref to compressibility field
-        const DimensionedField<scalar, volMesh>& Cf() {
+        const volScalarField& Cf() const {
             return c_;
         }
 

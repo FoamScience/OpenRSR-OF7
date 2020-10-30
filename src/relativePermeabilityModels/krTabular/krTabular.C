@@ -76,12 +76,12 @@ template<class RockType>
 void krTabular<RockType>::correct()
 {
     // Refs to kr fields
-    auto& kr1 = this->krTable_[this->krName(this->canonicalPhases_[0])];
-    auto& kr2 = this->krTable_[this->krName(otherPhase_)];
-    auto& dkr1 = this->krTable_
-        [this->dkrName(this->canonicalPhases_[0], this->canonicalPhases_[0])];
-    auto& dkr2 = this->krTable_
-        [this->dkrName(otherPhase_, this->canonicalPhases_[0])];
+    auto& kr1 = this->operator[](this->krName(this->canonicalPhases_[0]));
+    auto& kr2 = this->operator[](this->krName(otherPhase_));
+    auto& dkr1 = this->operator[]
+        (this->dkrName(this->canonicalPhases_[0], this->canonicalPhases_[0]));
+    auto& dkr2 = this->operator[]
+        (this->dkrName(otherPhase_, this->canonicalPhases_[0]));
 
     forAll(alpha_.internalField(), ci)
     {

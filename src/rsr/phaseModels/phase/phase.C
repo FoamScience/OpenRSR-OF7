@@ -103,11 +103,10 @@ Foam::phase::phase
             name+".U",
             mesh.time().timeName(),
             mesh,
-            IOobject::READ_IF_PRESENT,
+            IOobject::MUST_READ,
             IOobject::AUTO_WRITE
         ),
-        mesh,
-        dimensionedVector(name+".U0", dimVelocity, vector::zero)
+        mesh
     ),
     alphaPtr_
     (
@@ -130,8 +129,7 @@ Foam::phase::phase
     ),
     rhoSc_
     (
-        "rhoSc",
-        dimDensity, phaseDict_
+        "rhoSc", dimDensity, phaseDict_.lookup("rhoSc")
     ),
     rho0_
     (
@@ -139,7 +137,7 @@ Foam::phase::phase
         phaseDict_.lookupOrAddDefault<dimensionedScalar>
         (
             "rho0",
-            dimensionedScalar("rho0", dimViscosity*dimDensity, 1.0)
+            dimensionedScalar("rho0", dimDensity, rhoSc_.value())
         )
     ),
     mu0_
@@ -150,23 +148,6 @@ Foam::phase::phase
             "mu0",
             dimensionedScalar("mu0", dimViscosity*dimDensity, -1)
         )
-    ),
-    muMesh_
-    (
-        mu0_.value() != -1
-        ?  new singleCellFvMesh
-           (
-               IOobject
-               (
-                   name+".muMesh",
-                   mesh.polyMesh::instance(),
-                   mesh.time(),
-                   IOobject::NO_READ,
-                   IOobject::NO_WRITE
-               ),
-               mesh
-           )
-        :  nullptr
     ),
     phiPtr_
     (
@@ -198,13 +179,12 @@ Foam::phase::phase
             name+".rho",
             mesh.time().timeName(),
             mesh,
-            BModel_->isIncompressible()
-                ? IOobject::READ_IF_PRESENT
-                : IOobject::MUST_READ,
+            IOobject::READ_IF_PRESENT,
             IOobject::AUTO_WRITE
         ),
-        BModel_->rFVF().mesh(), // Follow the mesh from BModel
-        rho0_
+        mesh,
+        rho0_,
+        "zeroGradient"
     ),
     mu_
     (
@@ -213,17 +193,12 @@ Foam::phase::phase
             name+".mu",
             mesh.time().timeName(),
             mesh,
-            mu0_.value() == -1
-                ? IOobject::MUST_READ
-                : IOobject::READ_IF_PRESENT,
+            IOobject::READ_IF_PRESENT,
             IOobject::NO_WRITE
         ),
-        mu0_.value() == -1 ? mesh : muMesh_(),
-        dimensionedScalar
-        (
-            "mu0", dimViscosity*dimDensity,
-            mu0_.value() == -1 ? 1.0 : mu0_.value()
-        )
+        mesh,
+        mu0_,
+        "zeroGradient"
     )
 {
 }
@@ -253,7 +228,6 @@ Foam::phase::phase
     rhoSc_(ph.rhoSc_),
     rho0_(ph.rho0_),
     mu0_(ph.mu0_),
-    muMesh_(ph.muMesh_),
     phiPtr_(ph.phiPtr_),
     BModel_(ph.BModel_),
     rho_(ph.rho_),
