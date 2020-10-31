@@ -96,10 +96,18 @@ Foam::sourceProperties::wordToOrientationHandling
     {
         return orientationHandling::vertical;
     }
-    else 
+    else if (ori == "horizontalX")
+    {
+        return orientationHandling::horizontalX;
+    }
+    else if (ori == "horizontalY")
+    {
+        return orientationHandling::horizontalY;
+    }
+    else
     {
         WarningInFunction
-            << "Bad well orientation mode specifier " << ori
+            << "Bad well orientation specifier " << ori
             << ", using 'generic'" << endl;
     }
     return orientationHandling::generic;
@@ -117,6 +125,16 @@ Foam::word Foam::sourceProperties::orientationHandlingToWord
         case orientationHandling::vertical :
         {
             enumName = "vertical";
+            break;
+        }
+        case orientationHandling::horizontalX :
+        {
+            enumName = "horizontalX";
+            break;
+        }
+        case orientationHandling::horizontalY :
+        {
+            enumName = "horizontalY";
             break;
         }
         case orientationHandling::generic :

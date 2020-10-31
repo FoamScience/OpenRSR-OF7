@@ -276,6 +276,7 @@ SCENARIO("Imposed Phase-flowrate for a well", "[Virtual]")
                 Info << nl;
 
                 // Test equality of expected and calculated matrices
+                Info << (*matTable["water"]).source() << endl;
                 REQUIRE_THAT
                 (
                     expectedMatSource, 

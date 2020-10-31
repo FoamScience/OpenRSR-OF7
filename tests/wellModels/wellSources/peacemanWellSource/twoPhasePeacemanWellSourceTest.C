@@ -110,7 +110,6 @@ SCENARIO("Peaceman's description of well source", "[Virtual]")
         );
         
         transportProperties.add(word("pcModel<water,oil>"), pcDict);
-        Info << transportProperties << endl;
 
         auto pcModel = capPressModel<iRock, 2>::New
         (

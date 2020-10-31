@@ -81,7 +81,6 @@ Foam::wellModel<RockType, nPhases>::wellModel
     matTable_(),
     wells_()
 {
-    Info << rock.mesh().template lookupClass<volScalarField>() << endl;
     // Initiate source describers
     forAll(phaseNames_, pi)
     {
@@ -105,7 +104,6 @@ Foam::wellModel<RockType, nPhases>::wellModel
             << " phase names but "
             << phaseNames_.size() << " were supplied."
             << nl << nl << exit(FatalIOError);
-    Info << p_.mesh().time().template lookupClass<volScalarField>() << endl;
     forAll(phaseNames_, pi)
     {
         matTable_.insert
@@ -115,7 +113,6 @@ Foam::wellModel<RockType, nPhases>::wellModel
         );
     }
 
-    Info << rock.mesh().template lookupClass<volScalarField>() << endl;
     // Instantiate well objects (Should be last thing to do)
     createWells();
 }
@@ -243,7 +240,7 @@ Foam::wellModel<RockType, nPhases>::explicitSource
     (
         Ap,
         p_,
-        FieldField<Field, scalar>(0), // Ignote boundary
+        FieldField<Field, scalar>(0), // Ignote boundary conditions
         p_.boundaryField().scalarInterfaces(),
         0
     );
