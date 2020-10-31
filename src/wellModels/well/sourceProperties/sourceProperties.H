@@ -71,8 +71,7 @@ public:
         //- Enum for handling well orientation
         enum class orientationHandling
         {
-            // TODO: Implement other directions
-            vertical, generic
+            vertical, horizontalX, horizontalY, generic
         };
 
 protected:
@@ -223,9 +222,9 @@ public:
     //- Operation mode sign to use in calculations
     inline label operationSign() const;
 
-    //- Return lowest cell index and on which process it belongs to
+    //- Return lowest cell position and on which process it belongs to
     //  (according to well orientation)
-    inline Tuple2<label, label> gLowerCell() const;
+    inline Tuple2<vector, label> gLowerCell() const;
 
     ////- Return upper cell index (according to well orientation)
     //label upperCell() const;

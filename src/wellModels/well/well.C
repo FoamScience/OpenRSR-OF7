@@ -230,7 +230,6 @@ void Foam::well<RockType, nPhases>::readImposedDrives
                 << " valid dictionary." << exit(FatalIOError);
         }
         // Set the pointer to the requested topoSetSource
-        // TODO: Probably use driveHandling::New
         word phaseName = driveInfo.dict().lookup("phase");
         drives_.set
         (

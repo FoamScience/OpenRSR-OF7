@@ -44,10 +44,13 @@ inline void peacemanWellSourceCore<iRock>::estimateEquivRadius
     if (!estimatedH_) estimateCellSizes(cellIDs);
     re_.resize(cellIDs.size());
 
-    // TODO: Fix orientation handling
+    // Choose directions like so
+    // hx ----> (hy, z)
+    // hy ----> (hx, z)
+    // z  ----> (hx, hy)
     direction id1 = 
         srcProps.orientation() 
-        == sourceProperties::orientationHandling::generic ? 1 : 0;
+        == sourceProperties::orientationHandling::horizontalX ? 1 : 0;
     direction id2 = 
         srcProps.orientation() 
         == sourceProperties::orientationHandling::vertical ? 1 : 2;
@@ -55,7 +58,6 @@ inline void peacemanWellSourceCore<iRock>::estimateEquivRadius
     // Isotropic medium --> re depends only on geometry
     forAll(re_, ci)
     {
-        // TODO: Adjust to well direction
         re_[ci] = 
             0.14*
             Foam::sqrt(Foam::pow(h_[ci][id1],2) + Foam::pow(h_[ci][id2],2));
