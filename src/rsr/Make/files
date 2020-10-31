@@ -12,4 +12,9 @@ rockModels/rock/rocks.C
 rockModels/basicIsotropicRock/basicIsotropicRock.C
 rockModels/basicDiagAnisotropicRock/basicDiagAnisotropicRock.C
 
+cfdTools/general/solutionControl/CFLMethods/CFLMethod/CFLMethods.C
+cfdTools/general/solutionControl/CFLMethods/CoatsNo/CoatsNos.C
+
+cfdTools/general/solutionControl/impesControl/impesControls.C
+
 LIB = $(FOAM_USER_LIBBIN)/libRSR

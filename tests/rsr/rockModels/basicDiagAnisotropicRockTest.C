@@ -50,7 +50,6 @@ SCENARIO("Rock object creation for diagonalTensor-Permeability","[Virtual]")
 
         WHEN("Constructing the default rock object")
         {
-            FatalError.dontThrowExceptions();
             // Needs the presence of '0/water.U' dictionary
             auto rockPtr = rock<DiagAnisotropic>::New
             (

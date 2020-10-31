@@ -1,0 +1,12 @@
+EXE_INC = \
+    --std=c++14 \
+    -I$(LIB_SRC)/OpenFOAM/lnInclude \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I../rsr/lnInclude
+
+
+LIB_LIBS = \
+    -lOpenFOAM \
+    -lfiniteVolume \
+    -L$(FOAM_USER_LIBBIN) \
+    -lRSR

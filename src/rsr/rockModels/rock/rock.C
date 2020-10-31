@@ -82,50 +82,25 @@ Foam::rock<PermeabilityType>::rock
     name_(name),
     rockDict_(rockProperties.subDict(name)),
     mesh_(mesh),
+    isIncompressible_(rockDict_.lookupOrAddDefault("incompressible", false)),
     poroInit_
     (
-        "porosity",
-        rockDict_.lookupOrAddDefault<dimensionedScalar>
-        (
-            "porosity", dimensionedScalar("porosity", dimless, -1.0)
-        )
-    ),
-    permInit_
-    (
-        "permeability",
-        rockDict_.lookupOrAddDefault<dimensioned<KcmptType>>
-        (
-            "permeability", dimensioned<KcmptType>("permeability", dimArea, static_cast<KcmptType>(Zero))
-        )
+        rockDict_.found("porosity")
+        ? dimensionedScalar("porosity", dimless, rockDict_)
+        : dimensionedScalar("porosity", dimless, 1)
     ),
     compInit_
     (
-        "compressibility",
-        rockDict_.lookupOrAddDefault<dimensionedScalar>
-        (
-            "compressibility",
-            dimensionedScalar("compressibility", dimless/dimPressure, 1e-6)
-        )
+        rockDict_.found("compressibility")
+        ? dimensionedScalar("compressibility", dimless/dimPressure, rockDict_)
+        : dimensionedScalar("compressibility", dimless/dimPressure, 0)
     ),
-    isIncompressible_(rockDict_.lookupOrAddDefault("incompressible", false)),
-    oneCellMesh_
+    permInit_
     (
-        ( isIncompressible_
-          or poroInit_.value() != -1
-          or permInit_.value() != static_cast<KcmptType>(Zero) )
-        ?  new singleCellFvMesh
-           (
-               IOobject
-               (
-                   name+".onceCellMesh",
-                   mesh.polyMesh::instance(),
-                   mesh.time(),
-                   IOobject::NO_READ,
-                   IOobject::NO_WRITE
-               ),
-               mesh
-           )
-        : nullptr
+        rockDict_.found("permeability")
+        ? dimensioned<KcmptType>("permeability", dimArea, rockDict_)
+        : dimensioned<KcmptType>
+          ("permeability", dimArea, static_cast<KcmptType>(Zero))
     ),
     porosity_
     (
@@ -134,28 +109,12 @@ Foam::rock<PermeabilityType>::rock
             name+".porosity",
             mesh.time().timeName(),
             mesh,
-            poroInit_.value() == -1
-                ? IOobject::MUST_READ
-                : IOobject::READ_IF_PRESENT,
+            IOobject::READ_IF_PRESENT,
             IOobject::AUTO_WRITE
         ),
-        poroInit_.value() == -1 ? mesh : oneCellMesh_(),
-        poroInit_
-    ),
-    K_
-    (
-        IOobject
-        (
-            name+".permeability",
-            mesh.time().timeName(),
-            mesh,
-            permInit_.value() == static_cast<KcmptType>(Zero)
-                ? IOobject::MUST_READ
-                : IOobject::READ_IF_PRESENT,
-            IOobject::AUTO_WRITE
-        ),
-        permInit_.value() == static_cast<KcmptType>(Zero) ? mesh : oneCellMesh_(),
-        permInit_
+        mesh_,
+        poroInit_,
+        "zeroGradient"
     ),
     c_
     (
@@ -164,13 +123,26 @@ Foam::rock<PermeabilityType>::rock
             name+".compressibility",
             mesh.time().timeName(),
             mesh,
-            !isIncompressible_
-                ? IOobject::MUST_READ
-                : IOobject::READ_IF_PRESENT,
+            IOobject::READ_IF_PRESENT,
             IOobject::AUTO_WRITE
         ),
-        mesh,
-        compInit_
+        mesh_,
+        compInit_,
+        "zeroGradient"
+    ),
+    K_
+    (
+        IOobject
+        (
+            name+".permeability",
+            mesh.time().timeName(),
+            mesh,
+            IOobject::READ_IF_PRESENT,
+            IOobject::AUTO_WRITE
+        ),
+        mesh_,
+        permInit_,
+        "zeroGradient"
     )
 {
 }
@@ -186,14 +158,13 @@ Foam::rock<PermeabilityType>::rock
     name_(rk.name_),
     rockDict_(rk.rockDict_),
     mesh_(rk.mesh_),
-    poroInit_(rk.poroInit_),
-    permInit_(rk.permInit_),
-    compInit_(rk.compInit_),
     isIncompressible_(rk.isIncompressible_),
-    oneCellMesh_(rk.oneCellMesh_),
+    poroInit_(rk.poroInit_),
+    compInit_(rk.compInit_),
+    permInit_(rk.permInit_),
     porosity_(rk.porosity_),
-    K_(rk.K_),
-    c_(rk.c_)
+    c_(rk.c_),
+    K_(rk.K_)
 {
 }
 

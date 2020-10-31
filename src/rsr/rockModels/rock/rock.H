@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     | Website:  https://openfoam.orgfavorable texture is depicted by favorable texture is depicted by packaging of packaging of
+   \\    /   O peration     | Website:  https://openfoam.org
     \\  /    A nd           | Copyright (C) 2011-2019 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
@@ -37,10 +37,10 @@ SourceFiles
 #define rock_H
 
 #include "DimensionedField.H"
+#include "VolatileDimensionedField.H"
 #include "GeometricField.H"
 #include "regIOobject.H"
 #include "IsotropyTypes.H"
-#include "singleCellFvMesh.H"
 #include "volFieldsFwd.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -77,29 +77,22 @@ protected:
         //- Const access to the mesh
         const fvMesh& mesh_;
 
-        //- Initial porosity
-        dimensionedScalar poroInit_;
-
-        //- Initial Permeability
-        dimensioned<KcmptType> permInit_;
-
-        //- Initial Compressibility
-        dimensionedScalar compInit_;
-
         //- Is the rock compressible
         bool isIncompressible_;
 
-        //- Mesh for viscosity field
-        autoPtr<singleCellFvMesh> oneCellMesh_;
+        //- scalar values for rock properties (Used Internally)
+        dimensionedScalar poroInit_;
+        dimensionedScalar compInit_;
+        dimensioned<KcmptType> permInit_;
 
         //- Rock porosity field
-        DimensionedField<scalar, volMesh> porosity_;
+        volScalarField porosity_;
+
+        //- Rock Compressibility field
+        volScalarField c_;
 
         //- Rock absolute-permeability field
         PermeabilityType K_;
-
-        //- Rock Compressibility field
-        DimensionedField<scalar, volMesh> c_;
 
 public:
 
@@ -166,7 +159,7 @@ public:
         }
 
         //- Return const-ref to porosity field
-        const DimensionedField<scalar, volMesh>& porosity() {
+        const volScalarField& porosity() const {
             return porosity_;
         }
 
@@ -176,7 +169,7 @@ public:
         }
 
         //- Return const-ref to compressibility field
-        const DimensionedField<scalar, volMesh>& Cf() {
+        const volScalarField& Cf() const {
             return c_;
         }
 
