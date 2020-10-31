@@ -23,6 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+#include "error.H"
 #include "impesControl.H"
 #include "fvcDiv.H"
 
@@ -52,7 +53,12 @@ Foam::impesControl<RockType, nPhases>::impesControl
         )
     )
 {
-    read();
+    if (!read())
+    {
+        FatalErrorInFunction
+            << "Could not read solution parameters."
+            << exit(FatalError);
+    }
     printResidualControls();
 }
 
