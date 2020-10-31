@@ -3,13 +3,6 @@ using PermType = Isotropic;
 using SurfacePermType = surfaceScalarField;
 using RockType = rock<PermType>;
 
-
-// CFL calculations
-word CFL =  runTime.controlDict().lookupOrDefault<word>("CFL", "Coats");
-int CFLint = 0;
-scalar dSmax(runTime.controlDict().lookupOrDefault<scalar>("dSmax",0.));
-
-
 Info << "Reading pressure field p" << endl;
 volScalarField p
 (
@@ -113,4 +106,3 @@ IOdictionary wellsProperties
         IOobject::NO_WRITE
     )
 );
-

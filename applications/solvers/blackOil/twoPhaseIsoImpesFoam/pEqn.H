@@ -2,21 +2,18 @@
     fvScalarMatrix pEqn
         (
             fvm::laplacian(-Mf, p) + fvc::div(phiG)
-            // capillary term
-            + fvc::div(phiPc)//*activateCapillarity
+            + fvc::div(phiPc)
             + wModel->source(canPhasePtr->name())
             + wModel->source(nonCanPhasePtr->name())
-            // event source terms
-            //- sourceTerm
         );
 
     pEqn.solve();
 
     phiP = pEqn.flux();
 
-    phi = phiP+phiG+phiPc;//*activateCapillarity;
+    phi = phiP+phiG+phiPc;
 
-    phic = Fcf*phiP + (Lcf/Lf)*phiG + phiPc;//*activateCapillarity;
+    phic = Fcf*phiP + (Lcf/Lf)*phiG + phiPc;
     phin = phi - phic;
 
     U = fvc::reconstruct(phi);
