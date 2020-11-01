@@ -81,13 +81,15 @@ void twoPhasePeacemanWellSource<RockType>::calculateCoeff0
     word krName = relPermModel<RockType,2>::krName(this->phase_.name());
     const auto& kr = krModel_[krName];
     const auto& mu = this->phase_.mu();
+    const auto& B  = this->phase_.BModel().rFVF();
 
     this->calculateWellIndex(cellIDs, srcProps);
     coeff0.resize(srcProps.wellIndex().size());
     forAll(coeff0, ci)
     {
         const label cellID = cellIDs[ci];
-        coeff0[ci] = - srcProps.wellIndex()[ci] * kr[cellID] / mu[cellID];
+        coeff0[ci] = - srcProps.wellIndex()[ci] * kr[cellID] * B[cellID]
+            / mu[cellID];
     }
 }
 
@@ -102,13 +104,15 @@ void twoPhasePeacemanWellSource<RockType>::calculateCoeff1
     word krName = relPermModel<RockType,2>::krName(this->phase_.name());
     const auto& kr = krModel_[krName];
     const auto& mu = this->phase_.mu();
+    const auto& B  = this->phase_.BModel().rFVF();
 
     this->calculateWellIndex(cellIDs, srcProps);
     coeff1.resize(srcProps.wellIndex().size());
     forAll(coeff1, ci)
     {
         const label cellID = cellIDs[ci];
-        coeff1[ci] = srcProps.wellIndex()[ci] * kr[cellID] / mu[cellID];
+        coeff1[ci] = srcProps.wellIndex()[ci] * kr[cellID] * B[cellID]
+            / mu[cellID];
     }
 }
 
@@ -121,6 +125,7 @@ void twoPhasePeacemanWellSource<RockType>::calculateCoeff2
 )
 {
     const auto& rho = this->phase_.rho();
+    const auto& B  = this->phase_.BModel().rFVF();
     const auto& g = srcProps.g();
     scalar gg = (g && g).value()/(mag(g).value() + vSmall);
     scalar ZBH =
@@ -136,7 +141,7 @@ void twoPhasePeacemanWellSource<RockType>::calculateCoeff2
             (gg == 0) ? 0 : ((rho.mesh().C()[cellID] && g)/gg).value();
         // TODO: Consider adding capillary pressure support
         coeff2[ci] = - srcProps.wellIndex()[ci] * rho[cellID] * gg
-            * (ZBH - cellZ);
+            * (ZBH - cellZ) * B[cellID];
     }
 }
 
