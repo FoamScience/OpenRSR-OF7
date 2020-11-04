@@ -22,27 +22,24 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::driveHandlers::flowRateDrive
+    Foam::driveHandlers::BHPDrive
 
 Description
-    Imposes the phase-flow-rate on a well by passing the requested value.
+    Imposes the Bottom-Hole-Pressure on a well by sending coeffs into the main
+    matrices, and treating the pressure implicitely. Assuming BHP is constant
+    in:
 
     \f$ q_i = a_i p_i + b_i BHP + c_i \f$
 
-    Assuming \f$ \Sigma q_i = q_t\f$ is imposed,
-    \f$ q_t = \Sigma (a_i p_i) + BHP \Sigma b_i + \Sigma c_i \f$
-    gives a BHP value to be substituted in the cell's source equation
-
-Note
-    Treating pressure in neighbouring cells in the well implicitely.
+    This produces a diagonal matrix in p. 
 
 SourceFiles
-    flowRateDrive.C
+    BHPDrive.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef flowRateDrive_H
-#define flowRateDrive_H
+#ifndef BHPDrive_H
+#define BHPDrive_H
 
 #include "driveHandler.H"
 
@@ -55,30 +52,30 @@ namespace driveHandlers
 {
 
 /*---------------------------------------------------------------------------*\
-                        Class flowRateDrive Declaration
+                        Class BHPDrive Declaration
 \*---------------------------------------------------------------------------*/
 
 template<class RockType, int nPhases>
-class flowRateDrive
+class BHPDrive
 :
     public driveHandler<RockType, nPhases>
 {
 protected:
 
-    // Protected Member Data
+    // Protected Data Members
 
-        //- Attached phase name
-        word phase_;
+        //- Attached phase
+        wordList phases_;
 
 public:
 
     //- Runtime type information
-    ClassName("flowRate");
+    ClassName("BHP");
 
     // Constructors
 
         // Construct from components
-        flowRateDrive
+        BHPDrive
         (
             const word& name,
             const dictionary& driveDict,
@@ -88,10 +85,10 @@ public:
         );
 
         // Construct from copy
-        flowRateDrive(const flowRateDrive&) = delete;
+        BHPDrive(const BHPDrive&) = delete;
 
 	// Destructor
-	virtual ~flowRateDrive();
+	virtual ~BHPDrive();
 
     // Member Functions
 
@@ -101,7 +98,7 @@ public:
     // Member operators
 
         //- Disallow default bitwise assignment
-        flowRateDrive& operator=(const flowRateDrive&) = delete;
+        BHPDrive& operator=(const BHPDrive&) = delete;
 };
 
 
@@ -114,7 +111,7 @@ public:
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #ifdef NoRepository
-    #include "flowRateDrive.C"
+    #include "BHPDrive.C"
 #endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

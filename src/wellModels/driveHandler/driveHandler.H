@@ -74,7 +74,7 @@ protected:
         dictionary driveDict_;
 
         //- Well source describer
-        wellSource<RockType, nPhases>& wellSource_;
+        HashTable<autoPtr<wellSource<RockType, nPhases>>>& wellSources_;
 
         //- Access to Source-related part of the well
         sourceProperties& srcProps_;
@@ -105,11 +105,11 @@ public:
         (
             const word& name,
             const dictionary& driveDict,
-            wellSource<RockType, nPhases>& source,
+            HashTable<autoPtr<wellSource<RockType, nPhases>>>& sources,
             sourceProperties& srcProps,
             HashPtrTable<fvScalarMatrix>& matrices
         ),
-        (name, driveDict, source, srcProps, matrices)
+        (name, driveDict, sources, srcProps, matrices)
     );
 
     // Constructors
@@ -119,7 +119,7 @@ public:
         (
             const word& name,
             const dictionary& driveDict,
-            wellSource<RockType, nPhases>& source,
+            HashTable<autoPtr<wellSource<RockType, nPhases>>>& sources,
             sourceProperties& srcProps,
             HashPtrTable<fvScalarMatrix>& matrices
         );
@@ -137,7 +137,7 @@ public:
         (
             const word& name,
             const dictionary& driveDict,
-            wellSource<RockType, nPhases>& source,
+            HashTable<autoPtr<wellSource<RockType, nPhases>>>& sources,
             sourceProperties& srcProps,
             HashPtrTable<fvScalarMatrix>& matrices
         );
@@ -155,8 +155,11 @@ public:
         }
 
         //- Return const-access to the well source describer
-        const wellSource<RockType, nPhases>& sourceDescriber() const {
-            return wellSource_;
+        const wellSource<RockType, nPhases>& sourceDescriber
+        (
+            const word& phaseName
+        ) const {
+            return wellSources_[phaseName];
         }
 
         //- Update drive sources

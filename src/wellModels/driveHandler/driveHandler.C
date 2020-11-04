@@ -33,7 +33,7 @@ Foam::driveHandler<RockType, nPhases>::New
 (
     const word& name,
     const dictionary& driveDict,
-    wellSource<RockType, nPhases>& source,
+    HashTable<autoPtr<wellSource<RockType, nPhases>>>& sources,
     sourceProperties& srcProps,
     HashPtrTable<fvScalarMatrix>& matrices
 )
@@ -56,7 +56,7 @@ Foam::driveHandler<RockType, nPhases>::New
     }
 
     return autoPtr<driveHandler>
-    ( cstrIter()(name, driveDict, source, srcProps, matrices) );
+    ( cstrIter()(name, driveDict, sources, srcProps, matrices) );
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
@@ -66,14 +66,14 @@ Foam::driveHandler<RockType, nPhases>::driveHandler
 (
     const word& name,
     const dictionary& driveDict,
-    wellSource<RockType, nPhases>& source,
+    HashTable<autoPtr<wellSource<RockType, nPhases>>>& sources,
     sourceProperties& srcProps,
     HashPtrTable<fvScalarMatrix>& matrices
 )
 :
     name_(name),
     driveDict_(driveDict),
-    wellSource_(source),
+    wellSources_(sources),
     srcProps_(srcProps),
     matrices_(matrices),
     cells_(srcProps.cells()),
@@ -83,6 +83,13 @@ Foam::driveHandler<RockType, nPhases>::driveHandler
     ),
     coeffs_(3, scalarList(cells_.size(), 0.0))
 {
+    if (sources.toc().size() != nPhases)
+    {
+        FatalErrorInFunction
+            << "driveHandler " << name << " expects " << nPhases
+            << " phases, but was constructed with " << sources.size()
+            << exit(FatalError);
+    }
 }
 
 

@@ -12,61 +12,9 @@
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-namespace Foam {
-
-using matrix = std::vector<std::vector<scalar>>;
-
-matrix lduMatrixToSparse(const fvMesh& mesh, fvScalarMatrix& mat)
-{
-    std::vector<std::vector<scalar>> fmat
-    (
-        mesh.nCells(), std::vector<scalar>(mesh.nCells(), 0.0)
-    );
-    const labelUList& owner = mesh.owner();
-    const labelUList& neighbour = mesh.neighbour();
-    const labelUList& lowerAddr = mat.lduAddr().lowerAddr();
-    const labelUList& upperAddr = mat.lduAddr().upperAddr();
-    for(int ii=0;ii<mesh.nCells();ii++)
-    {
-        for(int jj=0;jj<mesh.nCells();jj++)
-        {
-            if (jj == ii) fmat[ii][ii] = mat.diag()[ii];
-        }
-    }
-    forAll(owner, facei)
-    {
-        label ii = lowerAddr[facei];
-        label jj = upperAddr[facei];
-        fmat[ii][jj] = mat.lower()[facei];
-    }
-    forAll(neighbour, facei)
-    {
-        label ii = lowerAddr[facei];
-        label jj = upperAddr[facei];
-        fmat[jj][ii] = mat.upper()[facei];
-    }
-    //Info << setprecision(3);
-    //for(int ii=0;ii<mesh.nCells();ii++)
-    //{
-    //    for(int jj=0;jj<mesh.nCells();jj++)
-    //    {
-    //        Info << fmat[ii][jj] << setw(10);
-    //    }
-    //    Info << nl ;
-    //}
-    //Info << nl;
-    //for (unsigned i = 0; i < mesh.nCells(); ++i) {
-    //Info << mat.source()[i] << setw(10);
-    //}
-    Info << nl << endl;
-    return fmat;
-}
-};
-
-
 using namespace Foam;
 
-SCENARIO("Imposed Phase-flowrate for a well", "[Virtual]")
+SCENARIO("Imposed BHP for a well", "[Virtual]")
 {
     GIVEN("Valid mesh, kr and pc models, sourceProperties object and "
           "a HashTable of phase matrices")
@@ -181,15 +129,15 @@ SCENARIO("Imposed Phase-flowrate for a well", "[Virtual]")
             "water",
             wellSource<iRock, 2>::New
             (
-                "source", waterPtr(), wSrcDict, rkPtr()
+                "sourceW", waterPtr(), wSrcDict, rkPtr()
             )
         );
         sources.insert
         (
-            "dummy",
+            "oil",
             wellSource<iRock, 2>::New
             (
-                "dummy", waterPtr(), wSrcDict, rkPtr()
+                "sourceO", oilPtr(), wSrcDict, rkPtr()
             )
         );
 
@@ -217,17 +165,17 @@ SCENARIO("Imposed Phase-flowrate for a well", "[Virtual]")
         matTable.insert("water", new fvScalarMatrix(p, dimless));
         matTable.insert("oil", new fvScalarMatrix(p, dimless));
 
+        scalar BHP = 1.563e6;
         WHEN("Phase flowRate driveHandler is constructed and calls correct()")
         {
             forAll(mesh.C(), ci)
             {
                 waterPtr->alpha()[ci] = 0.2 + ci*(1-0.1-0.2)/(mesh.nCells()-1);
-                p[ci] = (10+2*ci)*6874.76; // start at 10psi, + 2psi per cell
+                p[ci] = (10+2*ci)*6874.76;
             }
 
-            dictionary driveDict("flowRate");
-            driveDict.add<word>("phase", "water");
-            driveDict.add<fileName>("file", "testData/water.rate.dat");
+            dictionary driveDict("BHP");
+            driveDict.add<fileName>("file", "testData/BHP.dat");
 
 
             autoPtr<driveHandler<iRock, 2>> dH = driveHandler<iRock, 2>::New
@@ -237,63 +185,44 @@ SCENARIO("Imposed Phase-flowrate for a well", "[Virtual]")
             krModel->correct();
             pcModel->correct();
             dH->correct();
-            matrix mat = lduMatrixToSparse(mesh, *matTable["water"]);
 
             THEN("Well Matrix for a phase must be consistent with expected one")
             {
                 // Construct the reference matrix
-                matrix expectedMat
-                (
-                    mesh.nCells(), std::vector<scalar>(mesh.nCells(), 0)
-                );
-                std::vector<scalar> expectedMatSource ( mesh.nCells(), 0 );
+                std::vector<scalar> expectedDiag ( mesh.nCells(), 0 );
+                std::vector<scalar> expectedSource ( mesh.nCells(), 0 );
                 // qi = ai * pi + bi * BHP + ci
                 // Get coefficients from well source
                 scalarList ai(cSet.size()),bi(cSet.size()),ci(cSet.size());
                 sources["water"]->calculateCoeff0(ai, wellProps, cSet.toc());
                 sources["water"]->calculateCoeff1(bi, wellProps, cSet.toc());
                 sources["water"]->calculateCoeff2(ci, wellProps, cSet.toc());
-                scalar biSum = sum(bi);
-                forAll(bi, i)
+                scalar apSum = 0;
+                forAll(ai, ci)
                 {
-                    bi[i] /= biSum;
+                    apSum += ai[ci]*p[cSet.toc()[ci]];
                 }
-                scalar qt = 1e-6; // target flowRate
                 for (label i = 0; i < cSet.toc().size(); ++i) {
                     const label cell = cSet.toc()[i];
-
                     // diagonal and source
-                    expectedMat[cell][cell] = ai[i]*(1-bi[i]);
-                    expectedMatSource[cell] = ci[i] + bi[i]*qt - bi[i]*sum(ci);
-
-                    // off-diagonal coeffs (Code for 1D meshes, well cells
-                    // are assumed to be consecutive ...)
-                    for (label j = 0; j < cSet.toc().size(); ++j) {
-                        const label cellj = cSet.toc()[j];
-                        if (cellj == cell+1 or cellj == cell-1)
-                        {
-                            expectedMat[cell][cellj] += -bi[i]*ai[j];
-                        } else if (cellj != cell ) {
-                            expectedMatSource[cell] += -bi[i]*ai[j]*p[cellj];
-                        }
-                    }
+                    expectedDiag[cell] = ai[i];
+                    expectedSource[cell] = bi[i]*BHP + ci[i];
                 }
-                //Info << setprecision(3) ;
-                //for (unsigned i = 0; i < expectedMat.size(); ++i) {
-                //for (unsigned j = 0; j < expectedMat.size(); ++j)
-                //    Info << expectedMat[i][j] << setw(10);
-                //Info << nl;
-                //}
-                //for (unsigned i = 0; i < expectedMat.size(); ++i) {
-                //Info << expectedMatSource[i] << setw(10);
-                //}
-                Info << nl;
-
-                // Test equality of expected and calculated matrices
-                Info << (*matTable["water"]).source() << endl;
                 REQUIRE_THAT
                 (
-                    expectedMatSource, 
+                    expectedDiag, 
+                    Catch::Matchers::Approx
+                    (
+                        std::vector<scalar>
+                        ( 
+                            (*matTable["water"]).diag().begin(),
+                            (*matTable["water"]).diag().end()
+                        )
+                    )
+                );
+                REQUIRE_THAT
+                (
+                    expectedSource, 
                     Catch::Matchers::Approx
                     (
                         std::vector<scalar>
@@ -301,28 +230,6 @@ SCENARIO("Imposed Phase-flowrate for a well", "[Virtual]")
                             (*matTable["water"]).source().begin(),
                             (*matTable["water"]).source().end()
                         )
-                    )
-                );
-                REQUIRE_THAT
-                (
-                    mat,
-                    Catch::Matchers::Predicate<matrix>
-                    (
-                        [expectedMat](matrix const& m) -> bool 
-                        {
-                            bool eq = true;
-                            for (size_t i = 0; i < m.size(); ++i) {
-                            for (size_t j = 0; j < m.size(); ++j) {
-                                if (Approx(m[i][j]) != expectedMat[i][j])
-                                {
-                                    eq = false;
-                                    break;
-                                }
-                            }
-                            }
-                            return eq;
-                        },
-                        "Matrix coeffs should match expected ones."
                     )
                 );
             }

@@ -37,20 +37,20 @@ flowRateDrive<RockType, nPhases>::flowRateDrive
 (
     const word& name,
     const dictionary& driveDict,
-    wellSource<RockType, nPhases>& source,
+    HashTable<autoPtr<wellSource<RockType, nPhases>>>& sources,
     sourceProperties& srcProps,
     HashPtrTable<fvScalarMatrix>& matrices
 )
 :
-    driveHandler<RockType,nPhases>(name, driveDict, source, srcProps, matrices),
-    phase_ (driveDict.lookup("phase"))
+    driveHandler<RockType,nPhases>(name,driveDict,sources,srcProps,matrices),
+    phase_ ("water"/*driveDict.lookup("phase")*/)
 {
-    if(phase_ != source.phaseName())
+    if(phase_ != sources[phase_]->phaseName())
     {
         FatalErrorInFunction
             << "Drive handler " << name << " works on "
             << phase_ << " phase but got well source describer for phase"
-            << source.phaseName() << "." << exit(FatalError);
+            << sources[phase_]->phaseName() << exit(FatalError);
     }
 }
 
@@ -77,7 +77,7 @@ void flowRateDrive<RockType, nPhases>::correct()
     }
 
     // Get refs to mesh, time, pressure and phase matrix
-    const fvMesh& mesh = this->wellSource_.rock().mesh();
+    const fvMesh& mesh = this->wellSources_[phase_]->rock().mesh();
     const scalar& timeValue = mesh.time().timeOutputValue();
     const volScalarField& p = mesh.lookupObject<volScalarField>("p");
     fvScalarMatrix& phEqn = *(this->matrices_[phase_]);
@@ -94,15 +94,15 @@ void flowRateDrive<RockType, nPhases>::correct()
     }
 
     // Get well equation coefficients from well source describer
-    this->wellSource_.calculateCoeff0
+    this->wellSources_[phase_]->calculateCoeff0
     (
         this->coeffs_[0], this->srcProps_, this->cells_
     );
-    this->wellSource_.calculateCoeff1
+    this->wellSources_[phase_]->calculateCoeff1
     (
         this->coeffs_[1], this->srcProps_, this->cells_
     );
-    this->wellSource_.calculateCoeff2
+    this->wellSources_[phase_]->calculateCoeff2
     (
         this->coeffs_[2], this->srcProps_, this->cells_
     );

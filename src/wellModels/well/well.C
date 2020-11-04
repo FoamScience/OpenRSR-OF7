@@ -229,8 +229,6 @@ void Foam::well<RockType, nPhases>::readImposedDrives
                 << "Entry " << driveInfo << " in wells section is not a"
                 << " valid dictionary." << exit(FatalIOError);
         }
-        // Set the pointer to the requested topoSetSource
-        word phaseName = driveInfo.dict().lookup("phase");
         drives_.set
         (
             di,
@@ -238,7 +236,7 @@ void Foam::well<RockType, nPhases>::readImposedDrives
             (
                 wellDict_.dictName()+"."+driveInfo.keyword(),
                 driveInfo.dict(),
-                sources[phaseName](),
+                sources,
                 srcProps_,
                 matTable
             )
