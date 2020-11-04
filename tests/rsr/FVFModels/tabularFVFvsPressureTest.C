@@ -45,8 +45,8 @@ SCENARIO("Tabulated FVF Model with before-and-after bubble point data")
             {
                 auto fvf = FVFModel::New("fvf", incDict, mesh);
 
-                CHECK( fvf->rFVF().size() == 1);
-                CHECK( fvf->drFVFdP().size() == 1);
+                CHECK( fvf->rFVF().size() == 10);
+                CHECK( fvf->drFVFdP().size() == 10);
                 REQUIRE( fvf->rFVF()[0] == 1.0 );
                 REQUIRE( fvf->drFVFdP()[0] == 0.0 );
             }

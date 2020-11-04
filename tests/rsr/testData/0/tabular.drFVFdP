@@ -9,7 +9,7 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volScalarField::Internal;
+    class       volScalarField;
     location    "0";
     object      tabular.drFVFdP;
 }
@@ -17,7 +17,24 @@ FoamFile
 
 dimensions      [-1 1 2 0 0 0 0];
 
-value           uniform 0.0;
+internalField   uniform 0.0;
 
+boundaryField
+{
+    inlet
+    {
+        type            zeroGradient;
+    }
+
+    outlet
+    {
+        type            zeroGradient;
+    }
+
+    emptyWalls
+    {
+        type            empty;
+    }
+}
 
 // ************************************************************************* //

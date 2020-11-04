@@ -36,22 +36,6 @@ SCENARIO("FVF Model Selection with Default configuration", "[Virtual]")
             }
         }
 
-        WHEN("Constructing a child FVF model in incompressible mode")
-        {
-            dict.set("FVFModel", "childFVFModel");
-            dict.add<bool>("incompressible", true); // Defualt
-
-            auto fvf = FVFModel::New("fvf", dict, mesh);
-            THEN("The selected FVF mesh is a single-cell one")
-            {
-                CHECK(fvf->rFVF().size() == 1);
-                CHECK(fvf->drFVFdP().size() == 1);
-
-                // REQUIRE THAT 0/water.rFVF is preferred over dimensionedScalar
-                REQUIRE(fvf->rFVF()[0] == 1.5);
-                REQUIRE(fvf->drFVFdP()[0] == 0.0);
-            }
-        }
         WHEN("Constructing a child FVF model in compressible mode")
         {
             dict.set("FVFModel", "childFVFModel");
