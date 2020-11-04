@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
                     (
                         phic,
                         wModel->explicitSource(canPhasePtr->name()),
-                        porosity
+                        alphaTemp
                     ),
                     maxDeltaT
                 )
@@ -82,8 +82,9 @@ int main(int argc, char *argv[])
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
         //- Solve saturation equation
+        #include "updateFields.H"
         #include "alphaEqn.H"
-        #include "updateSaturationProperties.H"
+        #include "updateSaturationFields.H"
 
         //- Solve pressure equation
         #include "pEqn.H"

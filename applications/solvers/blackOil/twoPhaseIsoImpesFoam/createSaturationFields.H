@@ -20,15 +20,17 @@ surfaceScalarField munf ("munf",fvc::interpolate(mun,"mu"));
 surfaceScalarField mucf ("mucf",fvc::interpolate(mun,"mu"));
 surfaceScalarField rhonf ("rhonf",fvc::interpolate(rhon,"rho"));
 surfaceScalarField rhocf ("rhocf",fvc::interpolate(rhon,"rho"));
+surfaceScalarField Bcf ("Bcf",fvc::interpolate(Bc,"rFVF"));
+surfaceScalarField Bnf ("Bnf",fvc::interpolate(Bn,"rFVF"));
 
 // Phase Mobility
-surfaceScalarField Mnf ("Mnf",Kf*krnf/munf);
-surfaceScalarField Lnf ("Lnf",rhonf*Kf*krnf/munf);	
-surfaceScalarField Mcf ("Mcf",Kf*krcf/mucf);
-surfaceScalarField Lcf ("Lcf",rhocf*Kf*krcf/mucf);
-surfaceScalarField Mf ("Mf",Mnf+Mcf);
-surfaceScalarField Lf ("Lf",Lnf+Lcf);
-surfaceScalarField Fcf ("Fcf",Mcf/Mf);
+surfaceScalarField Mnf ("Mnf", Bnf*Kf*krnf/munf);
+surfaceScalarField Lnf ("Lnf", rhonf*Mnf);	
+surfaceScalarField Mcf ("Mcf", Bcf*Kf*krcf/mucf);
+surfaceScalarField Lcf ("Lcf", rhocf*Mcf);
+surfaceScalarField Mf ("Mf", Mnf+Mcf);
+surfaceScalarField Lf ("Lf", Lnf+Lcf);
+surfaceScalarField Fcf ("Fcf", Mcf/Mf);
 
 // Capillary Pressure
 pcModel->correct();
@@ -44,7 +46,9 @@ surfaceScalarField phiPc
     * fvc::snGrad(Sc) * mesh.magSf()
 );
 // Well model
+Info << "----------------------------" << endl;
 autoPtr<wellModel<RockType,2>> wModel = wellModel<RockType,2>::New
 (
     "wModel", transportProperties, wellsProperties, rockPtr()
 );
+Info << "----------------------------" << endl;

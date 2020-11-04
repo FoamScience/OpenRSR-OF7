@@ -1,7 +1,8 @@
 {
     fvScalarMatrix pEqn
         (
-            fvm::laplacian(-Mf, p) + fvc::div(phiG)
+            fvc::ddt(pTemp, Sc)
+            + fvm::laplacian(-Mf, p) + fvc::div(phiG)
             + fvc::div(phiPc)
             + wModel->source(canPhasePtr->name())
             + wModel->source(nonCanPhasePtr->name())

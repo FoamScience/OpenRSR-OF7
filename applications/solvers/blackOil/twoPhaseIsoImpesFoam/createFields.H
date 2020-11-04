@@ -41,6 +41,7 @@ volScalarField& Sc = canPhasePtr->alpha();
 surfaceScalarField& phic = canPhasePtr->phi();
 const auto& rhoc = canPhasePtr->rho();
 const auto& muc = canPhasePtr->mu();
+const auto& Bc = canPhasePtr->BModel().rFVF();
 
 // Non-canonical phase
 autoPtr<phase> nonCanPhasePtr = phase::New(phaseNames.second(), mesh,transportProperties);
@@ -49,6 +50,7 @@ volScalarField& Sn = nonCanPhasePtr->alpha();
 surfaceScalarField& phin = nonCanPhasePtr->phi();
 const auto& rhon = nonCanPhasePtr->rho();
 const auto& mun = nonCanPhasePtr->mu();
+const auto& Bn = nonCanPhasePtr->BModel().rFVF();
 
 // Viscosities ratio
 volScalarField Mmu(muc/mun);
@@ -105,4 +107,32 @@ IOdictionary wellsProperties
         IOobject::MUST_READ,
         IOobject::NO_WRITE
     )
+);
+
+// Equation terms coeffs
+//- Temporal term coeff for saturation eqn
+volScalarField alphaTemp
+(
+    IOobject
+    (
+        "porosity*conPhase.rFVF",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
+    porosity * Bc
+);
+//- Temporal term coff for pressure eqn
+volScalarField pTemp
+(
+    IOobject
+    (
+        "porosity*(conPhase.rFVF+nonconPhase.rFVF)",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
+    porosity * (Bc - Bn)
 );

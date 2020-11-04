@@ -20,7 +20,7 @@
     //- Saturation equation
     fvScalarMatrix ScEqn
     (
-        porosity*fvm::ddt(Sc) + fvc::div(phic) 
+        fvm::ddt(alphaTemp,Sc) + fvc::div(phic) 
     );
     ScEqn.source() += wModel->explicitSource(canPhasePtr->name());
 
