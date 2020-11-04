@@ -36,6 +36,11 @@ wells
         );
         imposedDrives
         (
+            //BHP
+            //{
+            //    file    "BHP";
+            //    interpolationType stepped;
+            //}
             flowRate
             {
                 phase "water";

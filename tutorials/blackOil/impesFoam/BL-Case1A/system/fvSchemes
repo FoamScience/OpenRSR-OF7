@@ -43,8 +43,7 @@ interpolationSchemes
     "water.(|d)kr.*"        upwind water.phi;
     "oil.(|d)kr.*"        upwind oil.phi;
     flux(U)     linear;
-    mu linear;
-    rho linear;
+    "(mu|rho|rFVF)" linear;
 }
 
 snGradSchemes

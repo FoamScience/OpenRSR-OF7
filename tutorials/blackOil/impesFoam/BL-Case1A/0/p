@@ -16,21 +16,21 @@ FoamFile
 
 dimensions      [1 -1 -2 0 0 0 0];
 
-internalField   uniform 0.0;
+internalField   uniform 10e6;
 
 boundaryField
 {
     inlet      
     {
 	type		darcyGradPressure;
-	///type		zeroGradient;
-	value		uniform 0;
+	//type		zeroGradient;
+	value		uniform $internalField;
     }
 
     outlet      
     {
 	type		fixedValue;
-	value		uniform 0;
+	value		uniform 10e6;
     }
 
     frontAndBack    
