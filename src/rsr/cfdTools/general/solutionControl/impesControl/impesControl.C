@@ -143,7 +143,6 @@ Foam::scalar Foam::impesControl<RockType,nPhases>::deltaT
     gMaxCFLNo = gMax(CFLMethod_->CFLNo());
     scalar maxCFLDeltaT = maxCo/(gMaxCFLNo + vSmall);
     goodDeltaT = min(min(maxCFLDeltaT, 1 + 0.1*maxCFLDeltaT), 1.2);
-    Info << goodDeltaT << endl;
     return min
     (
         dtForAlphaEqn,
