@@ -4,6 +4,7 @@ using SurfacePermType = surfaceScalarField;
 using RockType = rock<PermType>;
 
 Info << "Reading pressure field p" << endl;
+
 volScalarField p
 (
     IOobject
@@ -52,9 +53,6 @@ const auto& rhon = nonCanPhasePtr->rho();
 const auto& mun = nonCanPhasePtr->mu();
 const auto& Bn = nonCanPhasePtr->BModel().rFVF();
 
-// Viscosities ratio
-volScalarField Mmu(muc/mun);
-
 // Rock
 autoPtr<RockType> rockPtr = RockType::New("rock", mesh, transportProperties);
 const PermType& K = rockPtr->K();
@@ -69,7 +67,6 @@ autoPtr<relPermModel<RockType,2>> krModel = relPermModel<RockType,2>::New
     transportProperties,
     rockPtr()
 );
-
 word pcModelName = "pcModel<"+phaseNames.first()+","+phaseNames.second()+">";
 autoPtr<capPressModel<RockType,2>> pcModel = capPressModel<RockType,2>::New
 (
@@ -78,7 +75,9 @@ autoPtr<capPressModel<RockType,2>> pcModel = capPressModel<RockType,2>::New
     rockPtr()
 );
 
+// Global velocity 
 Info << nl << "Reading field U" << endl;
+
 volVectorField U
 (
     IOobject
@@ -92,9 +91,14 @@ volVectorField U
     Un + Uc
 );
 
+// Global flux
 #include "createPhi.H"
+
+// Diffusion-induced flux
 surfaceScalarField phiP = phi;
 
+
+// Well model
 Info << nl << "Reading wellsProperties" << endl;
 
 IOdictionary wellsProperties
@@ -110,8 +114,8 @@ IOdictionary wellsProperties
 );
 
 // Equation terms coeffs
-//- Temporal term coeff for saturation eqn
-volScalarField alphaTemp
+//- Storage term coeff for saturation eqn
+volScalarField alphaStorage
 (
     IOobject
     (
@@ -124,11 +128,11 @@ volScalarField alphaTemp
     porosity * Bc
 );
 //- Temporal term coff for pressure eqn
-volScalarField pTemp
+volScalarField pStorage
 (
     IOobject
     (
-        "porosity*(conPhase.rFVF+nonconPhase.rFVF)",
+        "porosity*(conPhase.rFVF-nonconPhase.rFVF)",
         runTime.timeName(),
         mesh,
         IOobject::NO_READ,
@@ -136,3 +140,8 @@ volScalarField pTemp
     ),
     porosity * (Bc - Bn)
 );
+
+// Reference Pressure from IMPES settings
+label  pRefCell  = 0;
+scalar pRefValue = 0;
+setRefCell(p, mesh.solutionDict().subDict("IMPES"), pRefCell, pRefValue);

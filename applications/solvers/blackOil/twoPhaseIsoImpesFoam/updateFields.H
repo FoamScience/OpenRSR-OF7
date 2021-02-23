@@ -3,5 +3,5 @@ canPhasePtr->correct();
 nonCanPhasePtr->correct();
 
 // Update eqn. terms
-alphaTemp = porosity * Bc;
-pTemp = porosity * (Bc - Bn);
+alphaStorage = porosity * Bc;
+pStorage = porosity * (Bc - Bn);

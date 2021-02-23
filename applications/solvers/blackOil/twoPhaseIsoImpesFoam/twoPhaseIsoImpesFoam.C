@@ -22,11 +22,11 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    impesFoam
+    twoPhaseIsoImpesFoam
 
 Description
-    Transient solver for two-phase flow in isotropic porous media using the
-    IMPES method 
+    Transient solver for two-phase BlackOil flow in isotropic porous media using
+    the IMPES method.
 
 \*---------------------------------------------------------------------------*/
 
@@ -47,10 +47,17 @@ int main(int argc, char *argv[])
     #include "createTimeControls.H"
     #include "readGravitationalAcceleration.H"
     #include "createFields.H"
+    #include "initContinuityErrs.H"
     #include "createSaturationFields.H"
     #include "readTimeControls.H"
 
-    impesControl<RockType,2> impes("IMPES",phi,wordList(phaseNames),rockPtr());
+    impesControl<RockType,2> impes
+    (
+        "IMPES",
+        phi,
+        wordList(phaseNames),
+        rockPtr()
+    );
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -58,8 +65,10 @@ int main(int argc, char *argv[])
 
     while (impes.loop(runTime))
     {
+        // Setup well sources
         wModel->correct();
 
+        // Adjust timestep
         if (adjustTimeStep)
         {
             runTime.setDeltaT
@@ -71,7 +80,7 @@ int main(int argc, char *argv[])
                     (
                         phic,
                         wModel->explicitSource(canPhasePtr->name()),
-                        alphaTemp
+                        alphaStorage
                     ),
                     maxDeltaT
                 )
@@ -81,13 +90,16 @@ int main(int argc, char *argv[])
 
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
-        //- Solve saturation equation
+
+        //- Solve saturation equation and update saturation fields
         #include "updateFields.H"
         #include "alphaEqn.H"
         #include "updateSaturationFields.H"
 
-        //- Solve pressure equation
+        //- Solve pressure equation and update pressure-related fluxes
         #include "pEqn.H"
+        #include "continuityErrs.H"
+        
 
         runTime.write();
 

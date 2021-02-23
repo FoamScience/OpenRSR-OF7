@@ -1,12 +1,14 @@
+// non-canonical saturation
 Sn = 1 - Sc;
 
-//- Update Kr
+//- Update Kr fields
 krModel->correct();
 krcf = fvc::interpolate(krc,krc.name());
 krnf = fvc::interpolate(krn, krn.name());
 dkrcfdS = fvc::interpolate(dkrcdS,dkrcdS.name());
 dkrnfdS = fvc::interpolate(dkrndS,dkrndS.name());
 
+//- Reinterpolate phase properties
 munf = fvc::interpolate(mun,"mu");
 mucf = fvc::interpolate(muc,"mu");
 rhonf = fvc::interpolate(rhon,"rho");
@@ -23,7 +25,7 @@ Mf = Mnf+Mcf;
 Lf = Lnf+Lcf;
 Fcf = Mcf/Mf;
 
-//- "Auxilary" fluxes
+//- Gravitational and capillary flux updates
 pcModel->correct();
 phiPc = Mcf * fvc::interpolate(pcModel()[dpcName],"pc") * fvc::snGrad(Sc)
     * mesh.magSf();

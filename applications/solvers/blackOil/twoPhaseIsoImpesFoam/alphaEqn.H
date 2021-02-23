@@ -17,10 +17,10 @@
         }
     }
   
-    //- Saturation equation
+    //- Canonical saturation equation
     fvScalarMatrix ScEqn
     (
-        fvm::ddt(alphaTemp,Sc) + fvc::div(phic) 
+        fvm::ddt(alphaStorage,Sc) + fvc::div(phic) 
     );
     ScEqn.source() += wModel->explicitSource(canPhasePtr->name());
 

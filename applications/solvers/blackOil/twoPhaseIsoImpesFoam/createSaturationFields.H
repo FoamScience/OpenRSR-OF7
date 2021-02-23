@@ -16,6 +16,8 @@ surfaceScalarField krnf ("krnf",fvc::interpolate(krn, krn.name()));
 surfaceScalarField dkrcfdS ("dkrcfdS",fvc::interpolate(dkrcdS, dkrcdS.name()));
 surfaceScalarField dkrnfdS ("dkrnfdS",fvc::interpolate(dkrndS, dkrndS.name()));
 
+// Face-interpolations of fluid properties
+
 surfaceScalarField munf ("munf",fvc::interpolate(mun,"mu"));
 surfaceScalarField mucf ("mucf",fvc::interpolate(mun,"mu"));
 surfaceScalarField rhonf ("rhonf",fvc::interpolate(rhon,"rho"));
@@ -23,7 +25,7 @@ surfaceScalarField rhocf ("rhocf",fvc::interpolate(rhon,"rho"));
 surfaceScalarField Bcf ("Bcf",fvc::interpolate(Bc,"rFVF"));
 surfaceScalarField Bnf ("Bnf",fvc::interpolate(Bn,"rFVF"));
 
-// Phase Mobility
+// Phase Mobility and fractional flow
 surfaceScalarField Mnf ("Mnf", Bnf*Kf*krnf/munf);
 surfaceScalarField Lnf ("Lnf", rhonf*Mnf);	
 surfaceScalarField Mcf ("Mcf", Bcf*Kf*krcf/mucf);
@@ -45,10 +47,9 @@ surfaceScalarField phiPc
     Mcf * fvc::interpolate(pcModel()[dpcName],"pc")
     * fvc::snGrad(Sc) * mesh.magSf()
 );
-// Well model
-Info << "----------------------------" << endl;
+
+// Well model (Needs to be last registered thing to do)
 autoPtr<wellModel<RockType,2>> wModel = wellModel<RockType,2>::New
 (
     "wModel", transportProperties, wellsProperties, rockPtr()
 );
-Info << "----------------------------" << endl;

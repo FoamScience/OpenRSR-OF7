@@ -1,14 +1,19 @@
 {
+    // canPhase eqn + nonCanPhase eqn
     fvScalarMatrix pEqn
-        (
-            fvc::ddt(pTemp, Sc)
-            + fvm::laplacian(-Mf, p) + fvc::div(phiG)
-            + fvc::div(phiPc)
-            + wModel->source(canPhasePtr->name())
-            + wModel->source(nonCanPhasePtr->name())
-        );
+    (
+        fvc::ddt(pStorage, Sc)
+        + fvm::laplacian(-Mf, p) + fvc::div(phiG)
+        + fvc::div(phiPc)
+        + wModel->source(canPhasePtr->name())
+        + wModel->source(nonCanPhasePtr->name())
+    );
+
+    pEqn.setReference(pRefCell, pRefValue);
 
     pEqn.solve();
+
+    // Update fluxes and velocities
 
     phiP = pEqn.flux();
 
