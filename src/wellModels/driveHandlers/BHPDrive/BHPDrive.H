@@ -64,7 +64,7 @@ protected:
 
     // Protected Data Members
 
-        //- Attached phase
+        //- Attached phases
         wordList phases_;
 
 public:

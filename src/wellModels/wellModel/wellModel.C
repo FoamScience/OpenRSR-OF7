@@ -25,6 +25,7 @@ License
 
 #include "volFieldsFwd.H"
 #include "wellModel.H"
+#include "findRefCell.H"
 #include <set>
 
 // * * * * * * * * * * * *  Static Member Functions  * * * * * * * * * * * * //
@@ -76,6 +77,8 @@ Foam::wellModel<RockType, nPhases>::wellModel
     wellsProperties_(wellsProperties),
     rock_(rock),
     p_(rock.mesh().template lookupObject<volScalarField>("p")),
+    pRefCell_(0),
+    pRefValue_(0),
     groups_(),
     sources_(),
     matTable_(),
@@ -110,6 +113,12 @@ Foam::wellModel<RockType, nPhases>::wellModel
         (
             phaseNames_[pi],
             new fvScalarMatrix(p_,dimVolume/dimTime)
+        );
+        matTable_[phaseNames_[pi]]->boundaryCoeffs() *= 0;
+        matTable_[phaseNames_[pi]]->setReference
+        (
+            pRefCell_,
+            pRefValue_
         );
     }
 
@@ -208,6 +217,12 @@ void Foam::wellModel<RockType, nPhases>::clearMatrices()
             phaseNames_[pi],
             new fvScalarMatrix(p_,dimVolume/dimTime)
         );
+        matTable_[phaseNames_[pi]]->boundaryCoeffs() *= 0;
+        matTable_[phaseNames_[pi]]->setReference
+        (
+            pRefCell_,
+            pRefValue_
+        );
     }
 }
 
@@ -222,19 +237,22 @@ Foam::wellModel<RockType, nPhases>::explicitSource
 ) const
 {
     const fvScalarMatrix& mT = *matTable_[phase];
-    scalarField res;
+    tmp<scalarField> tres(new scalarField(p_.mesh().nCells()));
+    scalarField& res = tres.ref(); 
 
     if (!mT.hasDiag())
     {
         res = mT.source();
-        return res;
+        return tres;
     }
 
-    if (mT.diagonal())
+    if (mT.hasDiag() and !mT.hasLower())
     {
-        res = mT.diag()*p_.internalField() + mT.source();
-        return res;
+        res = mT.diag() * p_.internalField() + mT.source();
+        return tres;
     }
+
+    // If the matrix is at least symmetric
     scalarField Ap(p_.mesh().nCells());
     mT.Amul
     (
@@ -245,7 +263,7 @@ Foam::wellModel<RockType, nPhases>::explicitSource
         0
     );
     res = Ap + mT.source();
-    return res;
+    return tres;
 }
 
 // ************************************************************************* //

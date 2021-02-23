@@ -24,6 +24,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "BHPDrive.H"
+#include "volFieldsFwd.H"
 
 namespace Foam 
 {
@@ -66,7 +67,6 @@ void BHPDrive<RockType, nPhases>::correct()
     // Get refs to mesh, time, pressure and phase matrix
     const fvMesh& mesh = this->wellSources_[phases_[0]]->rock().mesh();
     const scalar& timeValue = mesh.time().timeOutputValue();
-    const label& opSign = this->srcProps_.operationSign();
 
     // Get interpolated value for imposed BHP
     scalar BHP = this->driveSeries_->interpolate(timeValue)[0];
@@ -106,9 +106,9 @@ void BHPDrive<RockType, nPhases>::correct()
         forAll(this->cells_, ci)
         {
             const label cellID = this->cells_[ci];
-            phEqn.diag()[cellID] += opSign * this->coeffs_[0][ci];
-            phEqn.source()[cellID] += opSign
-                * (this->coeffs_[1][ci]*BHP + this->coeffs_[2][ci]);
+            phEqn.diag()[cellID] += this->coeffs_[0][ci];
+            phEqn.source()[cellID] += this->coeffs_[1][ci]*BHP 
+                + this->coeffs_[2][ci];
         }
     }
 }

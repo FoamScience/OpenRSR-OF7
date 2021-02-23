@@ -147,7 +147,7 @@ public:
         }
 
         //- Return well source dict
-        const word& dict() const {
+        const dictionary& dict() const {
             return wellSourceDict_;
         }
 

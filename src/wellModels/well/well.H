@@ -102,9 +102,6 @@ protected:
         //- Well perforation intervals
         PtrList<topoSetSource> perfos_;
 
-        //- Well total volume
-        dimensionedScalar V_;
-
         //- Well drives
         PtrList<driveHandler<RockType, nPhases>> drives_;
 
@@ -246,7 +243,7 @@ public:
         //- Return total volume of well cells
         const dimensionedScalar& totalVolume() const
         {
-            return V_;
+            return srcProps_.V();
         }
 
         //- Register well to groups from dictionary

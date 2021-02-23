@@ -60,7 +60,9 @@ void peacemanWellModel<RockType, nPhases>::correct()
     {
         return;
     }
+
     this->clearMatrices();
+
     forAll(this->wells_, wi)
     {
         this->wells_[wi].correct();

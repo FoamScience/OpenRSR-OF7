@@ -43,7 +43,7 @@ flowRateDrive<RockType, nPhases>::flowRateDrive
 )
 :
     driveHandler<RockType,nPhases>(name,driveDict,sources,srcProps,matrices),
-    phase_ ("water"/*driveDict.lookup("phase")*/)
+    phase_ (driveDict.lookupOrDefault<word>("phase", "water"))
 {
     if(phase_ != sources[phase_]->phaseName())
     {
@@ -84,7 +84,7 @@ void flowRateDrive<RockType, nPhases>::correct()
     const label& opSign = this->srcProps_.operationSign();
 
     // Get interpolated value for imposed phase flowrate
-    scalar qt = opSign*this->driveSeries_->interpolate(timeValue)[0];
+    scalar qt = opSign * this->driveSeries_->interpolate(timeValue)[0];
 
     // If well has one cell
     if (this->cells_.size() == 1)
@@ -157,12 +157,6 @@ void flowRateDrive<RockType, nPhases>::correct()
         if (phEqn.asymmetric()) phEqn.lower()[faceID] += -b[in]*a[jn];
     }
     
-    //// Flip source terms for injection operations
-    //forAll(this->cells_, ci)
-    //{
-    //    const label cellID = this->cells_[ci];
-    //    phEqn.source()[cellID] *= opSign;
-    //}
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

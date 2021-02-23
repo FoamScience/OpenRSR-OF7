@@ -86,6 +86,10 @@ protected:
         //const volScalarField& p_;
         const volScalarField& p_;
 
+        //- Reference pressure
+        label pRefCell_;
+        scalar pRefValue_;
+
         //- List of pointers to well groups
         PtrList<objectRegistry> groups_;
 
