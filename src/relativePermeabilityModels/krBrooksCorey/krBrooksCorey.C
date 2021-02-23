@@ -245,36 +245,31 @@ void krBrooksCorey<RockType>::correct()
 
     forAll(alpha_.internalField(), ci)
     {
-        if( alpha_[ci] < Scr_[ci] )
+        scalar SoeUpper = 1-alpha_[ci]-Sor_[ci];
+        scalar SceUpper = alpha_[ci]-Scr_[ci];
+        scalar SceLower = 1-Scr_[ci]-Sor_[ci];
+
+        if( SceUpper <= 0 )
         {
-            kr1[ci] = VSMALL;
+            kr1[ci] = 0;
             kr2[ci] = kroMax_[ci];
-            dkr1[ci] = 0;
-            dkr2[ci] = 0;
-        } else if( alpha_[ci] > (1-Sor_[ci]) ) {
+            dkr1[ci] = vSmall;
+            dkr2[ci] = vSmall;
+        } else if (SoeUpper <= 0)
+        {
             kr1[ci] = krcMax_[ci];
-            kr2[ci] = VSMALL;
-            dkr1[ci] = 0;
-            dkr2[ci] = 0;
+            kr2[ci] = 0;
+            dkr1[ci] = vSmall;
+            dkr2[ci] = vSmall;
         } else {
             // Calculate Krs
-            scalar SoeUpper = 1-alpha_[ci]-Sor_[ci];
-            scalar SceUpper = alpha_[ci]-Scr_[ci];
-            scalar SceLower = 1-Scr_[ci]-Sor_[ci];
             kr1[ci] = krcMax_[ci] * pow(SceUpper/SceLower, mc_[ci]);
             kr2[ci] = kroMax_[ci] * pow(SoeUpper/SceLower, mo_[ci]);
 
-            // Calculate Kr Derivatives irt S_
-            if (SoeUpper != 0 && SceUpper != 0)
-            {
-                dkr1[ci] = mc_[ci]*kr1[ci]/SceUpper;
-                dkr2[ci] = -mo_[ci]*kr2[ci]/SoeUpper;
-            } else {
-                dkr1[ci] = mc_[ci] * krcMax_[ci] *
-                            pow(SceUpper/SceLower, mc_[ci]-1)/SceLower;
-                dkr2[ci] = -mo_[ci] * kroMax_[ci] *
-                            pow(SoeUpper/SceLower, mo_[ci]-1)/SceLower;
-            }
+            // Calculate Kr Derivatives irt S
+            dkr1[ci] = kr1[ci]*mc_[ci]/SceUpper;
+            dkr2[ci] = -kr2[ci]*mo_[ci]/SoeUpper;
+
         }
     }
 }
