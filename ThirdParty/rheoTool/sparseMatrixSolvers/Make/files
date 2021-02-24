@@ -1,0 +1,12 @@
+sparseSolverBase.C
+
+coupled/BCs/regionCoupledAMIPolyPatch.C
+coupled/BCs/regionCoupledAMIPointPatch.C
+coupled/BCs/regionCoupledAMIFvPatch.C
+coupled/BCs/coupledT/coupledTFvPatchScalarField.C
+
+coupled/coupledSolver.C 
+
+sparseMatrixSolvers.C
+ 
+LIB = $(FOAM_USER_LIBBIN)/libsparseMatrixSolvers
