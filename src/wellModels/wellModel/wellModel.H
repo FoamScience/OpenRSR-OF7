@@ -45,6 +45,7 @@ SourceFiles
 #include "fvMatricesFwd.H"
 #include "objectRegistry.H"
 #include "phase.H"
+#include "regIOobject.H"
 #include "rock.H"
 #include "addToTemplatedRunTimeSelection.H"
 #include "volFieldsFwd.H"
@@ -62,6 +63,8 @@ namespace Foam
 
 template<class RockType, int nPhases>
 class wellModel
+:
+    public regIOobject
 {
 
 protected:
@@ -195,6 +198,11 @@ public:
 
         //- Update well model sources
         virtual void correct() = 0;
+
+        virtual bool writeData(Ostream&) const
+        {
+            return 0;
+        }
 
     // Member Operators
 

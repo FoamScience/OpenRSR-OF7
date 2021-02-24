@@ -37,6 +37,7 @@ SourceFiles
 
 #include "IOobject.H"
 #include "error.H"
+#include "objectRegistry.H"
 #include "phase.H"
 #include "rock.H"
 #include "cellSet.H"
@@ -80,8 +81,18 @@ struct wellGrpIO : public regIOobject
 template<class RockType, int nPhases>
 class well
 :
-    public List<autoPtr<regIOobject>>
+    public regIOobject
 {
+
+public:
+
+    // Static Member Data
+    
+        //- Global Wells group names
+        static wordList gGroupNames;
+
+        //- Global Wells groups list
+        static PtrList<objectRegistry> gGroups;
 
 protected:
 
@@ -96,7 +107,7 @@ protected:
         //- Const access to the rock object
         const RockType& rock_;
 
-        //- Well groups
+        //- Groups this well belongs to
         wordList wellGroups_;
 
         //- Well perforation intervals
@@ -268,6 +279,11 @@ public:
         //        drives_[di].correct();
         //    }
         //};
+
+        virtual bool writeData(Ostream&) const
+        {
+            return 0;
+        }
 
     // Member Operators
 

@@ -23,11 +23,25 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+#include "IOobject.H"
 #include "UList.H"
 #include "error.H"
+#include "objectRegistry.H"
 #include "regIOobject.H"
 #include "well.H"
 #include "faceToCell.H"
+
+// * * * * * * * * * * * *  Static Member Data * * * * * * * * * * * * * * * //
+
+template<class RockType, int nPhases>
+Foam::wordList
+Foam::well<RockType, nPhases>::gGroupNames(1, "defaultGrp");
+
+
+template<class RockType, int nPhases>
+Foam::PtrList<Foam::objectRegistry>
+Foam::well<RockType, nPhases>::gGroups{};
+
 
 // * * * * * * * * * * * *  Static Member Functions  * * * * * * * * * * * * //
 
@@ -76,7 +90,17 @@ Foam::well<RockType, nPhases>::well
     HashPtrTable<fvScalarMatrix>& matTable
 )
 :
-    List<autoPtr<regIOobject> >(),
+    regIOobject
+    (
+        IOobject
+        (
+            name,
+            rock.mesh().time().constant(),
+            rock.mesh(),
+            IOobject::NO_READ,
+            IOobject::NO_WRITE
+        )
+    ),
     name_(wellDict.dictName()),
     wellDict_(wellDict),
     rock_(rock),
@@ -117,28 +141,38 @@ Foam::well<RockType, nPhases>::~well()
 template<class RockType, int nPhases>
 void Foam::well<RockType, nPhases>::registerToGroups()
 {
-    this->List<autoPtr<regIOobject>>::setSize(wellGroups_.size());
     forAll(wellGroups_, gi)
     {
-        const objectRegistry& wg =
-            rock_.mesh().template lookupObject<objectRegistry>
+        // If the group is not yet in global groups, create it there
+        int index = findIndex(gGroupNames, wellGroups_[gi]);
+        if (index == -1)
+        {
+            gGroupNames.append(wellGroups_[gi]);
+            gGroups.setSize(gGroups.size() + 1);
+            gGroups.set
             (
-                wellGroups_[gi]
-            );
-        this->List<autoPtr<regIOobject>>::operator[](gi).set
-        (
-            new wellGrpIO
-            (
-                IOobject
+                gGroups.size()-1,
+                new objectRegistry
                 (
-                    wellGroups_[gi]+name_,
-                    rock_.mesh().time().timeName(),
-                    wg,
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE
+                    wellGrpIO
+                    (
+                        IOobject
+                        (
+                            wellGroups_[gi],
+                            rock_.mesh().time().timeName(),
+                            rock_.mesh(),
+                            IOobject::NO_READ,
+                            IOobject::NO_WRITE
+                        )
+                    )
                 )
-            )
-        );
+            );
+        }
+
+        // Register the well to the group
+        objectRegistry& wg =
+            rock_.mesh().template lookupObjectRef<objectRegistry>(wellGroups_[gi]);
+        wg.checkIn(*this);
     }
 }
 

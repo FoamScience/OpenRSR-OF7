@@ -23,6 +23,8 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+#include "IOobject.H"
+#include "regIOobject.H"
 #include "volFieldsFwd.H"
 #include "wellModel.H"
 #include "findRefCell.H"
@@ -72,6 +74,17 @@ Foam::wellModel<RockType, nPhases>::wellModel
     const RockType& rock
 )
 :
+    regIOobject
+    (
+        IOobject
+        (
+            name,
+            rock.mesh().time().constant(),
+            rock.mesh(),
+            IOobject::NO_READ,
+            IOobject::NO_WRITE
+        )
+    ),
     name_(name),
     phaseNames_(transportProperties.lookup("phases")),
     wellsProperties_(wellsProperties),
