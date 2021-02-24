@@ -1,0 +1,28 @@
+sinclude $(GENERAL_RULES)/mplib$(WM_MPLIB)
+sinclude $(RULES)/mplib$(WM_MPLIB)
+
+EXE_INC = \
+    -std=c++14 -DFULLDEBUG \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/meshTools/lnInclude \
+    -I../../../../src/rsr/lnInclude \
+    -I../../../../src/relativePermeabilityModels/lnInclude \
+    -I../../../../src/capillaryPressureModels/lnInclude \
+    -I../../../../src/wellModels/lnInclude \
+    -I../../../../ThirdParty/rheoTool/fvmb/lnInclude \
+    -I../../../../ThirdParty/rheoTool/sparseMatrixSolvers/lnInclude \
+    -isystem$(PETSC_DIR)/$(PETSC_ARCH)/include \
+    -isystem$(PETSC_DIR)/include \
+    $(PFLAGS) $(PINC)
+
+EXE_LIBS = \
+    -lfiniteVolume \
+    -lfvOptions \
+    -lmeshTools \
+    -L$(FOAM_USER_LIBBIN) \
+    -lRSR \
+    -lwellModels \
+    -lfvmb \
+    -lsparseMatrixSolvers \
+    -L$(PETSC_DIR)/$(PETSC_ARCH)/lib -lpetsc \
+    $(PLIBS)
