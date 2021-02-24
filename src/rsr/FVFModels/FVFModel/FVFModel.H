@@ -76,14 +76,11 @@ protected:
         //- is this FVF model for an incompressible phase
         bool isIncompressible_;
 
-        //- A One-cell mesh for optimized incompressible phase operations
-        autoPtr<singleCellFvMesh> oneCellMesh_;
-
         //- 1|FVF field
-        DimensionedField<scalar, volMesh> rFVF_;
+        volScalarField rFVF_;
 
         //- d(1|FVF)/dP field
-        DimensionedField<scalar, volMesh> drFVFdP_;
+        volScalarField drFVFdP_;
 
 
 public:
@@ -162,21 +159,17 @@ public:
         //- Return employed mesh
         const fvMesh& fieldsMesh() const
         {
-            if (isIncompressible_)
-            {
-                return oneCellMesh_();
-            }
             return mesh_;
         }
 
         //- Return const ref to 1|FVF
-        const DimensionedField<scalar,volMesh>& rFVF() const
+        const volScalarField& rFVF() const
         {
             return rFVF_;
         }
 
         //- Return const ref d(1|FVF)/dP
-        const DimensionedField<scalar,volMesh>& drFVFdP() const
+        const volScalarField& drFVFdP() const
         {
             return drFVFdP_;
         }

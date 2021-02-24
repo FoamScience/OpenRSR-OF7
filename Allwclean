@@ -1,6 +1,9 @@
 #!/bin/sh
 
-libs="rsr"
+libs="rsr\
+    relativePermeabilityModels\
+    capillaryPressureModels\
+    wellModels"
 root=$PWD
 
 # Clean libraries

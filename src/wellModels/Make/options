@@ -1,0 +1,18 @@
+EXE_INC = \
+    --std=c++14 -DFULLDEBUG \
+    -I$(LIB_SRC)/OpenFOAM/lnInclude \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/meshTools/lnInclude \
+    -I../rsr/lnInclude \
+    -I../relativePermeabilityModels/lnInclude \
+    -I../capillaryPressureModels/lnInclude
+
+
+LIB_LIBS = \
+    -lOpenFOAM \
+    -lfiniteVolume \
+    -lmeshTools \
+    -L$(FOAM_USER_LIBBIN) \
+    -lRSR \
+    -lrelativePermeabilityModels \
+    -lcapillaryPressureModels

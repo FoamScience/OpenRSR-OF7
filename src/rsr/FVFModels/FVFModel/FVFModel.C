@@ -81,21 +81,6 @@ Foam::FVFModel::FVFModel
     (
         phaseDict_.lookupOrAddDefault<bool>("incompressible", false)
     ),
-    oneCellMesh_
-    (
-        new singleCellFvMesh
-        (
-            IOobject
-            (
-                name+".singleCellMesh",
-                mesh.polyMesh::instance(),
-                mesh.time(),
-                IOobject::NO_READ,
-                IOobject::NO_WRITE
-            ),
-            mesh
-        )
-    ),
     rFVF_
     (
         IOobject
@@ -104,11 +89,11 @@ Foam::FVFModel::FVFModel
             mesh.time().timeName(),
             mesh,
             isIncompressible_
-                ? IOobject::READ_IF_PRESENT
-                : IOobject::MUST_READ,
+                ? IOobject::NO_READ
+                : IOobject::READ_IF_PRESENT,
             IOobject::NO_WRITE
         ),
-        isIncompressible_ ? oneCellMesh_() : mesh,
+        mesh,
         dimensionedScalar
         (
             "rFVF",
@@ -126,11 +111,11 @@ Foam::FVFModel::FVFModel
             mesh.time().timeName(),
             mesh,
             isIncompressible_
-                ? IOobject::READ_IF_PRESENT
-                : IOobject::MUST_READ,
+                ? IOobject::NO_READ
+                : IOobject::READ_IF_PRESENT,
             IOobject::NO_WRITE
         ),
-        isIncompressible_ ? oneCellMesh_() : mesh,
+        mesh,
         dimensionedScalar
         (
             "drFVFdP",
@@ -152,7 +137,6 @@ Foam::FVFModel::FVFModel
     phaseDict_(fvfModel.phaseDict_),
     mesh_(fvfModel.mesh_),
     isIncompressible_(fvfModel.isIncompressible_),
-    oneCellMesh_(fvfModel.oneCellMesh_),
     rFVF_(fvfModel.rFVF_),
     drFVFdP_(fvfModel.drFVFdP_)
 {}

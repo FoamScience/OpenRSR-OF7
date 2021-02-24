@@ -1,0 +1,7 @@
+wellModels/peacemanWellModel/peacemanWellModelTest.C
+driveHandlers/flowRateDrive/flowRateDriveTest.C
+driveHandlers/BHPDrive/BHPDriveTest.C
+wellSources/peacemanWellSource/twoPhasePeacemanWellSourceTest.C
+wellModelsTestDriver.C
+
+EXE = wellModelsTestDriver
