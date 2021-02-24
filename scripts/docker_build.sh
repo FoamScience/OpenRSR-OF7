@@ -31,7 +31,7 @@ source $bashrc_path
 set -ev
 
 # Get to the directory, compile libraries (Opt mode)
-cd $USER/OpenRSR-OF7; ./Allwclean; ./Allwmake
+cd $USER/OpenRSR-OF7; ./scripts/installPetsc.sh &&  ./Allwclean; ./Allwmake
 
 # Run tests
 echo "Testing Libraries:"

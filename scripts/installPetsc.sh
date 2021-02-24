@@ -29,7 +29,7 @@ mpiCXX=$(which mpicxx)
 [ -z "$WM_PROJECT_DIR" ] && \
     { echo "\nERROR: Please source OpenFOAM's /etc/bashrc\n"; exit 1; }
 echo "\nDownloading Petsc v$PetscV \n"
-#wget -c "http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-$PetscV.tar.gz"
+wget -c "http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-$PetscV.tar.gz"
 
 # Untar the file
 tar -xvzf petsc-$PetscV.tar.gz
