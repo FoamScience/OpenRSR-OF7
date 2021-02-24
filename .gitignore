@@ -39,6 +39,7 @@
 
 # All kinds of log files
 *.log
+dev-session.yml
 
 # mesh sets and zones
 **/sets/**

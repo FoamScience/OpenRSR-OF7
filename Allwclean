@@ -1,15 +1,7 @@
 #!/bin/sh
 
-libs="rsr\
-    relativePermeabilityModels\
-    capillaryPressureModels\
-    wellModels"
 root=$PWD
 
-# Clean libraries
-for lib in $libs; do
-    wclean $root/src/$lib
-done
-
-# Clean all solvers
-#wclean all solvers
+wclean all $root/src
+wclean all $root/ThirdParty
+wclean all $root/applications/solvers

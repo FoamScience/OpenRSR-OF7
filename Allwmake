@@ -17,6 +17,7 @@ libs="rsr\
     relativePermeabilityModels\
     capillaryPressureModels\
     wellModels\
+    functionObjects\
     "
 root=$PWD
 
@@ -29,5 +30,11 @@ for lib in $libs; do
     check_errs $? "Library $lib didn't compile ... ugh"
 done
 
+# Compile Third-party libraries
+$root/ThirdParty/Allwmake
+
 # Compile all solvers
-#wmake all solvers
+echo "--------------------------------------------"
+echo "Compiling all solvers"
+echo "--------------------------------------------"
+wmake -all $root/applications/solvers
