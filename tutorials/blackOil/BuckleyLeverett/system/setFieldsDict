@@ -1,0 +1,41 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  7
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      setFieldsDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+defaultFieldValues
+(
+    volScalarFieldValue water.krMax 0.8
+    volScalarFieldValue oil.krMax 0.8
+    volScalarFieldValue water.m 1.5
+    volScalarFieldValue oil.m 2.5
+);
+
+regions
+(
+    boxToCell
+    {
+        box  (0 0 0) (1 6 1);
+
+        fieldValues
+        (
+            volScalarFieldValue water.krMax 0.75
+            volScalarFieldValue oil.krMax 0.75
+            volScalarFieldValue water.m 2.5
+            volScalarFieldValue oil.m 1.5
+        );
+    }
+);
+
+// ************************************************************************* //

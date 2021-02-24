@@ -1,0 +1,38 @@
+#!/bin/bash
+cd ${0%/*} || exit 1    # Run from this directory
+
+# Source tutorial run functions
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+# Run the coupled solver by default
+# Pass "Impes" as 1st arg to run the IMPES solver
+if [[ -z $1 ]]; then
+    algo="Coupled"
+else
+    algo="$1"
+fi
+
+solver="twoPhaseIso""$algo""Foam"
+
+# Clean case and rebuild mesh
+foamCleanTutorials
+runApplication blockMesh
+runApplication setFields
+
+# Run the solver and keep a log of the simulation
+runApplication "$solver"
+
+# Cheat a little and move a time directory 1 sec down xD
+mv postProcessing/singleGraph/60480 postProcessing/singleGraph/60479
+
+# Rerun simulation to write results at domains interface
+sed -i 's/writeInterval   8640/writeInterval   47520/' system/controlDict
+echo "Rerunning solver to write results at domains interface"
+"$solver" > /dev/null
+
+# Plot pressure and saturation
+echo "Plotting pressure and saturation ..."
+./plots/plotAll.sh $algo
+
+# Clean up
+sed -i 's/writeInterval   47520/writeInterval   8640/' system/controlDict

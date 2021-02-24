@@ -1,0 +1,83 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                |
+  \      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \    /   O peration     | Website:  https://openfoam.org
+    \  /    A nd           | Version:  7
+     \/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     impesFoam;
+
+startFrom       startTime;
+
+startTime       0.0;
+
+stopAt          endTime;
+
+endTime         259200; // 2 days
+
+deltaT          1e-5;
+
+writeControl    adjustableRunTime;
+
+writeInterval   8640; // 0.1 day
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  6;
+
+writeCompression uncompressed;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable yes;
+
+adjustTimeStep true;
+
+maxCo		0.75;
+
+maxDeltaT	8640;
+
+dpMax  0.1e5; // also 0.5e5 gets the solver a bit after breakthrough
+
+d(water.alpha)Max 0.05;
+
+functions
+{
+    #includeFunc  singleGraph
+    #includeFunc  probes
+
+    ProdFlowRate
+    {
+        type        actualWellFlowrate;
+        libs        ("librsrFunctionObjects.so");
+        write       yes;
+        log         yes;
+        //conditions  reservoir; // Default
+        //collated    false; //Default
+        wellModel   wModel;
+        wells
+        (
+            defaultGrp
+            {
+                phases ( water oil );
+                wellNames ( PROD0 );
+            }
+        );
+    }
+}
+
+// ************************************************************************* //
