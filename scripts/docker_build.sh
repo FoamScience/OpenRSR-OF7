@@ -31,9 +31,17 @@ source $bashrc_path
 set -ev
 
 # Get to the directory, compile libraries (Opt mode)
-cd $USER/OpenRSR-OF7; ./scripts/installPetsc.sh &&  ./Allwclean; ./Allwmake
+cd $USER/OpenRSR-OF7;
+./Allwclean
+## Disable fortran for PetSc compilation as it takes 2GB RAM
+sed -i 's/--with-fc=\$mpiFort/--with-fc=0/g' './scripts/installPetsc.sh'
+apt install build-essential libblas-dev liblapack-dev -y
+./scripts/installPetsc.sh
+echo "Running: $(cat ~/.bashrc | tail -n 1)"
+eval "$(cat ~/.bashrc | tail -n 1)"
+./Allwmake
 
 # Run tests
 echo "Testing Libraries:"
 echo "------------------------------------------\n"
-./Alltest
+bash -l ./Alltest

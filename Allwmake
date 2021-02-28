@@ -12,14 +12,18 @@ check_errs()
   fi
 }
 
+root=$PWD
 
+# Compile Third-party libraries
+$root/ThirdParty/Allwmake
+
+# Compile OpenRSR libraries
 libs="rsr\
     relativePermeabilityModels\
     capillaryPressureModels\
     wellModels\
     functionObjects\
     "
-root=$PWD
 
 # Compile libraries
 for lib in $libs; do
@@ -29,9 +33,6 @@ for lib in $libs; do
     wmake libso $root/src/$lib
     check_errs $? "Library $lib didn't compile ... ugh"
 done
-
-# Compile Third-party libraries
-$root/ThirdParty/Allwmake
 
 # Compile all solvers
 echo "--------------------------------------------"

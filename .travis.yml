@@ -23,4 +23,4 @@ jobs:
   include:
     - name: Library Tests
       script:
-        - docker run --rm -u root -v $PWD:/OpenRSR-OF7 foamscience/bionic-openfoam7 /bin/bash -c /OpenRSR-OF7/scripts/docker_build.sh
+        - docker run --rm -u root -v $PWD:/OpenRSR-OF7 foamscience/bionic-openfoam7 /bin/bash -i -c /OpenRSR-OF7/scripts/docker_build.sh

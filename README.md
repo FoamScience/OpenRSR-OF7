@@ -7,7 +7,7 @@
 > [rheoTool](https://github.com/fppimenta/rheoTool)
 > to implement the interface between OpenFOAM and PetSc
 
-# Open Reservoir Simulation Research tool
+## Open Reservoir Simulation Research tool
 
 This toolbox makes use of (nearly) latest OpenFOAM and PetSc code to build capable
 (but not yet efficient enough) solvers for BlackOil equations in isotherm porous media.
@@ -22,7 +22,7 @@ I hope this project could contribute to theirs at some point.
 >   specify well cells, or split a single well's cells to many processor. Otherwise, it's
 >   a bug which you should report.
 
-## Introduction
+### Introduction
 
 > There is no three-phase models (yet) but the infrastructure is correctly
 > templated and you could easily build some.
@@ -59,7 +59,7 @@ Take a look at `Make/options` for each library department to change
 compiled classes and library name, ..., etc. I assume you're familiar with this kind of
 situations.
 
-### Use in own solvers
+#### Use in own solvers
 
 One can dynamically link some libraries in `controlDict` of a simulation 
 case by adding the following entry:
@@ -118,32 +118,46 @@ EXE_LIBS = \
 Never tried it, and probably wouldn't try it in the near futur. But I would be
 happy to see someone have a go at it (OpenFOAM is not that hard to port).
 
-# Try the toolbox right NOW
+### Try the toolbox right NOW
 
 > To try the toolbox's solvers, you don't have to install anything on your
 > machine
 
 This section describes how to quickly run the Buckley-Levrett case in a Docker
-container:
+container. There are actually several options:
 
-1. If you have Docker installed, please use it; else, head over to
-   [The Playground](https://labs.play-with-docker.com/) and start a instance
-   there.
-2. `docker run -it -u root openfoam/openfoam7-paraview56` to create an OpenFOAM
-   container and get a root shell in there.
-3. Install needed software with:
+> If you have Docker installed, please use it; else, head over to
+> [The Playground](https://labs.play-with-docker.com/) and start an instance
+> there.
+
+#### Option 1 : Plug and Play
+
+There is a Docker image you can use to test the toolkit (may be outdated):
+
+```
+docker run -it foamscience/openrsr-play
+```
+
+#### Option 2 : Use latest OpenFOAM image with latest PetSc
+
+1. `docker run -it -u root openfoam/openfoam7-paraview56` to create an OpenFOAM
+   container and get a root shell in there (or any other openfoam image).
+2. Install needed software with:
    `apt update && apt install git wget curl vim nano tar -y`
-4. Switch to a regular user `su - openfoam`
-5. Clone development branch `git clone --depth 1 --branch=develop https://github.com/FoamScience/OpenRSR-OF7`
-6. Compile a recent Petsc with `cd OpenRSR-OF7; ./scripts/installPetsc.sh`
-   (The one from Ubuntu repos is not compatible)
+3. Switch to a regular user `su - openfoam` (OpenFOAM vars must be sourced)
+4. Clone development branch
+   `git clone --depth 1 --branch=develop https://github.com/FoamScience/OpenRSR-OF7`
+5. Compile a recent Petsc with `cd OpenRSR-OF7; ./scripts/installPetsc.sh`
 6. Compile the toolkit (will take 3-5mins) `./Allwmake`
-7. Run the case `cd tutorials/blackOil/BuckleyLeverett; ./AllRun`.
+
+#### Then run a tutorial:
+
+1. Run the case `cd tutorials/blackOil/BuckleyLeverett; ./AllRun`.
    ( Check the case's
    [README](https://github.com/FoamScience/OpenRSR-OF7/tree/develop/tutorials/blackOil/BuckleyLeverett)
-   )
-8. Compress the whole case directory `tar -zcvf BL.tar.gz .`
-9. Upload the compressed file to `file.io` for example
+   for more info)
+2. Compress the whole case directory `tar -zcvf BL.tar.gz .`
+3. Upload the compressed file to `file.io` for example (it will give you URL)
    `curl -F "file=@BL.tar.gz" https://file.io/?expires=1d`
-10. Now download the case to your machine and take a look at results folder
-    (Or load the case into ParaView and investigate it)
+4. Now download the case to your machine and take a look at results folder
+   (Or load the case into ParaView and investigate it)

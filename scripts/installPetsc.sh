@@ -66,4 +66,5 @@ mkdir -p etc
 echo "export PETSC_ARCH=$parch" > etc/bashrc
 echo "export PETSC_DIR=$pdir" >> etc/bashrc
 echo "export LD_LIBRARY_PATH=\$PETSC_DIR/\$PETSC_ARCH/lib:\$LD_LIBRARY_PATH" >> etc/bashrc
+echo "source $pdir/etc/bashrc" >> ~/.bashrc
 echo "\nOK."
