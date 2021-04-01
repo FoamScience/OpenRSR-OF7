@@ -143,11 +143,13 @@ docker run -it foamscience/openrsr-play
 1. `docker run -it -u root openfoam/openfoam7-paraview56` to create an OpenFOAM
    container and get a root shell in there (or any other openfoam image).
 2. Install needed software with:
-   `apt update && apt install git wget curl vim nano tar -y`
+   `apt update && apt install build-essential libblas-dev liblapack-dev git wget curl vim nano tar -y`
 3. Switch to a regular user `su - openfoam` (OpenFOAM vars must be sourced)
 4. Clone development branch
    `git clone --depth 1 --branch=develop https://github.com/FoamScience/OpenRSR-OF7`
-5. Compile a recent Petsc with `cd OpenRSR-OF7; ./scripts/installPetsc.sh`
+5. Disable fortran for PetSc compilation if needed (takes 2GB RAM)
+   `cd OpenRSR-OF7; sed -i 's/--with-fc=\$mpiFort/--with-fc=0/g' './scripts/installPetsc.sh'`
+5. Compile a recent Petsc with `./scripts/installPetsc.sh`
 6. Compile the toolkit (will take 3-5mins) `./Allwmake`
 
 #### Then run a tutorial:
